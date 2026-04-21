@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Create bitHuman GitHub Apps</title>
+<style>
+  body { font: 14px/1.5 -apple-system, system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; color: #1f2328; }
+  h1 { font-size: 1.25rem; }
+  button { padding: 0.6rem 1rem; font-size: 1rem; cursor: pointer; margin: 0.5rem 0.5rem 0 0; }
+  code { background: #f6f8fa; padding: 0.1rem 0.3rem; border-radius: 3px; }
+  .note { color: #57606a; font-size: 0.9rem; }
+</style>
+<h1>Create the two bitHuman GitHub Apps</h1>
+<p>Click each button once. GitHub will show you a confirmation page (app name, permissions, events) — click <b>Create GitHub App</b> there.</p>
+
+<form id="ci" method="post" action="https://github.com/organizations/bithuman-product/settings/apps/new?state=bithuman-ci">
+  <input type="hidden" name="manifest" value="">
+  <button type="submit">Create <code>bithuman-ci</code></button>
+</form>
+
+<form id="deps" method="post" action="https://github.com/organizations/bithuman-product/settings/apps/new?state=bithuman-deps">
+  <input type="hidden" name="manifest" value="">
+  <button type="submit">Create <code>bithuman-deps</code></button>
+</form>
+
+<p class="note">
+  The button POSTs the JSON at <code>.github/app-manifests/bithuman-ci.json</code> / <code>bithuman-deps.json</code> to GitHub. After creation:
+  generate a private key, note the App ID, install the app on <code>bithuman-product/bithuman-python-sdk</code> and <code>bithuman-product/bithuman-examples</code>, then add the secrets listed in <a href="../SETUP-BOTS.md">SETUP-BOTS.md</a>.
+</p>
+
+<script>
+  // Manifests are fetched at page load so the JSON-of-record stays in the
+  // repo, not inlined in this HTML. This file is meant to be opened locally
+  // (file://) after `git clone`, so the fetch is relative.
+  async function load(id, path) {
+    const res = await fetch(path);
+    document.querySelector(`#${id} input`).value = await res.text();
+  }
+  load("ci", "bithuman-ci.json");
+  load("deps", "bithuman-deps.json");
+</script>
+</html>

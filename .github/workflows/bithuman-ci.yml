@@ -1,0 +1,133 @@
+name: bithuman-ci
+
+# CI driven by the bithuman-ci GitHub App. The consolidated check run
+# and any future auto-managed labels / comments on this workflow are
+# authored by bithuman-ci[bot], never by a human account.
+#
+# Token flow: see .github/SETUP-BOTS.md.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: write
+
+concurrency:
+  group: bithuman-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  yaml:
+    name: Validate YAML + docker-compose
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install yamllint
+        run: pip install yamllint==1.*
+
+      - name: yamllint
+        # Relaxed profile — examples prioritise readability over
+        # strictness. Line-length rule suppressed.
+        run: |
+          yamllint -d '{extends: relaxed, rules: {line-length: disable}}' \
+            $(git ls-files '*.yml' '*.yaml')
+
+      - name: Validate docker-compose files
+        # `docker compose config` parses the file, resolves env
+        # references, and fails loudly on schema errors.
+        run: |
+          set -e
+          for f in $(git ls-files '*docker-compose*.yml' '*docker-compose*.yaml'); do
+            echo "::group::$f"
+            (cd "$(dirname "$f")" && docker compose -f "$(basename "$f")" config -q)
+            echo "::endgroup::"
+          done
+
+  python:
+    name: Lint Python examples
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install ruff==0.8.*
+
+      - name: ruff check (syntax + obvious bugs only)
+        # Example snippets can't realistically pass every lint rule
+        # a production package does. This config runs only the rules
+        # that catch actual bugs: E9 (syntax), F (pyflakes), B (bugbear).
+        run: ruff check --select=E9,F,B .
+
+  shell:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: shellcheck
+        run: |
+          mapfile -t files < <(git ls-files '*.sh')
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "no shell scripts to check"
+            exit 0
+          fi
+          shellcheck "${files[@]}"
+
+  summary:
+    name: bithuman-ci summary
+    needs: [yaml, python, shell]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mint bithuman-ci[bot] token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.BITHUMAN_CI_APP_ID }}
+          private-key: ${{ secrets.BITHUMAN_CI_PRIVATE_KEY }}
+
+      - name: Post consolidated check run
+        uses: actions/github-script@v7
+        env:
+          YAML_RESULT: ${{ needs.yaml.result }}
+          PY_RESULT: ${{ needs.python.result }}
+          SHELL_RESULT: ${{ needs.shell.result }}
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const { YAML_RESULT, PY_RESULT, SHELL_RESULT } = process.env;
+            const results = { yaml: YAML_RESULT, python: PY_RESULT, shell: SHELL_RESULT };
+            const failed = Object.values(results).some(r => r !== 'success' && r !== 'skipped');
+            const sha = context.payload.pull_request
+              ? context.payload.pull_request.head.sha
+              : context.sha;
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'bithuman-ci / summary',
+              head_sha: sha,
+              status: 'completed',
+              conclusion: failed ? 'failure' : 'success',
+              output: {
+                title: failed ? 'bithuman-ci failed' : 'bithuman-ci passed',
+                summary: [
+                  `**yaml:** ${results.yaml}`,
+                  `**python:** ${results.python}`,
+                  `**shell:** ${results.shell}`,
+                ].join('\n'),
+              },
+            });

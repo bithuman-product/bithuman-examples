@@ -1,0 +1,27 @@
+{
+  "name": "bithuman-ci",
+  "url": "https://github.com/bithuman-product",
+  "hook_attributes": {
+    "url": "https://example.invalid/unused",
+    "active": false
+  },
+  "redirect_url": "https://github.com/bithuman-product",
+  "public": false,
+  "description": "bitHuman continuous integration bot. Runs lint + tests, posts check runs, and pushes auto-format fixes on pull requests. Commits and checks it produces are authored by bithuman-ci[bot] so every automated change is clearly labelled.",
+  "default_events": [
+    "pull_request",
+    "push",
+    "check_run",
+    "check_suite",
+    "workflow_run"
+  ],
+  "default_permissions": {
+    "actions": "read",
+    "checks": "write",
+    "contents": "write",
+    "issues": "write",
+    "metadata": "read",
+    "pull_requests": "write",
+    "statuses": "write"
+  }
+}

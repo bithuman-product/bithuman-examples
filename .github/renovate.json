@@ -1,0 +1,33 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits"
+  ],
+  "timezone": "America/Los_Angeles",
+  "schedule": ["before 6am on weekdays"],
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 2,
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "bithuman-deps dashboard",
+  "packageRules": [
+    {
+      "description": "Group GitHub Actions bumps into one PR per week.",
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions",
+      "schedule": ["before 6am on monday"]
+    },
+    {
+      "description": "Group docker-compose image tag bumps so livekit / ollama / etc move together.",
+      "matchManagers": ["docker-compose"],
+      "groupName": "container-images"
+    },
+    {
+      "description": "Example requirements.txt files: bundle non-major updates.",
+      "matchManagers": ["pip_requirements"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "python-example-deps (minor/patch)"
+    }
+  ]
+}
