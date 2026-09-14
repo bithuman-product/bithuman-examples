@@ -14,7 +14,7 @@ No GPU needed. Audio stays on your machine -- only authentication calls the clou
 
 Option A -- **Download from the console**: Browse [www.bithuman.ai](https://www.bithuman.ai) > Explore
 
-Option B -- **Generate via API**: Use the [rest-api/](../../rest-api/python/) scripts to create a new agent and download its model:
+Option B -- **Generate via API**: Use the [rest-api/](../../api/rest-api/python/) scripts to create a new agent and download its model:
 ```bash
 cd ../../rest-api/python
 pip install -r requirements.txt
