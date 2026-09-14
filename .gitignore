@@ -1,0 +1,36 @@
+# Android / Gradle
+.gradle/
+build/
+local.properties
+
+# Flutter / Dart
+.dart_tool/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Node
+node_modules/
+.next/
+
+# Swift
+.build/
+Packages/
+Package.resolved
+
+# Java
+target/
+
+# Models and avatars — never commit these
+*.imx
+*.avatar
+
+# Credentials
+.env
+.env.*
+!.env.example
+!.env.gpu
