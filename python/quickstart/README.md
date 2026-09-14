@@ -63,11 +63,11 @@ Once your first demo works, pick the path that matches what you're building:
 
 | I want to build... | Go to |
 |---|---|
-| A web app with a talking avatar | [python/cloud-essence/](../python/cloud-essence/) |
-| A server-side avatar (my own hardware) | [python/local-essence/](../python/local-essence/) |
-| A Mac/iPad/iPhone app | [swift/](../swift/) |
-| Something without writing code | [cli/](../cli/) |
-| An integration in Java, Go, or another language | [rest-api/](../rest-api/) |
+| A web app with a talking avatar | [python/cloud-essence/](../cloud-essence/) |
+| A server-side avatar (my own hardware) | [python/local-essence/](../local-essence/) |
+| A Mac/iPad/iPhone app | [swift/](../../swift/) |
+| Something without writing code | [cli/](../../api/cli/) |
+| An integration in Java, Go, or another language | [rest-api/](../../api/rest-api/) |
 
 ## Files in this directory
 

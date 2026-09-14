@@ -9,7 +9,7 @@ The `bithuman` command is a single self-contained binary published
 on a Homebrew tap and as the `bithuman-cli` PyPI wheel. Source lives
 in the private `bithuman-apps` repo; runnable examples are in this
 directory. For the Python library (`from bithuman import AsyncBithuman`)
-see the [Python examples](../python/).
+see the [Python examples](../../python/).
 
 ```bash
 # macOS — Homebrew (recommended; pulls native deps).
