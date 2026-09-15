@@ -1,0 +1,89 @@
+# The Swift examples had no gate at all, so a public example could stop compiling and
+# nothing would say so — which is how a 25-vs-20 pacing defect sat in ios-expression2.
+#
+# Two jobs:
+#   typecheck-ios-expression2  the app is an xcodegen project, not a SwiftPM package, so
+#                              it is typechecked directly against the PUBLISHED
+#                              xcframeworks a developer downloads — pinned by tag AND
+#                              verified by sha256, so the subject cannot change under the
+#                              gate. It carries a NEGATIVE CONTROL: the same command on a
+#                              deliberately broken copy must FAIL. A gate that cannot fail
+#                              is not a gate, and this one caught a harness artifact on its
+#                              first run (a single file handed to swiftc compiles in script
+#                              mode, which rejects @main in every arm, passing or not).
+#   build-packages             every swift/*/Package.swift, built on macOS.
+name: swift examples compile
+
+on:
+  pull_request:
+    paths: ['swift/**', '.github/workflows/swift-examples.yml']
+  push:
+    branches: [main]
+    paths: ['swift/**', '.github/workflows/swift-examples.yml']
+  workflow_dispatch:
+
+jobs:
+  typecheck-ios-expression2:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch the published xcframeworks (pinned by tag + sha256)
+        run: |
+          set -euo pipefail
+          BASE=https://github.com/bithuman-product/homebrew-bithuman/releases/download/v2.6.1
+          mkdir -p xcf && cd xcf
+          fetch() {                       # $1 = zip name, $2 = expected sha256
+            curl -fsSL -o "$1" "$BASE/$1"
+            GOT=$(shasum -a 256 "$1" | cut -d' ' -f1)
+            [ "$GOT" = "$2" ] || { echo "::error::$1 sha256 $GOT != pinned $2"; exit 1; }
+            unzip -q "$1"
+            echo "$1 OK ($GOT)"
+          }
+          fetch Expression2.xcframework.zip           d4ce14b6b9c463aa7310ca8200f59ded20931cc33f40b6c530eef13b5a40d326
+          fetch BithumanEngineProtocol.xcframework.zip 97c81d74e3d583b5dc94d85e11d27c32586af325ab04389bbb1809a5608d8013
+
+      - name: Typecheck the example against those bytes
+        run: |
+          set -euo pipefail
+          F=""
+          for x in xcf/*.xcframework; do F="$F -F $PWD/$x/ios-arm64"; done
+          # UnifiedModelHeader ships inside the Expression2 release only if published
+          # separately; the example imports neither directly, so absence is not fatal.
+          echo "frameworks: $F"
+          xcrun -sdk iphoneos swiftc -typecheck -target arm64-apple-ios17.0 \
+            -swift-version 6 -parse-as-library $F \
+            swift/ios-expression2/Sources/App.swift
+          echo "PASS: the example typechecks against the published binary"
+
+      - name: Negative control — the same command must FAIL on a broken copy
+        run: |
+          set -euo pipefail
+          F=""
+          for x in xcf/*.xcframework; do F="$F -F $PWD/$x/ios-arm64"; done
+          mkdir -p /tmp/ctl
+          cp swift/ios-expression2/Sources/App.swift /tmp/ctl/App.swift
+          printf '\nlet deliberatelyBroken: Int = "this is not an Int"\n' >> /tmp/ctl/App.swift
+          if xcrun -sdk iphoneos swiftc -typecheck -target arm64-apple-ios17.0 \
+               -swift-version 6 -parse-as-library $F /tmp/ctl/App.swift 2>/dev/null; then
+            echo "::error::the negative control PASSED — this gate is not actually compiling anything"
+            exit 1
+          fi
+          echo "PASS: the gate rejects broken code, so a pass means something"
+
+  build-packages:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: swift build every example that is a SwiftPM package
+        run: |
+          set -uo pipefail
+          FAILED=""
+          for p in swift/*/Package.swift; do
+            d=$(dirname "$p")
+            echo "::group::$d"
+            if (cd "$d" && swift build 2>&1 | tail -30); then echo "OK $d"; else echo "FAIL $d"; FAILED="$FAILED $d"; fi
+            echo "::endgroup::"
+          done
+          if [ -n "$FAILED" ]; then echo "::error::packages failed to build:$FAILED"; exit 1; fi
+          echo "all SwiftPM examples built"
