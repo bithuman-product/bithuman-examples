@@ -31,9 +31,9 @@ Credentials belong in environment variables or an untracked `.env` file. They ar
 This repository supersedes the following repositories. They remain archived and read-only; nothing new lands in them.
 
 - [bithuman-archive/bithuman-examples](https://github.com/bithuman-archive/bithuman-examples)
-- [bithuman-archive/bithuman-apps](https://github.com/bithuman-archive/bithuman-apps)
+- bithuman-archive/bithuman-apps _(private)_
 - [bithuman-archive/public-livekit-ui-example](https://github.com/bithuman-archive/public-livekit-ui-example)
-- [bithuman-labs/local-deployment-examples](https://github.com/bithuman-labs/local-deployment-examples)
+- bithuman-labs/local-deployment-examples _(private)_
 - [bithuman-ai/sdk-examples-python](https://github.com/bithuman-ai/sdk-examples-python)
 - [bithuman-product/bithuman-sdk-public](https://github.com/bithuman-product/bithuman-sdk-public)
 
