@@ -104,10 +104,17 @@ jobs:
           # starts building must be REMOVED from it (enforced below), so it can only
           # shrink.
           #
-          #   bench-essence, compare-tts    depend on a path OUTSIDE this repo —
+          #   compare-tts                   depends on a path OUTSIDE this repo —
           #                                 ../../../../bithuman-sdk-internal/engine/voice.
           #                                 A public example that cannot resolve its own
-          #                                 dependency: no customer has ever built these.
+          #                                 dependency: no customer has ever built it.
+          #   bench-essence                 'Bithuman.createRuntime' gone from the SDK.
+          #                                 (CORRECTED: this was first recorded as sharing
+          #                                 compare-tts's out-of-repo dependency. It does
+          #                                 not — it resolves the public tap, and both
+          #                                 packages' `path:` lines are in-repo target
+          #                                 directories. A wrong reason is worse than none
+          #                                 because it stops the next reader looking.)
           #   compare-quality               requires product 'Expression' from package
           #                                 'bithuman' — the product no longer exists.
           #   essence-playback              'EssenceRuntime' / 'Bithuman.createRuntime'
