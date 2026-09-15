@@ -1,0 +1,139 @@
+# The Swift examples had no gate at all, so a public example could stop compiling and
+# nothing would say so — which is how a 25-vs-20 pacing defect sat in ios-expression2.
+#
+# Two jobs:
+#   typecheck-ios-expression2  the app is an xcodegen project, not a SwiftPM package, so
+#                              it is typechecked directly against the PUBLISHED
+#                              xcframeworks a developer downloads — pinned by tag AND
+#                              verified by sha256, so the subject cannot change under the
+#                              gate. It carries a NEGATIVE CONTROL: the same command on a
+#                              deliberately broken copy must FAIL. A gate that cannot fail
+#                              is not a gate, and this one caught a harness artifact on its
+#                              first run (a single file handed to swiftc compiles in script
+#                              mode, which rejects @main in every arm, passing or not).
+#   build-packages             every swift/*/Package.swift, built on macOS.
+name: swift examples compile
+
+on:
+  pull_request:
+    paths: ['swift/**', '.github/workflows/swift-examples.yml']
+  push:
+    branches: [main]
+    paths: ['swift/**', '.github/workflows/swift-examples.yml']
+  workflow_dispatch:
+
+jobs:
+  typecheck-ios-expression2:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch the published xcframeworks (pinned by tag + sha256)
+        run: |
+          set -euo pipefail
+          BASE=https://github.com/bithuman-product/homebrew-bithuman/releases/download/v2.6.1
+          mkdir -p xcf && cd xcf
+          fetch() {                       # $1 = zip name, $2 = expected sha256
+            curl -fsSL -o "$1" "$BASE/$1"
+            GOT=$(shasum -a 256 "$1" | cut -d' ' -f1)
+            [ "$GOT" = "$2" ] || { echo "::error::$1 sha256 $GOT != pinned $2"; exit 1; }
+            unzip -q "$1"
+            echo "$1 OK ($GOT)"
+          }
+          fetch Expression2.xcframework.zip            d4ce14b6b9c463aa7310ca8200f59ded20931cc33f40b6c530eef13b5a40d326
+          fetch BithumanEngineProtocol.xcframework.zip  97c81d74e3d583b5dc94d85e11d27c32586af325ab04389bbb1809a5608d8013
+          # REQUIRED, not optional: Expression2's own .swiftinterface starts with
+          # `import UnifiedModelHeader`, so omitting it fails with "no such module"
+          # before a line of the example is even read. (Found by this job's first run.)
+          fetch UnifiedModelHeader.xcframework.zip      60a3a1dce241d182e14b3d18607dddc01f129248899097490240b4262f5cae22
+
+      - name: Select a toolchain new enough to read the published module
+        run: |
+          set -euo pipefail
+          # The published Expression2 module was built with Swift 6.3.1. A compiler
+          # older than that REFUSES it outright ("this SDK is not supported by the
+          # compiler"), so pick the newest Xcode the image has and say what we got —
+          # that version IS the floor a developer needs, and it belongs in the log.
+          ls -d /Applications/Xcode*.app 2>/dev/null || true
+          NEWEST=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$NEWEST" ]; then sudo xcode-select -s "$NEWEST/Contents/Developer"; fi
+          echo "selected: $(xcode-select -p)"
+          swift --version
+
+      - name: Typecheck the example against those bytes
+        run: |
+          set -euo pipefail
+          F=""
+          for x in xcf/*.xcframework; do F="$F -F $PWD/$x/ios-arm64"; done
+          echo "frameworks: $F"
+          xcrun -sdk iphoneos swiftc -typecheck -target arm64-apple-ios17.0 \
+            -swift-version 6 -parse-as-library $F \
+            swift/ios-expression2/Sources/App.swift
+          echo "PASS: the example typechecks against the published binary"
+
+      - name: Negative control — the same command must FAIL on a broken copy
+        run: |
+          set -euo pipefail
+          F=""
+          for x in xcf/*.xcframework; do F="$F -F $PWD/$x/ios-arm64"; done
+          mkdir -p /tmp/ctl
+          cp swift/ios-expression2/Sources/App.swift /tmp/ctl/App.swift
+          printf '\nlet deliberatelyBroken: Int = "this is not an Int"\n' >> /tmp/ctl/App.swift
+          if xcrun -sdk iphoneos swiftc -typecheck -target arm64-apple-ios17.0 \
+               -swift-version 6 -parse-as-library $F /tmp/ctl/App.swift 2>/dev/null; then
+            echo "::error::the negative control PASSED — this gate is not actually compiling anything"
+            exit 1
+          fi
+          echo "PASS: the gate rejects broken code, so a pass means something"
+
+  build-packages:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: swift build every example that is a SwiftPM package
+        run: |
+          set -uo pipefail
+          NEWEST=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$NEWEST" ]; then sudo xcode-select -s "$NEWEST/Contents/Developer"; fi
+          swift --version
+
+          # Seven examples do not compile today, and NONE of it is a toolchain problem —
+          # this job's first run triaged every failure. They are listed here so the four
+          # that DO build are gated against regression instead of the whole job being red
+          # and therefore ignored. The list is not a place to hide things: a package that
+          # starts building must be REMOVED from it (enforced below), so it can only
+          # shrink.
+          #
+          #   bench-essence, compare-tts    depend on a path OUTSIDE this repo —
+          #                                 ../../../../bithuman-sdk-internal/engine/voice.
+          #                                 A public example that cannot resolve its own
+          #                                 dependency: no customer has ever built these.
+          #   compare-quality               requires product 'Expression' from package
+          #                                 'bithuman' — the product no longer exists.
+          #   essence-playback              'EssenceRuntime' / 'Bithuman.createRuntime'
+          #                                 gone from the SDK.
+          #   essence-server                'EssenceFixture' gone from the SDK.
+          #   macos-avatar                  AvatarRendererView no longer conforms to
+          #                                 AvatarFrameSink.
+          #   ios-avatar                    manifest bug: the executable declares macOS
+          #                                 10.13 while bitHumanKit requires 13.0.
+          KNOWN_BROKEN="bench-essence compare-tts compare-quality essence-playback essence-server macos-avatar ios-avatar"
+          FAILED=""; UNEXPECTED_OK=""
+          for p in swift/*/Package.swift; do
+            d=$(dirname "$p"); n=$(basename "$d")
+            echo "::group::$d"
+            if (cd "$d" && swift build 2>&1 | tail -30); then
+              echo "OK $d"
+              case " $KNOWN_BROKEN " in *" $n "*) UNEXPECTED_OK="$UNEXPECTED_OK $n";; esac
+            else
+              echo "FAIL $d"
+              case " $KNOWN_BROKEN " in *" $n "*) echo "  (known broken — not gating)";; *) FAILED="$FAILED $d";; esac
+            fi
+            echo "::endgroup::"
+          done
+          if [ -n "$UNEXPECTED_OK" ]; then
+            echo "::error::these build but are still listed KNOWN_BROKEN — remove them from the list:$UNEXPECTED_OK"
+            exit 1
+          fi
+          if [ -n "$FAILED" ]; then echo "::error::packages failed to build:$FAILED"; exit 1; fi
+          echo "every example outside KNOWN_BROKEN builds, and nothing in KNOWN_BROKEN has quietly started working"
