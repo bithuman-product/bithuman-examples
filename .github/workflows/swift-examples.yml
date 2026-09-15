@@ -40,16 +40,31 @@ jobs:
             unzip -q "$1"
             echo "$1 OK ($GOT)"
           }
-          fetch Expression2.xcframework.zip           d4ce14b6b9c463aa7310ca8200f59ded20931cc33f40b6c530eef13b5a40d326
-          fetch BithumanEngineProtocol.xcframework.zip 97c81d74e3d583b5dc94d85e11d27c32586af325ab04389bbb1809a5608d8013
+          fetch Expression2.xcframework.zip            d4ce14b6b9c463aa7310ca8200f59ded20931cc33f40b6c530eef13b5a40d326
+          fetch BithumanEngineProtocol.xcframework.zip  97c81d74e3d583b5dc94d85e11d27c32586af325ab04389bbb1809a5608d8013
+          # REQUIRED, not optional: Expression2's own .swiftinterface starts with
+          # `import UnifiedModelHeader`, so omitting it fails with "no such module"
+          # before a line of the example is even read. (Found by this job's first run.)
+          fetch UnifiedModelHeader.xcframework.zip      60a3a1dce241d182e14b3d18607dddc01f129248899097490240b4262f5cae22
+
+      - name: Select a toolchain new enough to read the published module
+        run: |
+          set -euo pipefail
+          # The published Expression2 module was built with Swift 6.3.1. A compiler
+          # older than that REFUSES it outright ("this SDK is not supported by the
+          # compiler"), so pick the newest Xcode the image has and say what we got —
+          # that version IS the floor a developer needs, and it belongs in the log.
+          ls -d /Applications/Xcode*.app 2>/dev/null || true
+          NEWEST=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$NEWEST" ]; then sudo xcode-select -s "$NEWEST/Contents/Developer"; fi
+          echo "selected: $(xcode-select -p)"
+          swift --version
 
       - name: Typecheck the example against those bytes
         run: |
           set -euo pipefail
           F=""
           for x in xcf/*.xcframework; do F="$F -F $PWD/$x/ios-arm64"; done
-          # UnifiedModelHeader ships inside the Expression2 release only if published
-          # separately; the example imports neither directly, so absence is not fatal.
           echo "frameworks: $F"
           xcrun -sdk iphoneos swiftc -typecheck -target arm64-apple-ios17.0 \
             -swift-version 6 -parse-as-library $F \
@@ -78,6 +93,9 @@ jobs:
       - name: swift build every example that is a SwiftPM package
         run: |
           set -uo pipefail
+          NEWEST=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$NEWEST" ]; then sudo xcode-select -s "$NEWEST/Contents/Developer"; fi
+          swift --version
           FAILED=""
           for p in swift/*/Package.swift; do
             d=$(dirname "$p")
