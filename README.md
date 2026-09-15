@@ -6,29 +6,31 @@ Runnable bitHuman demos for every surface we support — mobile, web, Python, th
 
 | Surface | Directory | Notes |
 |---|---|---|
-| macOS · iOS · Android | `app/` | **Not here yet — and not installable outside bitHuman today.** See [Why `app/` is empty](#why-app-is-empty). For a working on-device app now, use `swift/` (macOS, iOS) or `android/`. |
+| macOS · iOS · Android | `app/avatar_chat/` | The one Flutter app. **Builds from a clone once two artifacts are published** — see [What `app/` stops at](#what-app-stops-at). For a working on-device app today, use `swift/` (macOS, iOS) or `android/`. |
 | Web | `web/` | Not here yet. |
 | Python | `python/` | SDK quickstart, self-hosted Essence (CPU), and cloud-hosted Essence via LiveKit. |
 | REST API & CLI | `api/` | `api/rest-api/` curl and Python scripts per endpoint; `api/cli/` shell scripts for the `bithuman` CLI. |
 | Swift (native, on-device) | `swift/` | macOS, iOS and iPadOS apps, plus playback, server and benchmark samples. |
 | Integrations (Next.js, Gradio, Java) | `integrations/` | Next.js + LiveKit frontend, Gradio browser UI, Java WebSocket client, offline macOS stack. |
 
-`android/` holds Gradle and Maven Central setup notes for the native Android SDKs until the Flutter app in `app/` lands.
+`android/` holds Gradle and Maven Central setup notes for the native Android SDKs.
 
-### Why `app/` is empty
+### What `app/` stops at
 
-The one-Flutter-app demo is built and running on macOS, iOS and Android internally, but it
-cannot be built from a clone of this repository, so shipping it here would hand you a
-directory that fails at the first command. Two things are missing, both outside your
-control:
+`app/avatar_chat/` is the one Flutter app (macOS · iOS · Android, one `lib/main.dart`, the
+shared UI kit). `flutter pub get` resolves from a clone — the plugin is pinned by commit
+from the public tap. The build then stops at exactly one gate per platform, both outside
+this repository:
 
-- the umbrella Flutter plugin it depends on, `bithuman`, **is not published on pub.dev**;
-- that plugin stages its engines per clone from a **private** repository, and its
-  bootstrap stops rather than degrade when it cannot reach it.
+| platform | stops at | what unblocks it |
+|---|---|---|
+| Android | `Could not find ai.bithuman:expression2-android:0.4.6` | publishing 0.4.6 to Maven Central (0.4.1 is there today) |
+| iOS / macOS | `cannot find 'Expression2Engine' in scope` | the plugin consuming the published `Expression2.xcframework` instead of staging engine source from a private repository |
 
-Until one of those changes, the honest answer is that there is nothing here for you to
-run. The native examples are not a lesser substitute — they are fully open: `swift/` builds
-against the public Swift package and `android/` against the published Maven artifacts.
+Measured from a fresh clone with no private access and an empty local Maven cache. Nothing
+fails silently: each build names the artifact it cannot get. Until those land, the native
+examples are the ones to run — they are fully open: `swift/` builds against the public
+Swift package and `android/` against the published Maven artifacts.
 
 ## What you need
 
