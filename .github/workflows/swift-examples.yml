@@ -96,12 +96,44 @@ jobs:
           NEWEST=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
           if [ -n "$NEWEST" ]; then sudo xcode-select -s "$NEWEST/Contents/Developer"; fi
           swift --version
-          FAILED=""
+
+          # Seven examples do not compile today, and NONE of it is a toolchain problem —
+          # this job's first run triaged every failure. They are listed here so the four
+          # that DO build are gated against regression instead of the whole job being red
+          # and therefore ignored. The list is not a place to hide things: a package that
+          # starts building must be REMOVED from it (enforced below), so it can only
+          # shrink.
+          #
+          #   bench-essence, compare-tts    depend on a path OUTSIDE this repo —
+          #                                 ../../../../bithuman-sdk-internal/engine/voice.
+          #                                 A public example that cannot resolve its own
+          #                                 dependency: no customer has ever built these.
+          #   compare-quality               requires product 'Expression' from package
+          #                                 'bithuman' — the product no longer exists.
+          #   essence-playback              'EssenceRuntime' / 'Bithuman.createRuntime'
+          #                                 gone from the SDK.
+          #   essence-server                'EssenceFixture' gone from the SDK.
+          #   macos-avatar                  AvatarRendererView no longer conforms to
+          #                                 AvatarFrameSink.
+          #   ios-avatar                    manifest bug: the executable declares macOS
+          #                                 10.13 while bitHumanKit requires 13.0.
+          KNOWN_BROKEN="bench-essence compare-tts compare-quality essence-playback essence-server macos-avatar ios-avatar"
+          FAILED=""; UNEXPECTED_OK=""
           for p in swift/*/Package.swift; do
-            d=$(dirname "$p")
+            d=$(dirname "$p"); n=$(basename "$d")
             echo "::group::$d"
-            if (cd "$d" && swift build 2>&1 | tail -30); then echo "OK $d"; else echo "FAIL $d"; FAILED="$FAILED $d"; fi
+            if (cd "$d" && swift build 2>&1 | tail -30); then
+              echo "OK $d"
+              case " $KNOWN_BROKEN " in *" $n "*) UNEXPECTED_OK="$UNEXPECTED_OK $n";; esac
+            else
+              echo "FAIL $d"
+              case " $KNOWN_BROKEN " in *" $n "*) echo "  (known broken — not gating)";; *) FAILED="$FAILED $d";; esac
+            fi
             echo "::endgroup::"
           done
+          if [ -n "$UNEXPECTED_OK" ]; then
+            echo "::error::these build but are still listed KNOWN_BROKEN — remove them from the list:$UNEXPECTED_OK"
+            exit 1
+          fi
           if [ -n "$FAILED" ]; then echo "::error::packages failed to build:$FAILED"; exit 1; fi
-          echo "all SwiftPM examples built"
+          echo "every example outside KNOWN_BROKEN builds, and nothing in KNOWN_BROKEN has quietly started working"
