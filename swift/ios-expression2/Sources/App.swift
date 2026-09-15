@@ -278,19 +278,37 @@ final class AvatarSession: ObservableObject {
         Task {
             let t0 = Date()
             let chunk = 1600                       // 100 ms of 16 kHz mono
+            var frames: [CGImage] = []
+
+            // ★ DRAIN WHILE YOU FEED. The engine's ready-frame queue is BOUNDED, and
+            // on the currently published build it makes room by DISCARDING its oldest
+            // frames — silently, with no error and no counter moving. Feed a whole
+            // utterance before pulling anything and a reply longer than a few seconds
+            // arrives with the middle missing: measured on the published artifact, a
+            // 28.5 s drive entitled to 565 frames delivered 110.
+            //
+            // So take frames out as they appear instead of after the last sample goes
+            // in. This keeps the queue shallow, costs nothing, and is what the engine's
+            // own streaming path does. (Even once the engine stops discarding, feeding
+            // an entire utterance ahead of the consumer is the wrong shape: it buys
+            // nothing and it is the reason the loss was invisible here.)
             var i = 0
             while i < pcm.count {
                 let j = min(i + chunk, pcm.count)
                 await renderer.feed(Array(pcm[i..<j]))
                 i = j
+                // Generation is ASYNCHRONOUS — pull() returns nil until a chunk of
+                // frames lands, so this usually takes nothing on the first passes and
+                // then keeps up. It is not a busy-wait: it only removes what is ready.
+                while let f = await renderer.pullOne() {
+                    if let cg = makeCGImage(f, w, h) { frames.append(cg) }
+                }
             }
             await renderer.flushTail()
 
-            // ★ Generation is ASYNCHRONOUS. `pull()` returns nil until a chunk of
-            // frames lands, so a bare `while let` right after `feed()` collects
-            // NOTHING: the app builds, starts, throws nothing and shows an empty
-            // view. Poll until the engine has been quiet for a moment.
-            var frames: [CGImage] = []
+            // Now wait out the tail. `pull()` still returns nil between chunks, so poll
+            // until the engine has been quiet for a moment rather than stopping at the
+            // first nil.
             var quiet = 0
             while quiet < 30 {                     // 30 x 50 ms of silence = done
                 if let f = await renderer.pullOne() {
@@ -305,6 +323,16 @@ final class AvatarSession: ObservableObject {
             log(String(format: "generated %d frames at %dx%d in %.2f s (%.1f FPS, %.2fx real time)",
                        frames.count, w, h, gen,
                        Double(frames.count) / max(gen, 0.001), seconds / max(gen, 0.001)))
+            // Say how many frames this much audio was entitled to. The engine trims
+            // trailing silence so a few short is normal — but a reply that is missing a
+            // large share of its frames otherwise looks like a short reply rather than a
+            // lost one, and that is how a silent drop stays invisible.
+            let entitled = Int(seconds * Self.framesPerSecond)
+            if frames.count < entitled * 9 / 10 {
+                log(String(format: "⚠︎ only %d of the ~%d frames this %.1f s of audio should produce — "
+                                 + "the picture will be shorter than the sound",
+                           frames.count, entitled, seconds))
+            }
             guard !frames.isEmpty else {
                 status = "The engine returned no frames."; busy = false; return
             }
