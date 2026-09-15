@@ -98,9 +98,10 @@ class ChatPage extends StatefulWidget {
   State<ChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   BithumanAvatar? _avatar;
   BithumanRealtimeSession? _session;
+  String _secret = '';   // in memory for the lifetime of the screen; never written by this widget
   /// macOS: the window is the floating-circle companion (WindowChrome.enterBubble).
   bool _collapsed = false;
   final String _engine = const String.fromEnvironment('BH_ENGINE', defaultValue: 'expression2'); // or 'essence2'
@@ -130,6 +131,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _boot();
   }
 
@@ -226,23 +228,8 @@ class _ChatPageState extends State<ChatPage> {
         await WindowChrome.attach();
       }
 
-      // One HTTP call with your bitHuman secret; the device only ever holds the
-      // one-minute "ek_…" that comes back.
-      final ek = await _mint(secret);
-      final session = BithumanRealtimeSession(
-        apiKey: ek,
-        model: 'gpt-realtime-mini',
-        avatar: avatar,
-        systemPrompt: 'You are a friendly bitHuman avatar. Keep every reply to one or two short sentences.',
-        voice: 'alloy',
-        vadThreshold: 1500,
-      );
-      session.statusStream.listen((s) => setState(() => _status = _describe(s)));
-      session.botTranscriptStream.listen((d) => setState(() => _caption = 'agent: $d'));
-      session.userTranscriptStream.listen((t) => setState(() => _caption = 'you: $t'));
-      await session.start(enableMic: _useMic);
-      setState(() => _session = session);
-      await _mark('boot:session:open');
+      _secret = secret;   // memory only, for the session reopened after a background stint
+      await _openSession(avatar, secret);
       if (_script.isNotEmpty) {
         _recordFrameTimings();
         final prompts = _script.split('|').where((p) => p.trim().isNotEmpty).toList();
@@ -329,6 +316,50 @@ class _ChatPageState extends State<ChatPage> {
         RealtimeStatus.error => 'Connection error.',
       };
 
+  /// One HTTP call with your bitHuman secret; the device only ever holds the one-minute
+  /// "ek_…" that comes back. Called at boot and again after a background stint.
+  Future<void> _openSession(BithumanAvatar avatar, String secret) async {
+    final ek = await _mint(secret);
+    final session = BithumanRealtimeSession(
+      apiKey: ek,
+      model: 'gpt-realtime-mini',
+      avatar: avatar,
+      systemPrompt: 'You are a friendly bitHuman avatar. Keep every reply to one or two short sentences.',
+      voice: 'alloy',
+      vadThreshold: 1500,
+    );
+    session.statusStream.listen((s) { if (mounted) setState(() => _status = _describe(s)); });
+    session.botTranscriptStream.listen((d) { if (mounted) setState(() => _caption = 'agent: $d'); });
+    session.userTranscriptStream.listen((t) { if (mounted) setState(() => _caption = 'you: $t'); });
+    await session.start(enableMic: _useMic);
+    if (mounted) setState(() => _session = session);
+    await _mark('boot:session:open');
+  }
+
+  /// ★OFF SCREEN MEANS OFF. Measured on a shared Galaxy (2026-09-15): the player rendered
+  /// idle frames for 74 minutes in the background. When the app leaves the screen the
+  /// session is closed and the native presenter is held (no picture, no sound, no CPU);
+  /// when it returns, the presenter is released and a fresh session is minted. The engine
+  /// stays warm, so the return is seconds, not the first-run load.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final a = _avatar;
+    if (a == null) return;
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+      if (_session != null) {
+        _session?.stop(); _session = null;
+        a.setIdleHold(true);
+        _mark('lifecycle:off-screen session closed, presenter held');
+      }
+    } else if (state == AppLifecycleState.resumed) {
+      if (_session == null && _secret.isNotEmpty) {
+        a.setIdleHold(false);
+        _mark('lifecycle:on-screen presenter released, reopening the session');
+        _openSession(a, _secret).catchError((e) => _mark('lifecycle:reopen failed $e'));
+      }
+    }
+  }
+
   /// Measurement runs only: Flutter's own frame clock (build + raster per frame), the
   /// instrument that can see what the glass chrome costs. Every 10 s one line goes to
   /// the breadcrumb file: frames, fps, and raster/build percentiles in ms.
@@ -373,6 +404,7 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _session?.stop();
     _avatar?.dispose();
     super.dispose();
