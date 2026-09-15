@@ -8,7 +8,7 @@ resolving — it is frozen. Land changes here.
 
 ## What is bitHuman?
 
-Real-time avatar animation. Audio in, lip-synced video out at 25 FPS. Two models: Essence (CPU, `.imx`) and Expression (GPU/M3+, any face image).
+Real-time avatar animation. Audio in, lip-synced video out — essence-2 at 25 FPS, expression-2 at 20 FPS (one frame per 50 ms of audio). Two models: Essence (CPU, `.imx`) and Expression (GPU/M3+, any face image).
 
 ## Layout
 
@@ -31,7 +31,7 @@ swift/                                Swift SDK for Apple platforms — all infe
   macos-voice/                        macOS voice agent (audio only, no API key)
   macos-avatar/                       macOS voice + lip-synced Expression avatar
   ios-avatar/                         iOS/iPadOS Expression avatar with hardware gate
-  ios-expression2/                    expression-2 on iPhone, 416x720 @ 25 FPS, no server
+  ios-expression2/                    expression-2 on iPhone, 416x720 @ 20 FPS, no server
   essence-playback/                   Essence .imx on Apple Silicon
   hello-voice-chat/                   Smallest SPM executable that embeds the SDK
   essence-server/                     Native Swift LiveKit avatar service (HTTP /launch)
