@@ -1,0 +1,7 @@
+#include "../../Flutter/Flutter-Debug.xcconfig"
+#include "Warnings.xcconfig"
+
+// bitHuman plugin: two OPTIONAL engine-auth hooks are weak-imported by DeviceAuthShim
+// and absent unless an auth-bearing engine is vendored. Xcode 26 ld no longer infers
+// weak_import for statically-absent symbols, so name them allowed-undefined here.
+OTHER_LDFLAGS = $(inherited) -Wl,-U,_be_auth_set_request_signer -Wl,-U,_be_internal_sealed_store_register
