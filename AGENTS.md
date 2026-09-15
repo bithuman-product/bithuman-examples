@@ -13,8 +13,10 @@ Real-time avatar animation. Audio in, lip-synced video out at 25 FPS. Two models
 ## Layout
 
 ```
-app/                                  macOS + iOS + Android, one Flutter app, both engines. IN PROGRESS.
-web/                                  Browser surface. IN PROGRESS.
+app/                                  EMPTY. The one Flutter app exists and runs internally but
+                                      CANNOT be built from a clone: the `bithuman` plugin is not
+                                      on pub.dev and stages its engines from a private repo.
+web/                                  EMPTY. Not started here yet.
 
 python/                               Python SDK examples (pip install bithuman)
   quickstart/                         First avatar in ~5 minutes (local-avatar.py, cloud-avatar.py)
@@ -85,5 +87,6 @@ If you are an AI agent wiring bitHuman into a user's codebase:
 - Don't clone Swift SDK source or reference apps — both private.
 - Don't hardcode API keys. Use env vars.
 - Don't pin Swift SDK below 0.8.1.
-- Don't point users at `app/` or `web/` yet — in progress, nothing to run.
+- Don't point users at `app/` or `web/` yet — empty, and `app/` cannot be built from a clone at all (see README, "Why `app/` is empty"). Point them at `swift/` or `android/`, which are fully open.
+- Don't put a secret in `--dart-define` or a Gradle `BuildConfig` field in anything a user is told to ship: both land in build argv and in the built binary. Local development only; sign-in for anything distributed.
 - Don't add a relative link without checking it resolves from the file's own directory. These examples were moved out of `homebrew-bithuman/Examples/`, so paths that read plausibly may no longer exist.
