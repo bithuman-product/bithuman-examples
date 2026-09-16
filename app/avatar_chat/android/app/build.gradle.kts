@@ -46,9 +46,11 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = bhAppId
-        // The manifest reads the label from this resource, so the two apps are told
+        // The manifest reads the label from this placeholder, so the two apps are told
         // apart on the home screen without a second manifest or a second source tree.
-        resValue("string", "app_label", bhLabel)
+        // A placeholder rather than a resValue: generated resource values are an opt-in
+        // build feature in this AGP, and the manifest already uses ${applicationName}.
+        manifestPlaceholders["appLabel"] = bhLabel
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 29   // the plugin declares 29 since flutter-plugin-v2.6.0 (essence2-android declares 29; expression2-android 26)
