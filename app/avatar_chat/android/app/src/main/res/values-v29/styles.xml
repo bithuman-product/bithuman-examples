@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Edge to edge on Android 10+ (API 29). main.dart asks Flutter for
+         SystemUiMode.edgeToEdge, which lays the window under both system bars;
+         but Android 10+ ALSO forces an opaque contrast scrim behind a 3-button
+         navigation bar unless the theme says not to. On the Galaxy that scrim is
+         135 px of black at the bottom of every frame — the band the chrome sat in.
+         These attributes exist only from API 28/29, hence the -v29 qualifier;
+         the base NormalTheme in values/ and values-night/ is unchanged so
+         minSdk 26 still builds. -->
+    <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+</resources>

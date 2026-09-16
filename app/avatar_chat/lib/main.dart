@@ -21,6 +21,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bithuman/bithuman_realtime.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// Where the secret comes from, in order:
@@ -86,11 +87,30 @@ const _useMic = bool.fromEnvironment('BH_MIC', defaultValue: true);
 /// turn ends and no microphone, so a measurement run cannot hear the room.
 const _script = String.fromEnvironment('BH_SCRIPT');
 
-void main() => runApp(const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: ChatPage(),
-      themeMode: ThemeMode.dark,
-    ));
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // ★The avatar is the interface, so the window must be the whole screen. iOS
+  // gives a Flutter app the full display for free; Android does NOT — the window
+  // stops above the navigation bar (135 px of opaque 3-button bar on the Galaxy,
+  // rows 2205-2340 of 2340) and below the status bar unless the app asks for
+  // edge-to-edge. Without this call the chrome sat in a black band under the
+  // avatar, which is what the owner saw. edgeToEdge draws the avatar under both
+  // bars and leaves them on screen; SafeArea keeps the chrome clear of them.
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+    systemNavigationBarIconBrightness: Brightness.light,
+    systemNavigationBarContrastEnforced: false,
+  ));
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: ChatPage(),
+    themeMode: ThemeMode.dark,
+  ));
+}
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -414,8 +434,17 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final a = _avatar;
     final phone = Platform.isIOS || Platform.isAndroid;
+    // The keyboard is an OVERLAY, never a resize. On iOS that is how the system
+    // keyboard already behaves; on Android the default (adjustResize + Scaffold's
+    // resizeToAvoidBottomInset) SHRINKS the window by the keyboard height, so the
+    // avatar canvas was pushed up and re-laid out every time the prompt took
+    // focus. Now the window keeps the whole screen, the canvas never moves, and
+    // only the chrome column lifts by the keyboard inset so the capsule floats
+    // just above the keys — the iMessage shape, identical on both phones.
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
     return Scaffold(
       backgroundColor: Colors.black,
+      resizeToAvoidBottomInset: false,
       // ★The avatar is the interface: it runs edge to edge under the Dynamic Island
       // and the home indicator. Only the CHROME respects the safe areas.
       body: a == null
@@ -458,7 +487,12 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                   ),
                 ),
               ]),
-              child: SafeArea(
+              child: AnimatedPadding(
+                // Lifts the chrome with the keyboard on the keyboard's own curve.
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                padding: EdgeInsets.only(bottom: keyboard),
+                child: SafeArea(
                 minimum: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 child: Column(children: [
                   Row(children: [
@@ -482,6 +516,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                     onSend: () { _send(); _showChrome(); },
                   ),
                 ]),
+              ),
               ),
             ),
     );
