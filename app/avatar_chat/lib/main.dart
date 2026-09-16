@@ -21,6 +21,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bithuman/bithuman_realtime.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// Where the secret comes from, in order:
@@ -86,11 +87,30 @@ const _useMic = bool.fromEnvironment('BH_MIC', defaultValue: true);
 /// turn ends and no microphone, so a measurement run cannot hear the room.
 const _script = String.fromEnvironment('BH_SCRIPT');
 
-void main() => runApp(const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: ChatPage(),
-      themeMode: ThemeMode.dark,
-    ));
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // ★The avatar is the interface, so the window must be the whole screen. iOS
+  // gives a Flutter app the full display for free; Android does NOT — the window
+  // stops above the navigation bar (135 px of opaque 3-button bar on the Galaxy,
+  // rows 2205-2340 of 2340) and below the status bar unless the app asks for
+  // edge-to-edge. Without this call the chrome sat in a black band under the
+  // avatar, which is what the owner saw. edgeToEdge draws the avatar under both
+  // bars and leaves them on screen; SafeArea keeps the chrome clear of them.
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+    systemNavigationBarIconBrightness: Brightness.light,
+    systemNavigationBarContrastEnforced: false,
+  ));
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: ChatPage(),
+    themeMode: ThemeMode.dark,
+  ));
+}
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
