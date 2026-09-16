@@ -30,13 +30,63 @@ flutter build macos --debug --dart-define=AGENT_DIR=/absolute/path/to/agent
 flutter build ios --release --dart-define=AGENT_DIR=agent
 ```
 
+## Two apps side by side, one per engine
+
+`BH_ENGINE` is a **compile-time** dart-define, so an expression-2 build and an essence-2
+build are different binaries. While they also shared one bundle identifier, installing
+either **replaced** the other — and on Apple they shared one microphone TCC row and one
+Keychain item too, so the survivor inherited consent earned by code that was no longer
+installed. Two identifiers fix all three, and two build settings are the whole mechanism:
+
+| setting | default | what it changes |
+|---|---|---|
+| `BH_APP_ID_SUFFIX` | *(empty)* | appended to `ai.bithuman.example.avatarChat` |
+| `BH_APP_NAME` | `avatar_chat` (macOS) / `Avatar Chat` (iOS) | `CFBundleName` / `CFBundleDisplayName` |
+
+Both default to exactly what this app has always produced, so an unqualified
+`flutter build` is unchanged. Override them through the Flutter tool's documented
+`FLUTTER_XCODE_<setting>` bridge, which passes them to `xcodebuild`:
+
+```bash
+# the expression-2 app — the default engine keeps the unqualified identifier
+flutter build macos --release --dart-define=BH_ENGINE=expression2 \
+  --dart-define=AGENT_DIR=/absolute/path/to/AGENT.imx
+
+# the essence-2 app, installable BESIDE it
+FLUTTER_XCODE_BH_APP_ID_SUFFIX=.essence2 \
+FLUTTER_XCODE_BH_APP_NAME="bitHuman Essence-2" \
+flutter build macos --release --dart-define=BH_ENGINE=essence2 \
+  --dart-define=AGENT_DIR=/absolute/path/to/OTHER.imx
+```
+
+On macOS the Finder shows the `.app` **file name**, not `CFBundleDisplayName`, so name
+the copy you install after the model as well. On iOS `CFBundleDisplayName` is the
+home-screen label and the two apps appear as separate icons.
+
+★ A distinct identifier means a distinct **microphone grant** and a distinct **Keychain
+item**. That is the point — each app carries its own consent — but it also means the
+second app asks for both. Provision it the same way you provisioned the first.
+
 ## The secret
 
 Never in a build flag you distribute (`--dart-define` ends up in the binary as a plain
 string). The app resolves it in this order and stops at the first that is present:
-a `BITHUMAN_API_SECRET` dart-define (local development only) → the process environment
-(macOS) → the OS secure store (Keychain / Keystore), which the app fills the first time you
-type the key into its credential screen. With no key it shows the refusal
+a `BITHUMAN_API_SECRET` dart-define (local development only) → the process environment →
+the OS secure store (Keychain / Keystore), which the app fills the first time you type the
+key into its credential screen.
+
+A key found in the **environment** is also written to the secure store, once, if the store
+is empty — the same one-time provisioning `.bootstrap_secret` does, without the secret ever
+touching a file. Launch the app once with the variable set and the next cold launch, with
+no variable, goes straight to the avatar:
+
+```bash
+# macOS                         # iOS
+BITHUMAN_API_SECRET=… open …    xcrun devicectl device process launch --device <udid> \
+                                  -e '{"BITHUMAN_API_SECRET":"…"}' <bundle-id>
+```
+
+An existing stored key is never overwritten, so a person who typed their own keeps it. With no key it shows the refusal
 `metering_no_credential` and the field; it never spins.
 
 For a test device, seed the store without a prompt: write the secret to

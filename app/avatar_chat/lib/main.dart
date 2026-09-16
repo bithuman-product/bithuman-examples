@@ -219,7 +219,32 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     await _consumeBootstrapSecret();
     if (_apiSecretDefine.isNotEmpty) return _apiSecretDefine;
     final env = Platform.environment['BITHUMAN_API_SECRET'] ?? '';
-    if (env.isNotEmpty) return env;
+    if (env.isNotEmpty) {
+      // ONE-TIME PROVISIONING FROM THE LAUNCH ENVIRONMENT, the sibling of
+      // `.bootstrap_secret` above and for the same job: a device the team controls is
+      // handed its key once, by the APP, into the store the OS keeps secrets in.
+      //
+      // ★Why this is not redundant with simply returning `env`. Before 2026-09-16 the
+      // environment was read and USED but never STORED, so a launch with the variable
+      // set worked and the NEXT cold launch — the one a person actually makes — met the
+      // key screen. A provisioning run that does not outlive its own process is not
+      // provisioning. The file path writes the secret to disk on the way in; this one
+      // never does, which is why it is the one to reach for.
+      //
+      // It only ever ADDS: an existing stored key is left exactly as it is, so a person
+      // who typed their own key does not have it overwritten by a stray variable.
+      try {
+        final held = await _keychain.read(key: _keychainKey);
+        if (held == null || held.isEmpty) {
+          await _keychain.write(key: _keychainKey, value: env);
+          final back = await _keychain.read(key: _keychainKey);
+          await _mark('env:provisioned keychain=${back == env ? "ok" : "fail=readback-mismatch"}');
+        }
+      } catch (e) {
+        await _mark('env:provisioned keychain=fail=$e');
+      }
+      return env;
+    }
     try {
       return (await _keychain.read(key: _keychainKey)) ?? '';
     } catch (_) {
