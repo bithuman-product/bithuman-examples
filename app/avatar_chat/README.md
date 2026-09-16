@@ -8,7 +8,7 @@ every platform (`package:bithuman/ui_kit.dart`).
 
 | platform | from a clone | what is missing |
 |---|---|---|
-| Android | `flutter build apk` — **once `ai.bithuman:expression2-android:0.4.6` is on Maven Central** | Central carries 0.4.1 today; the plugin's Android half needs 0.4.6 (a human press). Everything else resolves publicly. |
+| Android | `flutter build apk` | Nothing is pending. The plugin pins `ai.bithuman:expression2-android:0.4.7` and `ai.bithuman:essence2-android:0.5.8`; both are on Maven Central (HTTP 200 from `repo1.maven.org`, checked 2026-09-16), so a stranger's clone resolves this half publicly. The old note here said the build waited on a 0.4.6 press — 0.4.6 landed, and the pin has since moved past it. |
 | iOS / macOS | not yet | the plugin stages the expression-2 engine SOURCE from a private repository (`scripts/bootstrap.sh`); the switch to the published `Expression2.xcframework` is built but not landed. |
 
 That table is the whole truth of this directory. Nothing here fails silently: the build

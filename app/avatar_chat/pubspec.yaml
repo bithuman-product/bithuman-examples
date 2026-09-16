@@ -16,7 +16,17 @@ dependencies:
     git:
       url: https://github.com/bithuman-product/homebrew-bithuman.git
       path: packages/flutter-plugin
-      ref: flutter-plugin-v2.6.1
+      # v2.6.2 is the first tag that NAMES AN ENGINE. Through v2.6.1 the Apple
+      # half of this plugin was unpinned: `locate_engine_sdk` took a ref and both
+      # call sites omitted it, so the engine adapter Swift came from the private
+      # engine repo's main HEAD *at bootstrap time*, and the engine BINARY came
+      # from a default in that repo — essence2-v1.2.0, a pre-release titled
+      # "superseded by essence2-v1.5.0", five releases behind the essence2-v1.7.0
+      # the same repo's Package.swift served. Two developers building v2.6.1 a
+      # week apart got different engine code and neither could tell. v2.6.2
+      # carries the coordinates in the plugin, committed, beside the Android
+      # Maven ones, so this ref now pins the whole Apple edge.
+      ref: flutter-plugin-v2.6.2
   # The Keychain (iOS/macOS) and the Keystore (Android). A demo that asks for a secret
   # must put it where the OS keeps secrets, not in a file it wrote itself.
   flutter_secure_storage: ^9.2.2

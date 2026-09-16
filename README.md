@@ -24,7 +24,7 @@ this repository:
 
 | platform | stops at | what unblocks it |
 |---|---|---|
-| Android | `Could not find ai.bithuman:expression2-android:0.4.6` | publishing 0.4.6 to Maven Central (0.4.1 is there today) |
+| Android | ~~`Could not find ai.bithuman:expression2-android:0.4.6`~~ — **resolved 2026-09-16** | Nothing is pending. The plugin now pins 0.4.7 (and `essence2-android:0.5.8`); both answer 200 on `repo1.maven.org`. |
 | iOS / macOS | `cannot find 'Expression2Engine' in scope` | the plugin consuming the published `Expression2.xcframework` instead of staging engine source from a private repository |
 
 Measured from a fresh clone with no private access and an empty local Maven cache. Nothing
