@@ -158,12 +158,24 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     _boot();
   }
 
+  /// Where this app keeps ITS OWN files — the boot breadcrumb and the one-time
+  /// `.bootstrap_secret`. On a phone that is the app's Documents container, the one
+  /// directory `devicectl` / `adb` can push a file into. On macOS, Documents is the
+  /// PERSON's folder: iCloud-synced on most Macs and behind a consent the OS asks
+  /// for on first touch — and an app that must open it to boot hangs when nobody is
+  /// there to answer (measured 2026-09-16 on echelon: launched by launchd, the
+  /// open() of ~/Documents/boot_status.txt never returned, and the app showed
+  /// nothing). An app's own files belong in Application Support; the identity is
+  /// an absolute path on the desktop and never lived here.
+  Future<Directory> _appFilesDir() =>
+      Platform.isMacOS ? getApplicationSupportDirectory() : getApplicationDocumentsDirectory();
+
   /// Breadcrumbs that land in the FILESYSTEM, not the console. A phone run that
   /// prints nothing is indistinguishable from one that never started; a file the app
   /// appends to at each stage makes silence localise instead of generalise.
   Future<void> _mark(String stage) async {
     try {
-      final f = File('${(await getApplicationDocumentsDirectory()).path}/boot_status.txt');
+      final f = File('${(await _appFilesDir()).path}/boot_status.txt');
       await f.writeAsString('${DateTime.now().toIso8601String()} $stage\n',
                             mode: FileMode.append, flush: true);
     } catch (_) {/* a breadcrumb must never be the thing that fails the boot */}
@@ -178,7 +190,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   /// no such file, and the app asks them for one.
   Future<void> _consumeBootstrapSecret() async {
     try {
-      final f = File('${(await getApplicationDocumentsDirectory()).path}/.bootstrap_secret');
+      final f = File('${(await _appFilesDir()).path}/.bootstrap_secret');
       if (!await f.exists()) return;
       final v = (await f.readAsString()).trim();
       if (v.isEmpty) { await f.delete(); await _mark('bootstrap:consumed keychain=fail=empty-file'); return; }
@@ -237,11 +249,13 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         return;
       }
       // The engine reads its members from this directory; the download door and
-      // the store put them there. Both engines accept the same call.
+      // the store put them there. Both engines accept the same call. The secret
+      // goes with it on EVERY platform: Android fetches the identity by code with
+      // it, and essence-2 bills the session it serves on Apple too — an iPhone
+      // that was handed null here refused to create the engine (2026-09-16).
       await BithumanAvatar.setExpression2AgentDir(agentDir);
       await _mark('boot:load:begin');
-      final avatar = await BithumanAvatar.load(agentDir, engine: _engine,
-          apiSecret: byCode ? secret : null);
+      final avatar = await BithumanAvatar.load(agentDir, engine: _engine, apiSecret: secret);
       await _mark('boot:load:ok ${avatar.frameWidth}x${avatar.frameHeight}');
       setState(() { _avatar = avatar; _status = 'Avatar ready — connecting…'; });
       if (Platform.isMacOS) {
