@@ -29,7 +29,7 @@ export BITHUMAN_API_SECRET="paste_your_key_here"
 # Install the SDK
 pip install -r requirements.txt
 
-# Run it — auto-downloads a sample avatar model (112 MB, one-time) if you don't specify one
+# Run it — auto-downloads the free-gallery sample avatar (Sofia Ramirez, ~148 MB, one-time) if you don't specify one
 python local-avatar.py
 
 # Or use your own model:
@@ -38,7 +38,9 @@ python local-avatar.py --model your-avatar.imx --audio speech.wav
 
 A window will open showing the avatar lip-syncing to the audio. Press `q` to quit.
 
-> **First run is slow (up to 60 seconds).** The first time: the sample model downloads (112 MB), then the SDK may convert it from legacy format to v2. Both are one-time costs — subsequent runs start in under 2 seconds.
+> **First run is slow (up to 60 seconds).** The first time: the sample model downloads (~148 MB), then the SDK may convert it from legacy format to v2. Both are one-time costs — subsequent runs start in under 2 seconds.
+
+> **The sample needs no account.** It is `A52DHS2219` ("Sofia Ramirez", Essence 2), one of the identities in the free gallery — `bithuman list` shows them all, and any of them can be fetched with `bithuman pull <SLUG>` or straight from `GET /v1/agent/<CODE>/model/download`, which needs no credential for a gallery identity. Your own agent's model does need `BITHUMAN_API_SECRET`, and so does running the avatar below.
 
 > **Want to use your own avatar?** Download a `.imx` file from [bithuman.ai → Explore](https://www.bithuman.ai/#explore) (click the **...** menu on any agent → **Download**) and pass it with `--model your-file.imx`.
 
