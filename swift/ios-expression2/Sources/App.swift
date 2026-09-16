@@ -271,8 +271,13 @@ final class AvatarSession: ObservableObject {
         shown = 0
         status = "Generating…"
 
-        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-        try? AVAudioSession.sharedInstance().setActive(true)
+        // Speaker-only while nothing is listening. If the mic IS open, leave the
+        // .playAndRecord/.videoChat session alone: switching it to .playback here would
+        // drop voice processing mid-listen and hand the tap the loudspeaker.
+        if !listening {
+            try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try? AVAudioSession.sharedInstance().setActive(true)
+        }
         player = try? AVAudioPlayer(contentsOf: wav)
 
         Task {
@@ -373,7 +378,13 @@ final class AvatarSession: ObservableObject {
         if listening { stopMic(); return }
         guard ready, !busy else { return }
         let session = AVAudioSession.sharedInstance()
-        try? session.setCategory(.playAndRecord, mode: .default,
+        // ★.videoChat, NOT .default. The mode is what opts the session into Apple's Voice
+        // Processing I/O unit — the platform's own acoustic echo canceller. Under .default
+        // the avatar's speech goes out of the loudspeaker and straight back into the tap
+        // below, so the avatar drives its mouth from its own voice. .videoChat is the
+        // speaker-routed sibling of .voiceChat (which is earpiece-tuned and quiet).
+        // Same choice, same reason, as the Flutter plugin's RealtimeAudioIO.
+        try? session.setCategory(.playAndRecord, mode: .videoChat,
                                  options: [.defaultToSpeaker, .allowBluetooth])
         try? session.setActive(true)
         AVAudioApplication.requestRecordPermission { [weak self] granted in
@@ -388,6 +399,19 @@ final class AvatarSession: ObservableObject {
     private func startMic() {
         let ae = AVAudioEngine()
         let input = ae.inputNode
+        // Apple's echo canceller, on BOTH IO ends, BEFORE the format is read. Single-sided
+        // voice processing is not echo cancellation: the two ends come up at mismatched
+        // sample rates and engine.start() fails with -10875. Enabling it also changes the
+        // input bus format, which is why this runs before `outputFormat(forBus:)` below.
+        // Without it this tap receives the loudspeaker: the avatar hears itself talking and
+        // lip-syncs to its own voice.
+        do {
+            try input.setVoiceProcessingEnabled(true)
+            try ae.outputNode.setVoiceProcessingEnabled(true)
+        } catch {
+            // Say so rather than capturing an uncancelled microphone in silence.
+            log("voice processing unavailable (\(error)) — the microphone will hear the speaker")
+        }
         let inFormat = input.outputFormat(forBus: 0)
         guard let target = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 16_000,
                                          channels: 1, interleaved: false),
