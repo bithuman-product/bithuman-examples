@@ -434,8 +434,17 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final a = _avatar;
     final phone = Platform.isIOS || Platform.isAndroid;
+    // The keyboard is an OVERLAY, never a resize. On iOS that is how the system
+    // keyboard already behaves; on Android the default (adjustResize + Scaffold's
+    // resizeToAvoidBottomInset) SHRINKS the window by the keyboard height, so the
+    // avatar canvas was pushed up and re-laid out every time the prompt took
+    // focus. Now the window keeps the whole screen, the canvas never moves, and
+    // only the chrome column lifts by the keyboard inset so the capsule floats
+    // just above the keys — the iMessage shape, identical on both phones.
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
     return Scaffold(
       backgroundColor: Colors.black,
+      resizeToAvoidBottomInset: false,
       // ★The avatar is the interface: it runs edge to edge under the Dynamic Island
       // and the home indicator. Only the CHROME respects the safe areas.
       body: a == null
@@ -478,7 +487,12 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                   ),
                 ),
               ]),
-              child: SafeArea(
+              child: AnimatedPadding(
+                // Lifts the chrome with the keyboard on the keyboard's own curve.
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                padding: EdgeInsets.only(bottom: keyboard),
+                child: SafeArea(
                 minimum: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 child: Column(children: [
                   Row(children: [
@@ -502,6 +516,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                     onSend: () { _send(); _showChrome(); },
                   ),
                 ]),
+              ),
               ),
             ),
     );
