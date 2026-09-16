@@ -41,8 +41,11 @@ type the key into its credential screen. With no key it shows the refusal
 
 For a test device, seed the store without a prompt: write the secret to
 `Documents/.bootstrap_secret` (iOS: `xcrun devicectl device copy to …`; Android: `adb push`
-then `run-as <pkg> cp … app_flutter/.bootstrap_secret`). The app moves it into the secure
-store on first start and deletes the file.
+then `run-as <pkg> cp … app_flutter/.bootstrap_secret`; macOS: the app's own
+`~/Library/Application Support/ai.bithuman.example.avatarChat/.bootstrap_secret` — never the
+person's Documents folder, which is iCloud-synced on most Macs and behind a consent prompt the
+app must not need to boot). The app moves it into the secure store on first start and
+deletes the file.
 
 ## Measurement levers (dart-defines, off by default)
 
