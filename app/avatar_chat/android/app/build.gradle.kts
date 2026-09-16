@@ -4,6 +4,31 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// ONE source tree, TWO installable apps. The engine is a compile-time constant
+// (the `BH_ENGINE` dart-define), so a single package id means installing one model
+// REPLACES the other and the two can never be compared side by side on one handset.
+// `bhModel` gives each model its own application id and its own home-screen label,
+// so both live on the device at once and the person switches by tapping an icon.
+//
+// The default is `expression2` with the HISTORICAL id, so a bare `flutter build apk`
+// — the command the README documents — still builds exactly what it always built and
+// still upgrades an existing install in place. The second app is opt-in:
+//
+//     ORG_GRADLE_PROJECT_bhModel=essence2 flutter build apk --dart-define=BH_ENGINE=essence2
+//
+// A typo must not silently produce a third package id, so an unknown value fails the
+// build rather than falling back to a default.
+val bhModel = (project.findProperty("bhModel") as String? ?: "expression2").trim()
+val bhAppId = when (bhModel) {
+    "expression2" -> "ai.bithuman.example.avatar_chat"
+    "essence2"    -> "ai.bithuman.example.avatar_chat.essence2"
+    else -> throw org.gradle.api.GradleException(
+        "bhModel must be 'expression2' or 'essence2', but was '$bhModel'")
+}
+// The two models are indistinguishable on a home screen — same icon, and the faces
+// only differ once the app is open — so the label has to name the model.
+val bhLabel = if (bhModel == "essence2") "bitHuman Essence-2" else "bitHuman Expression-2"
+
 android {
     namespace = "ai.bithuman.example.avatar_chat"
     compileSdk = flutter.compileSdkVersion
@@ -20,7 +45,10 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "ai.bithuman.example.avatar_chat"
+        applicationId = bhAppId
+        // The manifest reads the label from this resource, so the two apps are told
+        // apart on the home screen without a second manifest or a second source tree.
+        resValue("string", "app_label", bhLabel)
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 29   // the plugin declares 29 since flutter-plugin-v2.6.0 (essence2-android declares 29; expression2-android 26)
