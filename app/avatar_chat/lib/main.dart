@@ -37,7 +37,31 @@ import 'package:path_provider/path_provider.dart';
 const _apiSecretDefine = String.fromEnvironment('BITHUMAN_API_SECRET');
 const _keychain = FlutterSecureStorage(
   iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
-  mOptions: MacOsOptions(accessibility: KeychainAccessibility.first_unlock),
+  // ★ macOS: THE FILE-BASED LOGIN KEYCHAIN, NOT THE DATA-PROTECTION ONE.
+  //
+  // flutter_secure_storage defaults macOS to the data-protection keychain, which
+  // only accepts a write from a process carrying an `application-identifier` /
+  // `keychain-access-groups` entitlement — i.e. one signed by a team, with a
+  // provisioning profile. A macOS app built from a clone is signed ad hoc: no team
+  // prefix, so `$(AppIdentifierPrefix)` resolves to nothing and no such entitlement
+  // can be produced. Measured on echelon 2026-09-16, from the app's own breadcrumb:
+  //
+  //   keychain=fail=PlatformException(Unexpected security result code,
+  //     Code: -34018, Message: A required entitlement isn't present.)
+  //
+  // -34018 is errSecMissingEntitlement. EVERY write failed — provisioning AND the
+  // key a person types into the credential screen, where `_submitKey` swallowed the
+  // exception. So the macOS app could never remember a key at all: it asked on every
+  // cold launch and the answer went nowhere. It read as "you have to type it again",
+  // never as "the store refused me", which is why it survived this long.
+  //
+  // The file-based login keychain is still the OS secure store, needs no entitlement,
+  // and is what an ad-hoc-signed app can actually use. A signed, profiled build may
+  // prefer the data-protection keychain; this demo must work from a clone first.
+  mOptions: MacOsOptions(
+    accessibility: KeychainAccessibility.first_unlock,
+    useDataProtectionKeyChain: false,
+  ),
 );
 const _keychainKey = 'bithuman_api_secret';
 
@@ -393,8 +417,18 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       return;
     }
     setState(() { _keyError = null; _needsKey = false; _refusal = null; });
-    try { await _keychain.write(key: _keychainKey, value: k); } catch (_) {}
-    await _mark('key:stored');
+    // ★Never swallow the store's answer. `catch (_) {}` here is how a keychain that
+    // refused EVERY write (errSecMissingEntitlement, above) looked exactly like a key
+    // that had been saved: the screen moved on, and the next cold launch asked again
+    // with nothing to explain why.
+    String stored;
+    try {
+      await _keychain.write(key: _keychainKey, value: k);
+      stored = (await _keychain.read(key: _keychainKey)) == k ? 'ok' : 'fail=readback-mismatch';
+    } catch (e) {
+      stored = 'fail=$e';
+    }
+    await _mark('key:stored=$stored');
     await _boot();
   }
 
