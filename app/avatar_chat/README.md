@@ -180,6 +180,32 @@ The default is unchanged in both id and behaviour, so the bare command above sti
 what it always built and still upgrades an existing install in place. An unrecognised
 `bhModel` fails the build rather than quietly producing a third package id.
 
+## ★ If you write a harness for this app, read this first
+
+Every harness on this estate launches the macOS app with `BITHUMAN_API_SECRET` already in
+its environment. That is convenient and it is also a blindfold: the environment is resolved
+**before** the Keychain, so a harness never touches the store, and a store that refuses
+every write looks exactly like a store that is working. On 2026-09-16 that hid a defect in
+which **no** macOS Keychain write had ever succeeded — `errSecMissingEntitlement` — for as
+long as the app had existed. Nobody met it, because nobody's harness ever asked the store a
+question.
+
+So: **a path that has never been exercised is not a path that works**, and the convenience
+that makes a harness easy is often the thing standing between you and the defect. Prove the
+credential the way a person meets it — launch **cold**, with nothing in the environment and
+nothing staged — and read the app's own breadcrumb rather than inferring from the absence
+of a prompt.
+
+On macOS the app now uses the **file-based login keychain**, which has a consequence worth
+knowing: `security add-generic-password` and the app address the **same store**. Staging a
+secret from the host and having the app find it is possible again. (It was not: while macOS
+used the data-protection keychain, a CLI-staged item landed in a different store, `security
+find-generic-password` showed it back to you, and the app still met the key screen — a
+false green that cost a lane an afternoon.) It is a trade, not a free win: the
+data-protection keychain is the stronger store, and a team-signed build should prefer it.
+An ad-hoc-signed app cannot use it at all, and a store that works beats a stronger store
+that silently refuses.
+
 ## Measurement levers (dart-defines, off by default)
 
 `BH_MIC=false` opens a speaker-only session; `BH_SCRIPT='prompt|prompt|@collapse|@restore'`
