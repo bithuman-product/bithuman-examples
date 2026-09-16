@@ -61,8 +61,28 @@ const _keychain = FlutterSecureStorage(
   mOptions: MacOsOptions(
     accessibility: KeychainAccessibility.first_unlock,
     useDataProtectionKeyChain: false,
+    // ★ AND THEREFORE A SERVICE NAME PER APP. The file-based keychain is NOT
+    // namespaced by application: an item is identified by (service, account) and
+    // nothing else, so every build of this app — expression-2 and essence-2 alike —
+    // addressed the SAME item. The data-protection keychain isolates apps by access
+    // group for free, which is why this never came up while macOS was on it.
+    //
+    // Measured on echelon 2026-09-16: expression-2 created the shared item at
+    // 22:24:51Z; essence-2 launched two minutes later, hit the item's ACL — which
+    // names only the expression-2 binary — and macOS raised SecurityAgent. The app
+    // stopped at `boot:start` and produced no further breadcrumb, because it was
+    // waiting on a dialog. Over ssh nobody could click it; on a desk the OWNER would
+    // have been asked to authorise one avatar app to read another one's key, which is
+    // not a question this demo has any business asking.
+    //
+    // The engine slug is a compile-time constant, so each installed app gets its own
+    // item and neither can meet the other's ACL. iOS is deliberately NOT given this:
+    // there the data-protection keychain already scopes by app, and changing the
+    // service would orphan the item on every phone already provisioned.
+    accountName: _macKeychainService,
   ),
 );
+const _macKeychainService = 'ai.bithuman.avatarChat.$_engineSlug.credentials';
 const _keychainKey = 'bithuman_api_secret';
 
 /// TEST PROVISIONING ONLY — absent from the build unless one explicitly asks for it.
@@ -132,6 +152,10 @@ const _script = String.fromEnvironment('BH_SCRIPT');
 /// prompt a barge-in — the measurement arm for cut-in behaviour.
 const _scriptGapS = int.fromEnvironment('BH_SCRIPT_GAP_S', defaultValue: 25);
 
+/// Which engine this build runs. A COMPILE-TIME constant: it selects the engine AND,
+/// on macOS, the Keychain item this app owns, so two installed apps never share one.
+const _engineSlug = String.fromEnvironment('BH_ENGINE', defaultValue: 'expression2');
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   // ★The avatar is the interface, so the window must be the whole screen. iOS
@@ -169,7 +193,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   String _secret = '';   // in memory for the lifetime of the screen; never written by this widget
   /// macOS: the window is the floating-circle companion (WindowChrome.enterBubble).
   bool _collapsed = false;
-  final String _engine = const String.fromEnvironment('BH_ENGINE', defaultValue: 'expression2'); // or 'essence2'
+  final String _engine = _engineSlug; // 'expression2' or 'essence2'
   String _status = 'Loading the avatar…';
   String _caption = '';
   /// ★Never a raw exception. When boot cannot continue this holds the REFUSAL that
