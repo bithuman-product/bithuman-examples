@@ -50,11 +50,27 @@ def float32_to_int16(arr: np.ndarray) -> np.ndarray:
     return (np.clip(arr, -1.0, 1.0) * 32767.0).astype(np.int16)
 # --- end inline helpers ---
 
-# Public sample model (112 MB, "Coach Mason" avatar from bithuman.ai).
-# This URL points to a curated agent in the public Supabase bucket.
-# Changing it requires a coordinated repo + Supabase update.
-SAMPLE_MODEL_URL = "https://tmoobjxlwcwvxvjeppzq.supabase.co/storage/v1/object/public/bithuman/A71DAR6308/coach_mason_resilience_guide_20251122_143604_311004.imx"
-SAMPLE_MODEL_NAME = "sample-avatar.imx"
+# The sample identity: "Sofia Ramirez" (A52DHS2219), an Essence 2 agent in the
+# free gallery -- `bithuman list` shows the whole gallery, and every entry there
+# downloads with no account.
+#
+# ★FETCHED THROUGH THE DOWNLOAD DOOR, NOT FROM A BUCKET PATH. This used to name
+# an object in the public Supabase bucket directly. A raw bucket URL is a second
+# distribution channel for the same weights with none of the first one's rules:
+# it never expires, is not rate-limited, records nothing about who fetched it,
+# and cannot be closed without breaking whoever copied the link. It also pinned
+# this file to one object's name, which is why the old comment here said
+# changing the sample "requires a coordinated repo + Supabase update".
+#
+# The door answers 302 to a 1-hour signed URL, needs no credential for a
+# gallery identity, and re-asks the permission check on every fetch -- so the
+# sample can change without touching this file, and a future ruling that closes
+# an identity actually closes it. `urlretrieve` follows the redirect.
+SAMPLE_MODEL_CODE = "A52DHS2219"
+SAMPLE_MODEL_URL = (
+    f"https://api.bithuman.ai/v1/agent/{SAMPLE_MODEL_CODE}/model/download?model=essence-2"
+)
+SAMPLE_MODEL_NAME = f"{SAMPLE_MODEL_CODE}.imx"
 
 
 def download_sample_model() -> str:
@@ -67,8 +83,8 @@ def download_sample_model() -> str:
         print(f"Using cached sample model: {model_path}")
         return str(model_path)
 
-    print(f"Downloading sample avatar model (112 MB, one-time)...")
-    print(f"  Source: bithuman.ai agent A71DAR6308 (Coach Mason)")
+    print(f"Downloading sample avatar model (~148 MB, one-time)...")
+    print(f"  Source: free-gallery agent {SAMPLE_MODEL_CODE} (Sofia Ramirez, Essence 2)")
     print(f"  Saving: {model_path}")
 
     import urllib.request
