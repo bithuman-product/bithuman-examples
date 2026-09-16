@@ -46,11 +46,19 @@ person's Documents folder, which is iCloud-synced on most Macs and behind a cons
 app must not need to boot). The app moves it into the secure store on first start and
 deletes the file.
 
-On Android, use the app's own external files directory:
+On Android, use the app's own external files directory — and note that the code which reads
+it is **not in a default build**. It is compiled in only when a build asks for it:
 
 ```bash
+flutter build apk --release --dart-define=BH_TEST_PROVISIONING=true   # a team handset only
 printf %s "$BITHUMAN_API_SECRET" | adb shell "cat > /sdcard/Android/data/<applicationId>/files/.bootstrap_secret"
 ```
+
+This repository is public, so a credential-reading path is a pattern people copy into
+production apps. Reading a secret out of external storage is a reasonable way to seed a
+handset the team controls; it is **not** something a shipped app should do. `BH_TEST_PROVISIONING`
+is a compile-time constant, so in a default build the branch folds away and the tree-shaker
+drops it: the APK contains no such path at all, rather than one that is merely never taken.
 
 `run-as` is **not** the route: it works only on a debuggable build, and the builds a test
 device should be carrying are release builds, so the private `app_flutter/` directory cannot
@@ -72,6 +80,9 @@ REPLACES the other. `bhModel` gives each its own application id and home-screen 
 |---|---|---|
 | `flutter build apk` (default) | `ai.bithuman.example.avatar_chat` | bitHuman Expression-2 |
 | `ORG_GRADLE_PROJECT_bhModel=essence2 flutter build apk --dart-define=BH_ENGINE=essence2` | `ai.bithuman.example.avatar_chat.essence2` | bitHuman Essence-2 |
+
+Seeding a credential onto a team handset is a separate opt-in (`BH_TEST_PROVISIONING`, above);
+neither app carries a credential, and a default build carries no code that reads one.
 
 The default is unchanged in both id and behaviour, so the bare command above still builds
 what it always built and still upgrades an existing install in place. An unrecognised

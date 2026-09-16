@@ -41,6 +41,24 @@ const _keychain = FlutterSecureStorage(
 );
 const _keychainKey = 'bithuman_api_secret';
 
+/// TEST PROVISIONING ONLY — absent from the build unless one explicitly asks for it.
+///
+/// This repository is PUBLIC, so a credential-reading path is a pattern people copy
+/// into production apps. Lifting a secret out of external storage is a reasonable way
+/// to seed a handset the team controls; it is NOT a reasonable thing for a shipped app
+/// to do, and once the code is compiled in that distinction is easy to lose.
+///
+/// So it is a COMPILE-TIME constant, not a runtime check: in a default build this folds
+/// to `false`, the branches it guards are dead, and the tree-shaker drops them — the APK
+/// a customer builds from a clone contains no such path at all, rather than one that is
+/// merely never taken. Only the two team builds pass it:
+///
+///     flutter build apk --dart-define=BH_TEST_PROVISIONING=true
+///
+/// The private-documents drop point below is NOT gated: it is reachable only by the app
+/// itself, and on a release build adb cannot write there at all.
+const _testProvisioning = bool.fromEnvironment('BH_TEST_PROVISIONING');
+
 /// A refusal, in the shape the estate's generated table uses: a CODE, the sentence
 /// the user reads, and the remedy. Verbatim from models/_core/errors/codes.json so
 /// this app does not become a second place these sentences are written.
@@ -224,10 +242,14 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   /// remaining way to skip the key screen would be to bake the secret into the build,
   /// which is exactly what this mechanism exists to avoid. The app's own EXTERNAL
   /// files directory is app-scoped under scoped storage (no other app can read it,
-  /// and it is deleted with the app), and a customer build still finds nothing in it.
+  /// and it is deleted with the app).
+  ///
+  /// TEST-PROVISIONING AFFORDANCE, compiled in only for a team handset — see
+  /// `_testProvisioning`. A production app must not read a credential out of external
+  /// storage, and a default build of this example does not contain the code that does.
   Future<List<Directory>> _bootstrapDirs() async {
     final dirs = <Directory>[await _appFilesDir()];
-    if (Platform.isAndroid) {
+    if (_testProvisioning && Platform.isAndroid) {
       try {
         final ext = await getExternalStorageDirectory();
         if (ext != null) dirs.add(ext);
@@ -243,7 +265,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   /// icon, and by then it is the owner who is looking at the key screen.
   Future<void> _noteBootstrap(String outcome) async {
     await _mark('bootstrap:consumed keychain=$outcome');
-    if (!Platform.isAndroid) return;
+    if (!_testProvisioning || !Platform.isAndroid) return;
     try {
       final ext = await getExternalStorageDirectory();
       if (ext == null) return;
