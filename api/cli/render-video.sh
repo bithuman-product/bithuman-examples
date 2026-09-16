@@ -31,8 +31,8 @@ set -euo pipefail
 
 export BITHUMAN_API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first}"
 
-# Install the CLI (the curl installer is the ONLY channel that works on Linux;
-# `pip install bithuman-cli` is a macOS-arm64-only wheel and exits 1 on Linux):
+# Install the CLI (the curl installer is the channel that works on Linux; the
+# CLI is not on PyPI — `pip install bithuman-cli` 404s):
 #   curl -fsSL https://raw.githubusercontent.com/bithuman-product/homebrew-bithuman/main/install.sh | sh
 #   brew install bithuman-product/bithuman/bithuman-cli      # macOS
 
