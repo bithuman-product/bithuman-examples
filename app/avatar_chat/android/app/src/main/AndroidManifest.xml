@@ -3,10 +3,10 @@
         android:label="@string/app_label"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- The activity name is fully qualified on purpose: a relative name resolves
+             against the APPLICATION ID, which the essence-2 build changes, and the
+             class it would then look for does not exist. -->
         <activity
-            <!-- Fully qualified on purpose: a relative name resolves against the
-                 APPLICATION ID, which the essence-2 build changes, and the class it
-                 would then look for does not exist. -->
             android:name="ai.bithuman.example.avatar_chat.MainActivity"
             android:screenOrientation="portrait"
             android:exported="true"
