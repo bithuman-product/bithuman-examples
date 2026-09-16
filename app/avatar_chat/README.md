@@ -81,12 +81,40 @@ touching a file. Launch the app once with the variable set and the next cold lau
 no variable, goes straight to the avatar:
 
 ```bash
-# macOS                         # iOS
-BITHUMAN_API_SECRET=… open …    xcrun devicectl device process launch --device <udid> \
-                                  -e '{"BITHUMAN_API_SECRET":"…"}' <bundle-id>
+# macOS — the variable is in the launching shell's environment, nowhere else
+BITHUMAN_API_SECRET=… open -n -a "…​.app"
 ```
 
-An existing stored key is never overwritten, so a person who typed their own keeps it. With no key it shows the refusal
+An existing stored key is never overwritten, so a person who typed their own keeps it.
+
+### ★ Do not seed a phone through `devicectl -e` — argv is not private
+
+`xcrun devicectl device process launch -e '{"BITHUMAN_API_SECRET":"…"}'` looks like the
+environment route, and it is not: the JSON is an **argument**, so the live secret sits in
+that process's `argv` and every process on the host can read it out of `ps` for as long as
+the app runs. This is not theoretical. On 2026-09-16 a lane used exactly this line, wrote
+down that it was an argv exposure — and then, minutes later, ran `ps | grep devicectl` to
+debug an unrelated hang and printed the owner's live API secret in cleartext into a
+transcript that cannot be scrubbed. The credential had to be rotated.
+
+The lesson is not "be careful with `ps`". It is that **a credential anywhere in a process
+tree contaminates that tree for every purpose**, including the diagnostic you reach for an
+hour later thinking about something else entirely. `devicectl` offers no stdin route for
+the child environment, so on a phone use `.bootstrap_secret` instead: the value lands in
+the app's own container, the app moves it into the Keychain and **deletes the file**. That
+trades "readable by every process on the host" for "briefly on the device's own disk",
+which is the better side of the trade.
+
+```bash
+# the phone: argv-free. The app consumes and deletes this on first start.
+printf %s "$SECRET" > "$TMP/.bootstrap_secret"        # $TMP on a tmpfs you control
+xcrun devicectl device copy to --device <udid> --domain-type appDataContainer \
+  --domain-identifier <bundle-id> --source "$TMP/.bootstrap_secret" \
+  --destination Documents/.bootstrap_secret
+shred -u "$TMP/.bootstrap_secret" 2>/dev/null || rm -f "$TMP/.bootstrap_secret"
+```
+
+Older scripts on this estate pass the secret with `-e`. That is the pattern **not** to copy. With no key it shows the refusal
 `metering_no_credential` and the field; it never spins.
 
 For a test device, seed the store without a prompt: write the secret to
