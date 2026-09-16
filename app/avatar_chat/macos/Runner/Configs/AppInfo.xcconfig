@@ -5,10 +5,33 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
+// NOT the label a person reads — see BH_APP_NAME below. This one names the executable
+// and, through PRODUCT_MODULE_NAME, the Swift module the nib resolves its classes in,
+// so it stays a plain identifier on every build.
 PRODUCT_NAME = avatar_chat
 
+// ================================================== ONE SOURCE, TWO INSTALLED APPS
+// The engine is a compile-time dart-define (BH_ENGINE), so an expression-2 build and
+// an essence-2 build are two different binaries — and while they shared one bundle
+// identifier, installing either REPLACED the other. On Apple they also shared one
+// microphone TCC row and one Keychain item, so the second install inherited consent
+// earned by code that was no longer there.
+//
+// These two settings are the whole mechanism. Both default to exactly what this app
+// has always produced, so `flutter build macos` with no overrides is unchanged; a
+// two-app build passes them through the Flutter tool's documented xcodebuild bridge:
+//
+//   FLUTTER_XCODE_BH_APP_ID_SUFFIX=.essence2 \
+//   FLUTTER_XCODE_BH_APP_NAME="bitHuman Essence-2" \
+//   flutter build macos --release --dart-define=BH_ENGINE=essence2 ...
+//
+// BH_APP_NAME is the label (CFBundleName / CFBundleDisplayName); on macOS the Finder
+// shows the .app FILE NAME, so name the copy you install after this too.
+BH_APP_ID_SUFFIX =
+BH_APP_NAME = avatar_chat
+
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = ai.bithuman.example.avatarChat
+PRODUCT_BUNDLE_IDENTIFIER = ai.bithuman.example.avatarChat$(BH_APP_ID_SUFFIX)
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2026 ai.bithuman.example. All rights reserved.
