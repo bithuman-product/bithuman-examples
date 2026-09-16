@@ -90,12 +90,53 @@ An existing stored key is never overwritten, so a person who typed their own kee
 `metering_no_credential` and the field; it never spins.
 
 For a test device, seed the store without a prompt: write the secret to
-`Documents/.bootstrap_secret` (iOS: `xcrun devicectl device copy to …`; Android: `adb push`
-then `run-as <pkg> cp … app_flutter/.bootstrap_secret`; macOS: the app's own
-`~/Library/Application Support/ai.bithuman.example.avatarChat/.bootstrap_secret` — never the
+`.bootstrap_secret` (iOS: `xcrun devicectl device copy to …` into `Documents/`; macOS: the
+app's own `~/Library/Application Support/ai.bithuman.example.avatarChat/` — never the
 person's Documents folder, which is iCloud-synced on most Macs and behind a consent prompt the
 app must not need to boot). The app moves it into the secure store on first start and
 deletes the file.
+
+On Android, use the app's own external files directory — and note that the code which reads
+it is **not in a default build**. It is compiled in only when a build asks for it:
+
+```bash
+flutter build apk --release --dart-define=BH_TEST_PROVISIONING=true   # a team handset only
+printf %s "$BITHUMAN_API_SECRET" | adb shell "cat > /sdcard/Android/data/<applicationId>/files/.bootstrap_secret"
+```
+
+This repository is public, so a credential-reading path is a pattern people copy into
+production apps. Reading a secret out of external storage is a reasonable way to seed a
+handset the team controls; it is **not** something a shipped app should do. `BH_TEST_PROVISIONING`
+is a compile-time constant, so in a default build the branch folds away and the tree-shaker
+drops it: the APK contains no such path at all, rather than one that is merely never taken.
+
+`run-as` is **not** the route: it works only on a debuggable build, and the builds a test
+device should be carrying are release builds, so the private `app_flutter/` directory cannot
+be written from adb at all. The external files directory is app-scoped under scoped storage —
+no other app can read it, and it is removed with the app. The app consumes the file on its
+next start, records `ok` or `fail=…` (never the secret) in `files/bootstrap_result.txt` so
+provisioning can be CONFIRMED rather than assumed, and deletes the file either way.
+
+The secret never belongs in a dart-define, a `BuildConfig` field, the manifest, a resource or
+a properties file for a build that leaves your machine: all of those put a live credential
+inside the APK.
+
+## Both models on one device
+
+The engine is a compile-time constant, so one package id means installing one model
+REPLACES the other. `bhModel` gives each its own application id and home-screen label:
+
+| build | application id | home-screen label |
+|---|---|---|
+| `flutter build apk` (default) | `ai.bithuman.example.avatar_chat` | bitHuman Expression-2 |
+| `ORG_GRADLE_PROJECT_bhModel=essence2 flutter build apk --dart-define=BH_ENGINE=essence2` | `ai.bithuman.example.avatar_chat.essence2` | bitHuman Essence-2 |
+
+Seeding a credential onto a team handset is a separate opt-in (`BH_TEST_PROVISIONING`, above);
+neither app carries a credential, and a default build carries no code that reads one.
+
+The default is unchanged in both id and behaviour, so the bare command above still builds
+what it always built and still upgrades an existing install in place. An unrecognised
+`bhModel` fails the build rather than quietly producing a third package id.
 
 ## Measurement levers (dart-defines, off by default)
 
