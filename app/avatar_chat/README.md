@@ -23,6 +23,11 @@ flutter pub get
 flutter build apk --debug --target-platform android-arm64 --dart-define=AGENT_CODE=A02HCY0444
 # macOS / iOS: the identity directory is pushed into the app's container (see the plugin's README).
 flutter build macos --debug --dart-define=AGENT_DIR=/absolute/path/to/agent
+# iOS: AGENT_DIR is RELATIVE to the app's Documents dir, and it is REQUIRED — an iOS build made
+# without it starts, reads an empty AGENT_DIR, and refuses with "AGENT_DIR is not set" before it
+# looks at the model that is already in the container. (2026-09-16: a UI-fix build shipped to the
+# lab iPhone without it and the owner saw exactly that refusal.) The lab container carries `agent/`:
+flutter build ios --release --dart-define=AGENT_DIR=agent
 ```
 
 ## The secret
