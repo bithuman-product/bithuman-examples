@@ -86,6 +86,9 @@ const _useMic = bool.fromEnvironment('BH_MIC', defaultValue: true);
 /// prompt in turn, 25 s apart, once the session is open — a conversation with real
 /// turn ends and no microphone, so a measurement run cannot hear the room.
 const _script = String.fromEnvironment('BH_SCRIPT');
+/// Seconds between scripted prompts (default 25). Shorter than a reply makes each
+/// prompt a barge-in — the measurement arm for cut-in behaviour.
+const _scriptGapS = int.fromEnvironment('BH_SCRIPT_GAP_S', defaultValue: 25);
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -254,7 +257,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         _recordFrameTimings();
         final prompts = _script.split('|').where((p) => p.trim().isNotEmpty).toList();
         var i = 0;
-        Timer.periodic(const Duration(seconds: 25), (t) {
+        Timer.periodic(const Duration(seconds: _scriptGapS), (t) {
           if (i >= prompts.length || _session == null) { t.cancel(); return; }
           final p = prompts[i++].trim();
           // '@collapse' / '@restore' drive the macOS companion from a script.
