@@ -23,7 +23,7 @@ android {
         applicationId = "ai.bithuman.example.avatar_chat"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 26   // expression2-android declares 26
+        minSdk = 29   // the plugin declares 29 since flutter-plugin-v2.6.0 (essence2-android declares 29; expression2-android 26)
         ndk { abiFilters += "arm64-v8a" }   // the only ABI the engine publishes
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
