@@ -24,6 +24,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'dev_levers.dart';
+
 /// Where the secret comes from, in order:
 ///   1. `--dart-define` — local development ONLY. A dart-define is compiled into the
 ///      binary and appears in the argv of every build step, so it is never a way to
@@ -85,10 +87,11 @@ const _useMic = bool.fromEnvironment('BH_MIC', defaultValue: true);
 /// Headless measurement: `--dart-define=BH_SCRIPT=<prompt>|<prompt>|…` types each
 /// prompt in turn, 25 s apart, once the session is open — a conversation with real
 /// turn ends and no microphone, so a measurement run cannot hear the room.
-const _script = String.fromEnvironment('BH_SCRIPT');
+/// DEBUG / PROFILE BUILDS ONLY (dev_levers.dart): a release build never scripts itself.
+const _script = DevLevers.script;
 /// Seconds between scripted prompts (default 25). Shorter than a reply makes each
 /// prompt a barge-in — the measurement arm for cut-in behaviour.
-const _scriptGapS = int.fromEnvironment('BH_SCRIPT_GAP_S', defaultValue: 25);
+const _scriptGapS = DevLevers.scriptGapS;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

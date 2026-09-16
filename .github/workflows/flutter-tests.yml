@@ -12,9 +12,9 @@ name: flutter tests
 on:
   push:
     branches: [main]
-    paths: ['app/avatar_chat/**', '.github/workflows/flutter-tests.yml']
+    paths: ['app/avatar_chat/**', 'scripts/**', '.github/workflows/flutter-tests.yml']
   pull_request:
-    paths: ['app/avatar_chat/**', '.github/workflows/flutter-tests.yml']
+    paths: ['app/avatar_chat/**', 'scripts/**', '.github/workflows/flutter-tests.yml']
   workflow_dispatch: {}
 
 permissions:
@@ -46,3 +46,52 @@ jobs:
         run: flutter pub get
       - name: flutter test
         run: flutter test --reporter expanded
+
+  # ── DEV LEVERS CANNOT STEER A RELEASE BUILD (2026-09-16) ─────────────────────────────
+  # A proof build that types scripted prompts on a timer (BH_SCRIPT) with the plugin's
+  # stress driver and injected mic phrase sat on the owner's phone as a RELEASE APK.
+  # Every dev lever of this app is now declared once in lib/dev_levers.dart as
+  # `!kReleaseMode && …`; the gate below refuses a read outside that door, and the arm
+  # builds the APK with every lever set to a sentinel and reads the shipped snapshot.
+  dev-levers:
+    name: app/avatar_chat — dev levers have one door (source gate + controls)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: every dev lever goes through lib/dev_levers.dart, gated on !kReleaseMode
+        run: ./scripts/check_dev_levers.sh
+      - name: negative controls — a stray read and an un-gated lever must each FAIL
+        run: |
+          set -u
+          red() { if ./scripts/check_dev_levers.sh >/dev/null 2>&1; then echo "::error::$1 — the check PASSED; it is not looking"; exit 1; fi; echo "control fires: $1"; }
+          F=app/avatar_chat/lib/main.dart; cp "$F" /tmp/c1; echo "const _stray = String.fromEnvironment('BH_SCRIPT');" >> "$F"; red "stray lever outside the door"; cp /tmp/c1 "$F"
+          F=app/avatar_chat/lib/dev_levers.dart; cp "$F" /tmp/c2
+          sed -i "s/enabled ? String.fromEnvironment('BH_SCRIPT') : ''/String.fromEnvironment('BH_SCRIPT')/" "$F"; red "un-gated lever"; cp /tmp/c2 "$F"
+          ./scripts/check_dev_levers.sh
+
+  release-ignores-dev-levers:
+    name: app/avatar_chat — a release APK built with every lever set carries none (profile build = control)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: app/avatar_chat
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: toolchain
+        run: flutter --version
+      - name: release APK with every dev lever set — the sentinel must be absent from libapp.so; the profile build must carry it
+        # Grades this app's levers always; the plugin's levers only when the resolved plugin
+        # ref carries lib/src/dev_levers.dart (it says so either way — MEASURED on
+        # flutter-plugin-v2.6.1: the release snapshot carried BH_MIC_FILE and
+        # BITHUMAN_REALTIME_WS_URL, ungated on that ref; homebrew-bithuman #54 is the door).
+        run: bash ../../scripts/prove_release_ignores_dev_levers.sh
