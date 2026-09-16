@@ -50,7 +50,7 @@ open IOSExpression2.xcodeproj
 |---|---|---|
 | `agent.avatar` | `GET /v1/agent/{code}/model/download?model=expression-2` | your identity |
 | `shared_engine/` | `bithuman engine install mac` | the artifact does **not** carry `w2v_frontend_cpuAndNE.mlpackage`; this directory does |
-| `speech16k.wav` | macOS `say` + `afconvert` | something for it to say |
+| `speech16k.wav` | `…/model/download?member=demo_speech_16k.wav` — the same door as `agent.avatar`, one file out of the identity's own bundle | something for it to say. 16 kHz, mono, 16-bit PCM |
 
 None of them is committed — the payload is yours, and `.gitignore` keeps it out.
 

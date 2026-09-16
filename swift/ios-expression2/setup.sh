@@ -39,12 +39,14 @@ bithuman engine install mac
 rm -rf Sources/Model/shared_engine
 cp -R "$HOME/.bithuman/engines/mac-1.0.0" Sources/Model/shared_engine
 
-# 3. something for it to say — macOS makes this for you
-echo "==> synthesising speech16k.wav"
-say -o /tmp/ios-expression2.aiff \
-  "Hello. I am a bit Human avatar, rendered on this phone, with no server in the loop."
-afconvert -f WAVE -d LEI16@16000 -c 1 /tmp/ios-expression2.aiff Sources/Model/speech16k.wav
-rm -f /tmp/ios-expression2.aiff
+# 3. something for it to say. The identity's own bundle already carries a
+#    16 kHz mono clip, so this needs no key and no TTS: `member=` asks the SAME
+#    door as step 1 for ONE file out of the bundle instead of the whole
+#    container, and takes the same credential (none, for a gallery identity).
+echo "==> downloading speech16k.wav"
+curl -fL --progress-bar "${AUTH[@]+"${AUTH[@]}"}" \
+  "https://api.bithuman.ai/v1/agent/$CODE/model/download?member=demo_speech_16k.wav&model=expression-2" \
+  -o Sources/Model/speech16k.wav
 
 echo "==> Sources/Model is ready:"
 du -sh Sources/Model/*
