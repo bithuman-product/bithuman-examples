@@ -101,8 +101,17 @@ it is **not in a default build**. It is compiled in only when a build asks for i
 
 ```bash
 flutter build apk --release --dart-define=BH_TEST_PROVISIONING=true   # a team handset only
+adb shell "mkdir -p /sdcard/Android/data/<applicationId>/files"
 printf %s "$BITHUMAN_API_SECRET" | adb shell "cat > /sdcard/Android/data/<applicationId>/files/.bootstrap_secret"
+adb shell "chmod 666 /sdcard/Android/data/<applicationId>/files/.bootstrap_secret"   # ← required
 ```
+
+**The `chmod` is not optional.** A file adb writes there is owned by `shell` (uid 2000), not
+by the app, and lands as `-rw-rw----` — so the app cannot open its own provisioning file and
+the boot reports
+`fail=PathAccessException … (OS Error: Permission denied, errno = 13)`. The seeding then looks
+done from the host: the file is sitting in the right directory with the right length, and only
+`bootstrap_result.txt` says it never got read. Verified on a Galaxy S25 (SM-S936U1).
 
 This repository is public, so a credential-reading path is a pattern people copy into
 production apps. Reading a secret out of external storage is a reasonable way to seed a
@@ -116,6 +125,11 @@ be written from adb at all. The external files directory is app-scoped under sco
 no other app can read it, and it is removed with the app. The app consumes the file on its
 next start, records `ok` or `fail=…` (never the secret) in `files/bootstrap_result.txt` so
 provisioning can be CONFIRMED rather than assumed, and deletes the file either way.
+
+Provisioning from the launch environment — the sibling route that stores `BITHUMAN_API_SECRET`
+into the secure store on first boot — **does not exist on Android**: an installed app has no
+launch environment, so the drop point above is the only route on a handset. Do not reach for
+the Apple recipe here and conclude it is broken.
 
 The secret never belongs in a dart-define, a `BuildConfig` field, the manifest, a resource or
 a properties file for a build that leaves your machine: all of those put a live credential
