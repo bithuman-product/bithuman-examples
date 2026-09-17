@@ -18,8 +18,8 @@
 #                                   libessence build".
 #   essence-2    · Linux x86_64   ✗ the Linux tarball ships no lible_core.so.
 #                                   Use the Python SDK instead:
-#                                     pip install 'bithuman[tessera]'
-#                                     python -c "from bithuman.tessera_offline \
+#                                     pip install 'bithuman[offline]'
+#                                     python -c "from bithuman.offline \
 #                                       import render_offline; \
 #                                       print(render_offline(imx, wav, out_mp4=out))"
 #                                   Gate on stats["borrow_state"] == "borrowed",
