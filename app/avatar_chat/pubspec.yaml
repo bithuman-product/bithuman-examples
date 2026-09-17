@@ -16,7 +16,7 @@ dependencies:
     git:
       url: https://github.com/bithuman-product/homebrew-bithuman.git
       path: packages/flutter-plugin
-      ref: flutter-plugin-v2.6.5
+      ref: flutter-plugin-v2.6.6
   # The Keychain (iOS/macOS) and the Keystore (Android). A demo that asks for a secret
   # must put it where the OS keeps secrets, not in a file it wrote itself.
   flutter_secure_storage: ^9.2.2
