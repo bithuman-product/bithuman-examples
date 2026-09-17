@@ -7,11 +7,20 @@
 # folds it away. Configuration defines (credential, identity, engine, mic mode) are the
 # ALLOWED list below and stay plain. Anything else calling fromEnvironment outside the
 # door is refused. The release arm in flutter-tests.yml is the behavioural half.
+#
+# BH_TEST_PROVISIONING (2026-09-17): this list shipped one name short, so this check has
+# never once been green — it went red on the very commit that added it and on every commit
+# since. BH_TEST_PROVISIONING is a credential-PATH define of the same class as
+# BITHUMAN_API_SECRET, not a lever: it does not make the app drive itself, it says where a
+# team handset's secret comes from, it already folds to false in a default build, and
+# app/avatar_chat/README.md documents it on a `flutter build apk --release` line. Putting it
+# behind `!kReleaseMode` would have silently broken that documented command, so it belongs
+# here instead.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 APP=app/avatar_chat/lib
 DOOR=$APP/dev_levers.dart
-ALLOWED='BITHUMAN_API_SECRET|AGENT_DIR|AGENT_CODE|BH_ENGINE|BH_MIC'
+ALLOWED='BITHUMAN_API_SECRET|BH_TEST_PROVISIONING|AGENT_DIR|AGENT_CODE|BH_ENGINE|BH_MIC'
 BAD=0
 err() { echo "::error::$*"; BAD=$((BAD+1)); }
 [ -f "$DOOR" ] || err "missing $DOOR — the door is gone"
