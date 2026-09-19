@@ -7,7 +7,7 @@ all run on-device.
 ## Run
 
 ```bash
-cd Examples/swift/hello-voice-chat
+cd swift/hello-voice-chat
 swift run -c release HelloVoiceChat
 ```
 

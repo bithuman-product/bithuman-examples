@@ -121,7 +121,7 @@ audio source. See `EssenceSession.swift` header for the rationale.
 
 ## Components, by file
 
-### `Examples/EssenceServer/Sources/EssenceServer/`
+### `swift/essence-server/Sources/EssenceServer/`
 
 | File | Role |
 |---|---|

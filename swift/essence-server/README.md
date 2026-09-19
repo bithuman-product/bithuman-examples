@@ -12,7 +12,7 @@ process model, and subsystem layout.
 ## Run
 
 ```bash
-cd Examples/swift/essence-server
+cd swift/essence-server
 swift run -c release EssenceServer
 ```
 

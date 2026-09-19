@@ -34,8 +34,8 @@ The full tutorial, with every file explained, is at
 ## Run it
 
 ```bash
-git clone https://github.com/bithuman-product/homebrew-bithuman.git
-cd homebrew-bithuman/Examples/swift/ios-expression2
+git clone https://github.com/bithuman-product/bithuman-examples.git
+cd bithuman-examples/swift/ios-expression2
 
 # 1. fetch the three payload files into Sources/Model/
 BITHUMAN_API_SECRET=… ./setup.sh <YOUR_AGENT_CODE>

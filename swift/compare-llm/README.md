@@ -12,7 +12,7 @@ load/generate path, so what you measure here is what ships.
 ## Run
 
 ```bash
-cd Examples/swift/compare-llm
+cd swift/compare-llm
 swift run -c release CompareLLM            # both models, all prompts
 swift run -c release CompareLLM --model ios    # iOS choice (Gemma 3 1B QAT)
 swift run -c release CompareLLM --model macos  # macOS choice (Gemma 3n E2B)

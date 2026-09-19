@@ -2,9 +2,10 @@
 
 A collection of runnable examples that wire the [bithuman](https://pypi.org/project/bithuman/) Python SDK, the [bitHumanKit](https://docs.bithuman.ai/sdk/swift) Swift SDK, the native Android SDKs, the CLI tools, and the REST API into end-to-end stacks.
 
-This repository is the canonical home for these examples. A copy still lives in
-`bithuman-product/homebrew-bithuman` under `Examples/` so older documentation links keep
-resolving — it is frozen. Land changes here.
+This repository is the canonical home for these examples. The duplicate that used to live
+in `bithuman-product/homebrew-bithuman` under `Examples/` has been retired — that path now
+holds only a pointer file, so any instruction of the form `clone homebrew-bithuman && cd
+Examples/…` is dead. Clone this repository instead.
 
 ## What is bitHuman?
 

@@ -36,8 +36,8 @@ A modern, responsive web interface for connecting to bitHuman's AI agents via Li
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/bithuman-product/homebrew-bithuman.git
-   cd homebrew-bithuman/Examples/integrations/nextjs-ui
+   git clone https://github.com/bithuman-product/bithuman-examples.git
+   cd bithuman-examples/integrations/nextjs-ui
    ```
 
 2. **Install dependencies**
@@ -178,7 +178,7 @@ docker-compose stack. For `npm run dev`/`npm start`, they default to
 ### Docker
 
 A `webui.dockerfile` that clones this folder is provided by the
-`Examples/python/local-essence/` and `Examples/integrations/offline-mac/`
+`python/local-essence/` and `integrations/offline-mac/`
 docker-compose stacks (built via `frontend.build.dockerfile`). There
 is no standalone Dockerfile in this directory.
 
