@@ -48,6 +48,28 @@ def load_audio(path: str, target_sr: int = 16000) -> tuple[np.ndarray, int]:
 def float32_to_int16(arr: np.ndarray) -> np.ndarray:
     """Clip + scale float32 [-1, 1] to int16 PCM."""
     return (np.clip(arr, -1.0, 1.0) * 32767.0).astype(np.int16)
+
+def display_available() -> bool:
+    """True only when a window server is actually reachable from this process.
+
+    ★Two different failures hide behind `cv2.imshow`, and only ONE of them is
+    catchable, so the window server is checked from the environment BEFORE cv2
+    is asked to open anything:
+
+      * `opencv-python-headless` — which `bithuman` itself depends on — has no
+        GUI compiled in at all. `imshow` raises `cv2.error: The function is not
+        implemented. Rebuild the library with ... GTK+ 2.x or Cocoa support`.
+      * full `opencv-python` on a box with no DISPLAY does not raise: the Qt
+        plugin calls abort(), and the process dies on SIGABRT with no traceback
+        and no chance to fall back.
+
+    So "just pip install opencv-python" is not the fix — it trades a catchable
+    error for an uncatchable one on exactly the machines (SSH, Docker, CI) where
+    this example is most often run.
+    """
+    if sys.platform in ("darwin", "win32"):
+        return True
+    return bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
 # --- end inline helpers ---
 
 # The sample identity: "Sofia Ramirez" (A52DHS2219), an Essence 2 agent in the
@@ -116,6 +138,11 @@ async def main():
     p = argparse.ArgumentParser(description="bitHuman local avatar quickstart")
     p.add_argument("--model", help="Path to .imx model file (auto-downloads sample if omitted)")
     p.add_argument("--audio", default="speech.wav", help="Path to WAV/MP3 audio file (default: speech.wav)")
+    p.add_argument(
+        "--out",
+        default="avatar.mp4",
+        help="Where to write the MP4 when there is no display (default: avatar.mp4)",
+    )
     args = p.parse_args()
 
     # Validate API secret
@@ -158,15 +185,66 @@ async def main():
         await runtime.push_audio(pcm[i : i + chunk].tobytes(), sr, last_chunk=False)
     await runtime.flush()
 
-    # Display frames in a window
-    print("Displaying avatar (press 'q' to quit)...")
+    # Show the frames in a window when there is one, write an MP4 when there is not.
+    # A render that reached a file is the same proof as a render that reached a
+    # window — and on a headless box only one of the two is available.
+    windowed = display_available()
+    if windowed:
+        # The second gate: a window SERVER exists, but this OpenCV build may still
+        # have no GUI compiled in. `namedWindow` raises exactly where `imshow`
+        # would, before any frame is in hand — so the fallback is chosen once,
+        # not discovered mid-stream.
+        try:
+            cv2.namedWindow("bitHuman Avatar", cv2.WINDOW_AUTOSIZE)
+        except cv2.error:
+            print("This OpenCV build has no GUI (opencv-python-headless).")
+            windowed = False
+
+    writer = None
+    n = 0
+
+    if windowed:
+        print("Displaying avatar (press 'q' to quit)...")
+    else:
+        print(f"No window available — writing {args.out} instead.")
+
+    # ★A FILE NEEDS AN END AND A WINDOW DOES NOT. `runtime.run()` does not stop
+    # when the pushed audio runs out — it goes on yielding the idle loop, which
+    # is exactly right behind a window you close with 'q'. Writing that to disk
+    # instead just grows a file until something kills it. `audio_chunk` is None
+    # once the runtime is back in its idle loop, so the first idle frame AFTER
+    # we have seen speech is the end of what we pushed.
+    spoke = False
+
     async for frame in runtime.run():
-        if frame.has_image:
+        if frame.audio_chunk is not None:
+            spoke = True
+        elif spoke and not windowed:
+            break
+        if not frame.has_image:
+            continue
+        n += 1
+        if windowed:
             cv2.imshow("bitHuman Avatar", frame.bgr_image)
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
+        else:
+            if writer is None:
+                h, w = frame.bgr_image.shape[:2]
+                writer = cv2.VideoWriter(
+                    args.out, cv2.VideoWriter_fourcc(*"mp4v"), runtime.fps, (w, h)
+                )
+                if not writer.isOpened():
+                    print(f"Error: could not open {args.out} for writing.")
+                    sys.exit(1)
+            writer.write(frame.bgr_image)
 
-    cv2.destroyAllWindows()
+    if writer is not None:
+        writer.release()
+        print(f"Wrote {args.out} — {n} frames at {runtime.fps} fps.")
+    else:
+        cv2.destroyAllWindows()
+
     await runtime.stop()
     print("Done!")
 

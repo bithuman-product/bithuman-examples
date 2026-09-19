@@ -1,7 +1,29 @@
 # For local-avatar.py (minimum):
-bithuman>=1.7.0
-opencv-python-headless>=4.0
+bithuman>=2.11.3
+
+# local-avatar.py imports cv2 itself, so it is named here rather than leaned on
+# transitively — `bithuman` happens to depend on opencv-python-headless, but a
+# dependency you did not declare is one that can move out from under you.
+#
+# ★HEADLESS ON PURPOSE, AND THE SCRIPT KNOWS IT. `opencv-python-headless` has no
+# GUI compiled in, so `cv2.imshow` raises "The function is not implemented" —
+# local-avatar.py detects that before the first frame and writes an MP4 instead.
+# You still get a render.
+#
+# Want the live window? Install the GUI build INSTEAD of this one, on a machine
+# that HAS a display:
+#     pip uninstall -y opencv-python-headless && pip install opencv-python
+# Do not install both: they own the same `cv2/` directory, so whichever lands
+# last wins and uninstalling either leaves no cv2 at all. And full
+# `opencv-python` with no $DISPLAY does not raise — the Qt plugin calls abort()
+# and the process dies on SIGABRT, which is strictly worse than the error it
+# replaces.
+opencv-python-headless>=4.8
 
 # For cloud-avatar.py (LiveKit + OpenAI):
 livekit-agents[openai,silero]>=1.4
-livekit-plugins-bithuman>=1.4
+# ★`pillow` is not a typo. livekit-plugins-bithuman does `from PIL import Image`
+# at module scope and its published metadata does not declare pillow, so without
+# this line `import livekit.plugins.bithuman` ends at ModuleNotFoundError.
+livekit-plugins-bithuman>=1.8.2
+pillow>=10.0

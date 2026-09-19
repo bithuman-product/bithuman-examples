@@ -38,6 +38,12 @@ python local-avatar.py --model your-avatar.imx --audio speech.wav
 
 A window will open showing the avatar lip-syncing to the audio. Press `q` to quit.
 
+> **On a machine with no display — SSH, Docker, CI — you get an MP4 instead.**
+> `requirements.txt` installs `opencv-python-headless` (the build `bithuman`
+> itself depends on), which has no GUI compiled in, so `local-avatar.py` checks
+> for a window up front and writes `avatar.mp4` when there is none. Same render,
+> a file instead of a window. `--out other.mp4` picks the path.
+
 > **First run is slow (up to 60 seconds).** The first time: the sample model downloads (~148 MB), then the SDK may convert it from legacy format to v2. Both are one-time costs — subsequent runs start in under 2 seconds.
 
 > **The sample needs no account.** It is `A52DHS2219` ("Sofia Ramirez", Essence 2), one of the identities in the free gallery — `bithuman list` shows them all, and any of them can be fetched with `bithuman pull <SLUG>` or straight from `GET /v1/agent/<CODE>/model/download`, which needs no credential for a gallery identity. Your own agent's model does need `BITHUMAN_API_SECRET`, and so does running the avatar below.
