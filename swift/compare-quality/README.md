@@ -14,7 +14,7 @@ STT/LLM/TTS umbrella.
 ## Run
 
 ```bash
-cd Examples/swift/compare-quality
+cd swift/compare-quality
 swift build -c release --product CompareQuality
 
 # medium quality (default, realtime-safe)

@@ -33,7 +33,7 @@ through the published `bitHumanKit` umbrella binary instead of this tool.
 ## Run
 
 ```bash
-cd Examples/swift/compare-tts
+cd swift/compare-tts
 swift run -c release CompareTTS            # both backends
 swift run -c release CompareTTS --help
 ```

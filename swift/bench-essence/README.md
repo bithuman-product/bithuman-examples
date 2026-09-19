@@ -8,7 +8,7 @@ diffed directly.
 ## Run
 
 ```bash
-cd Examples/swift/bench-essence
+cd swift/bench-essence
 swift run -c release BenchEssence \
   --fixture path/to/avatar.imx \
   --audio   path/to/16k_mono.wav \
