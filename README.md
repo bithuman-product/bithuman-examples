@@ -28,8 +28,11 @@ that has never been published:
 | **iOS / macOS** | **does not build** | the plugin's Apple half stages its engines from a **private** repository (`scripts/bootstrap.sh` clones `bithuman-product/bithuman-models`, which answers 404 without access) and then fails at `cannot find 'Expression2Engine' in scope`. There is **no published engine asset** a clone could use instead — publishing one is a decision for the owner of that engine, and until it is made, this cannot be fixed from inside this repository. |
 
 That is the whole truth of `app/`: one platform of three builds from a clone today.
-For a working on-device app on iPhone or Mac, use `swift/` — it builds against the
-**public** Swift package, which does ship both engines.
+Plainly — you can clone this repository and build and run the Android app on a phone, with
+no private access; you cannot build this Flutter app for iPhone, iPad or Mac, because the
+Apple engine it needs is not published anywhere you can fetch it. For a working on-device
+app on iPhone or Mac, use `swift/` — it builds against the **public** Swift package, which
+does ship both engines.
 
 ## What you need
 

@@ -12,18 +12,25 @@ every platform (`package:bithuman/ui_kit.dart`).
 | **iOS / macOS** | **does not build** | the plugin's Apple half stages its engines from a **private** repository — `scripts/bootstrap.sh` clones `bithuman-product/bithuman-models`, which answers 404 to anyone without access — and the build then fails at `cannot find 'Expression2Engine' in scope`. There is **no published engine asset for Apple that a clone could use instead**: publishing one is a decision for the owner of that engine, so this cannot be fixed from inside this repository or the plugin. |
 
 That table is the whole truth of this directory. Nothing here fails silently: the build
-stops at the dependency it cannot resolve, and the row above names it. For a working
-on-device app on iPhone or Mac today, build `swift/` in this repository — it uses the
-**public** Swift package, which ships both engines.
+stops at the dependency it cannot resolve, and the row above names it.
+
+**So, plainly, today:** you can clone this repository and build and run the Android app on
+a phone, with Expression 2 or Essence 2 and no private access at all. You cannot build this
+Flutter app for iPhone, iPad or Mac from a clone — not because a step is missing from this
+README, but because the Apple engine it needs is not published anywhere you can fetch it.
+For a working on-device app on iPhone or Mac today, build `swift/` in this repository
+instead: it uses the **public** Swift package, which does ship both engines.
 
 ### Which engine the Android app actually runs
 
 The plugin is pinned by tag in `pubspec.yaml`, and that tag is what fixes the engine
-version: `flutter-plugin-v2.6.6` resolves `essence2-android 0.5.10`. Essence 2 draws its
-mouth with the identity's own lip contour from **0.5.12** onward (before that the engine
-composed a wider elliptical region), so an Essence 2 build from this app shows the older
-mouth until the pinned plugin tag carries 0.5.12. The plugin's `main` already pins it; the
-line below moves when the tag that carries it is published.
+version. This app pins **`flutter-plugin-v2.6.8`**, which resolves
+`ai.bithuman:essence2-android:0.5.12` — the first engine that draws the Essence 2 mouth
+with the identity's own lip contour rather than a wider elliptical region. Measured from a
+clean clone at that tag: Gradle resolves 0.5.12 from Maven Central, and a release APK built
+against it carries `lib/arm64-v8a/lible_jni.so` byte-identical (sha256 `083ee4e5…`) to the
+one inside Central's AAR. The previous pin, `flutter-plugin-v2.6.6`, resolved 0.5.10 and
+drew the wider region.
 
 ## Run
 
