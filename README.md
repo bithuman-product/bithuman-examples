@@ -6,7 +6,7 @@ Runnable bitHuman demos for every surface we support — mobile, web, Python, th
 
 | Surface | Directory | Notes |
 |---|---|---|
-| macOS · iOS · Android | `app/avatar_chat/` | The one Flutter app. **Builds from a clone once two artifacts are published** — see [What `app/` stops at](#what-app-stops-at). For a working on-device app today, use `swift/` (macOS, iOS) or `android/`. |
+| macOS · iOS · Android | `app/avatar_chat/` | The one Flutter app. **Android builds from a clone today; iOS and macOS do not** — see [What `app/` stops at](#what-app-stops-at). For a working on-device app on iPhone or Mac, use `swift/`; for a native Android one, `android/`. |
 | Web | `web/` | Not here yet. |
 | Python | `python/` | SDK quickstart, self-hosted Essence (CPU), and cloud-hosted Essence via LiveKit. |
 | REST API & CLI | `api/` | `api/rest-api/` curl and Python scripts per endpoint; `api/cli/` shell scripts for the `bithuman` CLI. |
@@ -18,19 +18,18 @@ Runnable bitHuman demos for every surface we support — mobile, web, Python, th
 ### What `app/` stops at
 
 `app/avatar_chat/` is the one Flutter app (macOS · iOS · Android, one `lib/main.dart`, the
-shared UI kit). `flutter pub get` resolves from a clone — the plugin is pinned by commit
-from the public tap. The build then stops at exactly one gate per platform, both outside
-this repository:
+shared UI kit). `flutter pub get` resolves from a clone — the plugin is pinned by tag from
+the public tap. **Android builds; iOS and macOS do not**, and the reason is one artifact
+that has never been published:
 
-| platform | stops at | what unblocks it |
+| platform | from a clone | why |
 |---|---|---|
-| Android | `Could not find ai.bithuman:expression2-android:0.4.6` | publishing 0.4.6 to Maven Central (0.4.1 is there today) |
-| iOS / macOS | `cannot find 'Expression2Engine' in scope` | the plugin consuming the published `Expression2.xcframework` instead of staging engine source from a private repository |
+| **Android** | **builds** — `flutter build apk` | every engine it needs is a public Maven Central coordinate, resolved anonymously: `ai.bithuman:expression2-android` and `ai.bithuman:essence2-android`, both pulled in by the plugin. |
+| **iOS / macOS** | **does not build** | the plugin's Apple half stages its engines from a **private** repository (`scripts/bootstrap.sh` clones `bithuman-product/bithuman-models`, which answers 404 without access) and then fails at `cannot find 'Expression2Engine' in scope`. There is **no published engine asset** a clone could use instead — publishing one is a decision for the owner of that engine, and until it is made, this cannot be fixed from inside this repository. |
 
-Measured from a fresh clone with no private access and an empty local Maven cache. Nothing
-fails silently: each build names the artifact it cannot get. Until those land, the native
-examples are the ones to run — they are fully open: `swift/` builds against the public
-Swift package and `android/` against the published Maven artifacts.
+That is the whole truth of `app/`: one platform of three builds from a clone today.
+For a working on-device app on iPhone or Mac, use `swift/` — it builds against the
+**public** Swift package, which does ship both engines.
 
 ## What you need
 
