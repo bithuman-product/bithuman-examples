@@ -6,13 +6,24 @@ every platform (`package:bithuman/ui_kit.dart`).
 
 ## What builds from a clone today, and what does not
 
-| platform | from a clone | what is missing |
+| platform | from a clone | why |
 |---|---|---|
-| Android | `flutter build apk` — **once `ai.bithuman:expression2-android:0.4.6` is on Maven Central** | Central carries 0.4.1 today; the plugin's Android half needs 0.4.6 (a human press). Everything else resolves publicly. |
-| iOS / macOS | not yet | the plugin stages the expression-2 engine SOURCE from a private repository (`scripts/bootstrap.sh`); the switch to the published `Expression2.xcframework` is built but not landed. |
+| **Android** | **builds** — `flutter build apk` | every engine it needs is a public Maven Central coordinate, resolved anonymously by Gradle: `ai.bithuman:expression2-android` and `ai.bithuman:essence2-android`, both pulled in by the plugin this app pins. |
+| **iOS / macOS** | **does not build** | the plugin's Apple half stages its engines from a **private** repository — `scripts/bootstrap.sh` clones `bithuman-product/bithuman-models`, which answers 404 to anyone without access — and the build then fails at `cannot find 'Expression2Engine' in scope`. There is **no published engine asset for Apple that a clone could use instead**: publishing one is a decision for the owner of that engine, so this cannot be fixed from inside this repository or the plugin. |
 
 That table is the whole truth of this directory. Nothing here fails silently: the build
-stops at the dependency it cannot resolve, and the row above names it.
+stops at the dependency it cannot resolve, and the row above names it. For a working
+on-device app on iPhone or Mac today, build `swift/` in this repository — it uses the
+**public** Swift package, which ships both engines.
+
+### Which engine the Android app actually runs
+
+The plugin is pinned by tag in `pubspec.yaml`, and that tag is what fixes the engine
+version: `flutter-plugin-v2.6.6` resolves `essence2-android 0.5.10`. Essence 2 draws its
+mouth with the identity's own lip contour from **0.5.12** onward (before that the engine
+composed a wider elliptical region), so an Essence 2 build from this app shows the older
+mouth until the pinned plugin tag carries 0.5.12. The plugin's `main` already pins it; the
+line below moves when the tag that carries it is published.
 
 ## Run
 
