@@ -224,6 +224,12 @@ _RE_MAVEN_DEP = re.compile(
     rf"(?:{re.escape(MAVEN_GROUP)}:)?(?P<art>{'|'.join(BARE_OK)}):(?P<ver>{SEMVER})"
 )
 _RE_MAVEN_SDK_DEP = re.compile(rf"{re.escape(MAVEN_GROUP)}:(?P<art>sdk):(?P<ver>{SEMVER})")
+# Gradle / Maven dependency declarations — the forms a build file accepts.
+_RE_GRADLE_DECL = re.compile(
+    r"\b(?:implementation|api|compileOnly|runtimeOnly|annotationProcessor|ksp|kapt"
+    r"|testImplementation|androidTestImplementation|debugImplementation"
+    r"|releaseImplementation)\s*[\(\s]\s*[\"']|<artifactId>"
+)
 _RE_MAVEN_BARE_COORD = re.compile(
     rf"{re.escape(MAVEN_GROUP)}:(?P<art>{'|'.join(MAVEN_ARTIFACTS)})\b(?!:)"
 )
@@ -272,9 +278,19 @@ def extract(root: Path) -> list[Claim]:
                     tap_window = 0
                 continue
 
-            # ── Maven: an exact coordinate in a document is a copy-me line.
+            # ── Maven. ★A COPY-ME LINE IS ONE A BUILD FILE WOULD ACCEPT.
+            # `implementation("ai.bithuman:essence2-android:0.5.12")` is an
+            # instruction and must name the current release. A SENTENCE that
+            # names the coordinate — "this tag pins the other engine at
+            # `…:0.4.7`, one release behind Central's current 0.4.8" — is a
+            # statement about a pin, and a pin is allowed to be behind; it only
+            # has to name a version that exists. Grading the two the same way
+            # turns an accurate, dated sentence into a CI failure, and the lane
+            # that owns it learns to delete the check.
+            is_dependency_line = bool(_RE_GRADLE_DECL.search(line))
+            kind = "LATEST" if is_dependency_line else "EXISTS"
             for m in list(_RE_MAVEN_DEP.finditer(line)) + list(_RE_MAVEN_SDK_DEP.finditer(line)):
-                claims.append(Claim(rel, i, line.strip(), "LATEST", "maven",
+                claims.append(Claim(rel, i, line.strip(), kind, "maven",
                                     m.group("art"), m.group("ver"), "maven-dep"))
             # ── Maven: a table row naming the coordinate and the version apart.
             for m in _RE_MAVEN_BARE_COORD.finditer(line):
@@ -389,11 +405,14 @@ def grade(claims: list[Claim], reg: Registry, waivers: list[dict], today: _dt.da
             continue
 
         if wrong is None:
-            # A waiver whose claim is now correct must be deleted, or the list
-            # stops being a list of real defects and becomes decoration.
-            idx, w = waiver_for(c)
-            if w is not None and c.kind == "LATEST" and c.registry == "maven":
-                used_waivers.add(idx)
+            # ★DO NOT MARK A WAIVER USED HERE. A waiver is "used" only when a
+            # claim it covers is still WRONG; a claim that has become CORRECT is
+            # evidence the waiver should be DELETED, and marking it used is what
+            # would hide that. (This block used to do exactly that, and the bug
+            # surfaced the first time a lane actually fixed its page: the
+            # android README went green and the stale-waiver error stayed
+            # silent. A shrink-only list that cannot notice it should shrink is
+            # not shrink-only.)
             continue
 
         idx, w = waiver_for(c)
@@ -451,11 +470,15 @@ def selftest(reg: Registry) -> int:
     """
     failures: list[str] = []
 
-    def arm(name: str, body: str, expect_fail: bool) -> None:
+    def arm(name: str, body: str, expect_fail: bool, waivers: list | None = None) -> None:
         with tempfile.TemporaryDirectory() as td:
             d = Path(td)
             (d / "README.md").write_text(body, "utf-8")
-            rc = run(d, use_waivers=False, reg=reg, quiet=True)
+            if waivers is not None:
+                (d / ".github").mkdir()
+                (d / ".github" / "version-waivers.json").write_text(
+                    json.dumps({"waivers": waivers}), "utf-8")
+            rc = run(d, use_waivers=waivers is not None, reg=reg, quiet=True)
             ok = (rc != 0) if expect_fail else (rc == 0)
             verdict = "fires" if expect_fail else "passes"
             print(f"  [{'OK ' if ok else 'BAD'}] control {verdict}: {name} (rc={rc})")
@@ -495,7 +518,36 @@ def selftest(reg: Registry) -> int:
         f'implementation("{MAVEN_GROUP}:essence2-android:0.2.0")  <!-- version-check-ignore: fixture -->\n',
         expect_fail=False)
 
-    # 6. "I COULD NOT LOOK" IS NOT A PASS.  Aim the fetcher at a dead host and
+    # ★6-7. PROSE IS NOT A COPY-ME LINE, BUT IT STILL HAS TO BE TRUE. A
+    #    sentence describing what a pin resolves may name an older version — it
+    #    is reporting, not instructing — but it may not name one that never
+    #    existed. (Both arms, because "prose is exempt" and "prose is unchecked"
+    #    are different claims and only the first is intended.)
+    arm("prose naming a superseded-but-real version passes",
+        f"The tag pins the other engine at `{MAVEN_GROUP}:expression2-android:0.4.1`, "
+        f"one release behind Central.\n", expect_fail=False)
+    arm("prose naming a version that never existed still fires",
+        f"The tag pins the other engine at `{MAVEN_GROUP}:expression2-android:0.4.99`.\n",
+        expect_fail=True)
+
+    # ★8-10. THE WAIVER LEDGER'S OWN RULES. These exist because rule 7 was
+    #    WRONG when first written — a waiver was marked "used" when the claim it
+    #    covered became CORRECT, which is the one condition that should DELETE
+    #    it. The bug survived a full red/green proof and only surfaced when a
+    #    lane actually fixed its page. A rule with no control is a rule nobody
+    #    has watched fail.
+    dep = f'implementation("{MAVEN_GROUP}:essence2-android:0.2.0")\n'
+    far = (_dt.date.today() + _dt.timedelta(days=30)).isoformat()
+    past = (_dt.date.today() - _dt.timedelta(days=1)).isoformat()
+    live = f'implementation("{MAVEN_GROUP}:essence2-android:{e2}")\n'
+    w = lambda exp: [{"file": "README.md", "coordinate": f"{MAVEN_GROUP}:essence2-android",
+                      "owner": "control", "reason": "control", "expires": exp}]
+    arm("a live waiver downgrades a real defect to a warning", dep, expect_fail=False, waivers=w(far))
+    arm("an EXPIRED waiver is a hard failure", dep, expect_fail=True, waivers=w(past))
+    arm("a waiver whose claim is now CORRECT is a hard failure (shrink-only)",
+        live, expect_fail=True, waivers=w(far))
+
+    # 11. "I COULD NOT LOOK" IS NOT A PASS.  Aim the fetcher at a dead host and
     #    require a non-zero exit — a checker that silently skips an unreachable
     #    registry reports green on a repository it never graded.
     env = dict(os.environ, BH_VERSION_CHECK_MAVEN_BASE="https://127.0.0.1:9/maven2")

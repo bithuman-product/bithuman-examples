@@ -9,28 +9,17 @@
     "  * AN EXPIRED WAIVER IS A HARD FAILURE. The date is not advisory.",
     "  * A WAIVER WHOSE CLAIM HAS BECOME CORRECT IS A HARD FAILURE. Delete it. The list can",
     "    only shrink — the same rule swift-examples.yml puts on its KNOWN_BROKEN list.",
+    "",
+    "★THE LIST IS EMPTY, AND IT GOT THERE THE WAY IT IS SUPPOSED TO. It was opened on",
+    "2026-09-22 with two entries: android/README.md advertised essence2-android 0.2.0 and",
+    "expression2-android 0.3.0 while Maven Central served 0.5.12 and 0.4.8. The android lane",
+    "landed c30e81c the same day with both corrected, the checker raised STALE WAIVER on both",
+    "entries, and they were deleted. Under a day, open to closed, with the gate doing the",
+    "noticing. Reopen it the same way: an owner, a reason, a date.",
+    "",
     "If you are about to add an entry: the fix is almost always one line in the file itself.",
     "Prefer '<!-- version-check-ignore: reason -->' on the line, in your own file, for the one",
     "case a waiver is not for — a DATED MEASUREMENT, where the old version number is the point."
   ],
-  "waivers": [
-    {
-      "file": "android/README.md",
-      "coordinate": "ai.bithuman:essence2-android",
-      "claimed_on_2026-09-22": "0.2.0",
-      "served_on_2026-09-22": "0.5.12",
-      "owner": "android lane — PR #38 (lane/examples-reachable-0921), open since 2026-09-22",
-      "reason": "This is the defect that caused this checker to be written: a column headed 'latest' read 0.2.0 while Maven Central served 0.5.12, thirteen releases on, with no commit to the file in between. android/** is owned by a concurrent lane whose open PR #38 already rewrites this page, so the correction lands there and not here. Lines 67-68 are a separate case: they record a measurement taken on 2026-09-04 against 0.3.0, where the old number IS the finding — that lane should mark those two lines '<!-- version-check-ignore: dated measurement of 0.3.0 -->' rather than change them.",
-      "expires": "2026-09-29"
-    },
-    {
-      "file": "android/README.md",
-      "coordinate": "ai.bithuman:expression2-android",
-      "claimed_on_2026-09-22": "0.3.0",
-      "served_on_2026-09-22": "0.4.8",
-      "owner": "android lane — PR #38 (lane/examples-reachable-0921), open since 2026-09-22",
-      "reason": "Same page, same lane. ★AND THE IN-FLIGHT FIX IS ITSELF ALREADY STALE: PR #38 writes 0.4.7, read from Maven Central on 2026-09-21; 0.4.8 was published 2026-09-22 10:46 UTC, before that PR merged. A hand-read of a registry is a measurement with a shelf life of hours, which is the whole argument for this check running on a clock rather than on a diff.",
-      "expires": "2026-09-29"
-    }
-  ]
+  "waivers": []
 }
