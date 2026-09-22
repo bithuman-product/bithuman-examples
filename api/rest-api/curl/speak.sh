@@ -35,5 +35,5 @@ echo "$RESPONSE" | python3 -m json.tool
 if echo "$RESPONSE" | grep -qi "no active"; then
   echo ""
   echo "Tip: Start a session first by opening https://agent.viewer.bithuman.ai/$AGENT_ID"
-  echo "     or by running one of the Docker examples in Examples/python/cloud-essence/"
+  echo "     or by running one of the Docker examples in python/cloud-essence/"
 fi
