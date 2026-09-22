@@ -1,76 +1,58 @@
-# ios-avatar -- iOS/iPadOS Voice Agent with Lip-Synced Avatar
+# ios-avatar — the `bitHumanKit` voice agent on iPhone and iPad
 
-A SwiftUI app that boots a voice agent with a real-time, lip-synced Expression avatar on iPhone or iPad. Includes the `HardwareCheck.evaluate()` gate to refuse under-spec devices at launch, and `UIViewRepresentable` hosting for the avatar renderer.
+A whole conversation on the device — speech recognition, a language model,
+speech synthesis and a lip-synced avatar — from one product, `bitHumanKit`.
 
-## Prerequisites
+**This directory is source to read and copy, not a project to run.** It is a
+SwiftPM package, and a SwiftPM `.executableTarget` builds no `.app`: there is no
+scheme to run on a phone and no *Signing & Capabilities* tab. To put this on a
+device, make an app project of your own, add the package to it and paste
+`Sources/IOSAvatarApp.swift` in. The whole path, step by step, is at
+[docs.bithuman.ai/examples/swift-ios-hello](https://docs.bithuman.ai/examples/swift-ios-hello).
 
-- Xcode 26+ (development on Mac)
-- Apple Developer account in good standing
-- iOS 26+ / iPadOS 26+ target device:
-  - iPhone 16 Pro or later (A18 Pro+)
-  - iPad Pro M4 or later (16 GB)
-- Apple-approved memory entitlements (see below)
-- A `BITHUMAN_API_KEY` -- avatar mode is metered at **2 credits per active minute**
+For an avatar you can build and run on a phone today, with no device floor and
+no entitlement, take [`ios-expression2`](../ios-expression2) instead — it ships
+a real Xcode project.
 
-### Unsupported devices
+## Before you clone this
 
-The following devices are explicitly refused by `HardwareCheck.evaluate()`:
+This is the most demanding Apple path bitHuman has. In order, because Apple's
+reply is the long pole:
 
-- iPhone 15 Pro and earlier
-- iPhone 16 / 16 Plus (non-Pro A18) -- thermal throttle
-- iPad Air M2 / M3 -- thermal throttle
-- iPad Pro M1 / M2 -- bandwidth-limited
+1. **Request two Apple entitlements.** developer.apple.com → Account →
+   Membership → *Request Additional Capabilities*:
 
-### Memory entitlements (REQUIRED)
+   ```text
+   com.apple.developer.kernel.increased-memory-limit
+   com.apple.developer.kernel.extended-virtual-addressing
+   ```
 
-Without these entitlements, iOS will terminate the app mid-conversation when memory exceeds the ~3 GB default ceiling (around 30 seconds into a live turn).
-
-**Request approval BEFORE you start development** -- Apple takes 1-3 business days.
-
-1. Go to developer.apple.com -> Account -> Membership -> Request Additional Capabilities.
-2. Request both:
-   - `com.apple.developer.kernel.increased-memory-limit`
-   - `com.apple.developer.kernel.extended-virtual-addressing`
-3. Apple replies via email. The provisioning profile updates automatically once approved.
-
-The entitlements are included in `Sources/Info.plist`.
-
-### Get an API key
-
-1. Sign in at [bithuman.ai](https://www.bithuman.ai) -> Developer -> API Keys.
-2. In Xcode: Product -> Scheme -> Edit Scheme -> Run -> Arguments -> Environment Variables -> add `BITHUMAN_API_KEY`.
-
-Never hardcode the key in source. For production, fetch it from your backend or Keychain.
-
-## Run
-
-1. Open this directory in Xcode (File -> Open -> select the folder containing `Package.swift`).
-2. Set the `BITHUMAN_API_KEY` environment variable in the scheme.
-3. Select a physical device (iPhone 16 Pro or iPad Pro M4+).
-4. Build and run.
-
-This example cannot run in the Simulator -- it requires real Apple Silicon hardware for on-device inference.
-
-## TestFlight checklist
-
-Before submitting to TestFlight:
-
-- [ ] Run on a physical reference device (iPhone 16 Pro or iPad Pro M4+). Confirm the engine sustains 25 FPS during a 60-second conversation.
-- [ ] Run on an under-spec device (iPhone 15 Pro or iPad Air). Confirm `UnsupportedDeviceView` appears at launch.
-- [ ] Verify both memory entitlements are granted by Apple (provisioning profile updated after approval).
-- [ ] Verify mic + speech permissions flow correctly on first `chat.start()`.
-- [ ] Memory profile in Instruments -- `phys_footprint` reads large during turns (4-6 GB) but most is compressed MALLOC pool. Watch that iOS "available" memory stays well above zero.
-- [ ] App Store compatibility list explicitly states iPhone 16 Pro and later.
+   Apple has taken **1–3 business days**. Without them iOS terminates the app
+   about half a minute into a live turn, when it passes the ~3 GB default
+   ceiling, with no crash you can read. They are **entitlements**: they are
+   signed in from the file `CODE_SIGN_ENTITLEMENTS` names. Copying them into an
+   `Info.plist` — including the one in this directory — grants nothing.
+2. **Check the device.** iPhone 16 Pro or later, or iPad Pro M4 or later
+   (16 GB), on iOS or iPadOS 26 or newer. `HardwareCheck.evaluate()` refuses
+   anything else at launch: iPhone 15 Pro and earlier, iPhone 16 and 16 Plus,
+   iPad Air M2 and M3, iPad Pro M1 and M2. The Simulator cannot stand in.
+3. **Get an API key** — free at
+   [Developer → API Keys](https://www.bithuman.ai/developer/api-keys). The Swift
+   SDK reads `BITHUMAN_API_KEY`; the value is the one every other surface reads
+   as `BITHUMAN_API_SECRET`. Set it in your scheme under *Product → Scheme →
+   Edit Scheme → Run → Arguments → Environment Variables*, never in source.
+   Avatar mode is metered; the voice-only path is not.
+4. **Leave room.** The first launch downloads about 1.6 GB of weights.
 
 ## Files
 
 | File | Purpose |
-|------|---------|
-| `Package.swift` | SPM manifest -- targets iOS 26.0, depends on `bitHumanKit` |
-| `Sources/main.swift` | SwiftUI `@main` app with hardware gate, `AvatarLifecycle`, `AvatarHost` (UIViewRepresentable), and views |
-| `Sources/Info.plist` | Privacy strings (mic, speech recognition) and memory entitlements |
+|---|---|
+| `Package.swift` | the manifest — `bitHumanKit` from the published tap |
+| `Sources/IOSAvatarApp.swift` | the whole app: the hardware gate, the avatar lifecycle, a `UIViewRepresentable` host and the views |
+| `Sources/Info.plist` | the privacy strings and entitlement keys to copy into **your** app target |
 
-## Docs
+## Documentation
 
-- [Swift SDK quickstart](https://docs.bithuman.ai/sdk/swift)
-- [iOS / iPadOS guide](https://docs.bithuman.ai/sdk/swift)
+- [Swift / iOS — Hello, avatar](https://docs.bithuman.ai/examples/swift-ios-hello) — the whole path, every file
+- [Apple SDK](https://docs.bithuman.ai/sdk/ios) · [Apple API reference](https://docs.bithuman.ai/sdk/ios-api)

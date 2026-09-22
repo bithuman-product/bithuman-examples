@@ -1,43 +1,39 @@
-# macos-voice -- Minimal macOS Voice Agent
+# macos-voice — a voice agent on your Mac
 
-A minimal SwiftUI app that boots a voice-only conversational agent on macOS. All inference (speech recognition, LLM, TTS) runs on-device. No API key required. No avatar rendering.
+A SwiftUI app that listens, thinks and answers out loud, with every step on the
+device: speech recognition, the language model and speech synthesis. No avatar,
+no account, no key, no credits.
 
-## Prerequisites
-
-- macOS 26 (Tahoe) or later
-- Apple Silicon Mac (M3 or newer)
-- Xcode 26+
-- ~3 GB free disk for first-launch model downloads
-- A microphone (built-in or external)
-
-## Run
-
-From this directory:
+## Run it
 
 ```bash
 swift run MacOSVoice
 ```
 
-Or open the directory in Xcode (File -> Open -> select the folder containing `Package.swift`) and hit Run.
+Or open this directory in Xcode (*File → Open*, select the folder holding
+`Package.swift`) and press Run. Grant the microphone when macOS asks.
 
-The first launch downloads LLM and TTS weights to `~/.cache/huggingface/hub/`. Subsequent launches are instant.
+The first launch downloads the language-model and speech weights into
+`~/.cache/huggingface/hub/` — about 3 GB. Later launches start straight away,
+and nothing goes over the network once the weights are there.
 
 ## What it does
 
-1. Creates a `VoiceChatConfig` with English locale, a system prompt, and the "Aiden" voice preset.
-2. Boots a `VoiceChat` session that listens through the microphone.
-3. Transcribes speech, generates a response via the on-device LLM, and speaks the reply through the speakers.
+`VoiceChatConfig` sets the language, the system prompt and the voice;
+`VoiceChat` starts a session on the microphone. Those two types are the whole
+API this example uses — override any field on the config before you pass it in.
 
-No network calls are made after the initial weights download.
+For the same thing with no window at all, see
+[`hello-voice-chat`](../hello-voice-chat). For an avatar on a Mac, see
+[`macos-expression2`](../macos-expression2).
 
-## Files
+## Requirements
 
-| File | Purpose |
-|------|---------|
-| `Package.swift` | SPM manifest -- depends on `bitHumanKit` from `homebrew-bithuman` |
-| `Sources/main.swift` | SwiftUI `@main` app with `Lifecycle` class and `ContentView` |
+- An Apple Silicon Mac, M3 or newer, on macOS 26 or newer.
+- Xcode 26 or newer.
+- About 3 GB of disk for the weights, and a microphone.
 
-## Docs
+## Documentation
 
-- [Swift SDK quickstart](https://docs.bithuman.ai/sdk/swift)
-- [macOS guide](https://docs.bithuman.ai/sdk/swift)
+- [Apple SDK](https://docs.bithuman.ai/sdk/ios)
+- [Apple API reference](https://docs.bithuman.ai/sdk/ios-api)

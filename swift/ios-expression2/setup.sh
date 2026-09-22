@@ -13,6 +13,16 @@ SHOWCASE_CODE="A23WJF0199"
 CODE="${1:-$SHOWCASE_CODE}"
 mkdir -p Sources/Model
 
+# Step 2 below needs the bitHuman CLI, which is not a SwiftPM dependency and
+# cannot be one. Say so HERE rather than after a 188 MB download: the script
+# used to fail at `bithuman: command not found` with the identity already on
+# disk and no clue what to install.
+if ! command -v bithuman >/dev/null 2>&1; then
+  echo "the bithuman CLI is not on PATH. Install it, then run this again:" >&2
+  echo "    brew install bithuman-product/bithuman/bithuman-cli" >&2
+  exit 3
+fi
+
 # 1. the per-identity avatar.
 #
 # ★ONE URL FOR BOTH ROUTES, WHICH IS THE POINT. The showcase identity and your
