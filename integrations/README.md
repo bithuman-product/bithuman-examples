@@ -21,15 +21,16 @@ Each integration has its own prerequisites listed in its README. Common requirem
 ## Getting started
 
 ```bash
-git clone https://github.com/bithuman-product/homebrew-bithuman.git
-cd homebrew-bithuman/Examples/integrations/<example>
+git clone https://github.com/bithuman-product/bithuman-examples.git
+cd bithuman-examples/integrations/<example>
 ```
 
 Each subdirectory has its own README with setup steps.
 
 ## Documentation
 
-- [Quickstart (Python)](https://docs.bithuman.ai/getting-started/quickstart)
-- [Quickstart (Swift)](https://docs.bithuman.ai/sdk/swift)
-- [API reference](https://docs.bithuman.ai/api-reference/overview)
+- [Python SDK](https://docs.bithuman.ai/sdk/python)
+- [Swift SDK (iOS & macOS)](https://docs.bithuman.ai/sdk/ios)
+- [API overview](https://docs.bithuman.ai/api/overview)
+- [LiveKit integration](https://docs.bithuman.ai/sdk/livekit)
 - [Python SDK on PyPI](https://pypi.org/project/bithuman/)

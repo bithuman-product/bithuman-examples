@@ -6,8 +6,8 @@ WORKDIR /app
 RUN apk add --no-cache git
 
 # Clone the LiveKit agents playground frontend
-RUN git clone --depth 1 https://github.com/bithuman-product/homebrew-bithuman.git /tmp/repo && \
-    cp -r /tmp/repo/Examples/integrations/nextjs-ui/. . && \
+RUN git clone --depth 1 https://github.com/bithuman-product/bithuman-examples.git /tmp/repo && \
+    cp -r /tmp/repo/integrations/nextjs-ui/. . && \
     rm -rf /tmp/repo
 
 # Install dependencies
