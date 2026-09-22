@@ -127,10 +127,14 @@ proguardFiles(
 )
 ```
 
-Measured 2026-09-22 with R8 9.5.17 against the published `essence2-android:0.5.12`
-AAR: with the default file the engine's JNI bridge is kept and not renamed; with
-`proguard-rules.pro` alone it is removed from the APK entirely. If you replace the
-default file rather than adding to it, carry its rule across:
+Measured 2026-09-22 by building a release APK twice with AGP 8.7.3, Gradle
+8.11.1 and JDK 17 — one app opening both engines, `isMinifyEnabled = true`,
+changing nothing but that first argument. With the default file the engine's JNI
+bridge keeps its name; with `proguard-rules.pro` alone R8 **renames** it
+(`ai.bithuman.elevate.NativeBridge -> a.k` in the build's own `mapping.txt`).
+Renamed, not deleted — so the APK is complete and installs, and the first native
+call throws instead. If you replace the default file rather than adding to it,
+carry its rule across:
 
 ```proguard
 -keepclasseswithmembernames,includedescriptorclasses class * {
@@ -138,9 +142,12 @@ default file rather than adding to it, carry its rule across:
 }
 ```
 
-Nothing else is needed. `expression2-android` ships its own rules inside the AAR,
-which Gradle applies automatically; `essence2-android` ships none and needs none.
-Full detail and the measurement are on
+Nothing else is needed. In that same pair of builds, **Expression 2 came through
+both columns untouched** — same APK, same R8 invocation, only Essence 2 lost its
+binding — because `expression2-android` ships its own keep rules *inside* the
+AAR and Gradle applies them whatever your `proguardFiles` line says.
+`essence2-android` ships none and needs none beyond the rule above. Full detail
+on
 [Shrink the release build](https://docs.bithuman.ai/sdk/android#shrink-the-release-build).
 
 ## The worked example lives on the docs site, on purpose
