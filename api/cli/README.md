@@ -35,17 +35,23 @@ bithuman doctor      # verify host setup + API key presence
 
 ## Commands
 
-The 2.x CLI surface is six commands. Run `bithuman <command> --help`
-for the full flag list.
+Run `bithuman <command> --help` for the full flag list. Read from the tap's
+own [`llms.txt`](https://raw.githubusercontent.com/bithuman-product/homebrew-bithuman/main/llms.txt)
+on 2026-09-22 — this page used to claim a six-command surface and omitted five,
+including `login`, which is the command a first-run developer wants most.
 
 | Command | Description |
 |---------|-------------|
-| `bithuman run [<model.imx>]` | Live avatar — self-contained LiveKit pool + embedded server. Prints a landing-page URL to open in a browser. |
-| `bithuman render <model.imx> --audio speech.wav --output demo.mp4` | Offline batch render an MP4 from a model + WAV. |
-| `bithuman info <model.imx>` | Print metadata for an `.imx` model file. |
-| `bithuman pull <slug>` | Download a showcase avatar fixture by slug into the local cache. |
+| `bithuman login` | Sign in. The alternative to exporting a secret by hand. |
+| `bithuman doctor` | Host capability check (arch, OS, RAM, disk, API key, brain availability). `--json` exits 0 iff `.ready` is true. |
 | `bithuman list` | Browse showcase avatars — manifest + local cache state. |
-| `bithuman doctor` | Host capability check (arch, OS, RAM, disk, API key, brain availability). |
+| `bithuman pull <slug>` | Download a showcase avatar by slug into the local cache; prints the cached `.imx` path. |
+| `bithuman run [<model.imx>]` | Live avatar — self-contained LiveKit pool + embedded server. Prints a landing-page URL to open in a browser. |
+| `bithuman render <model.imx> --audio speech.wav --output demo.mp4` | Offline batch render an MP4 from a model + WAV. **Linux encoder only** — see below. |
+| `bithuman info <model.imx>` | Print metadata for an `.imx` model file. |
+| `bithuman whoami` / `bithuman account` | Identity, plan and credit balance. |
+| `bithuman mcp` | Built-in MCP server over stdio (JSON-RPC), for MCP clients. |
+| `bithuman completion bash\|zsh\|fish\|elvish\|powershell` | Shell completions. |
 
 ### Run a live avatar — see [live-stream.sh](live-stream.sh) and [mac-app.sh](mac-app.sh)
 
@@ -61,11 +67,12 @@ bithuman run model.imx
 bithuman render model.imx --audio speech.wav --output demo.mp4
 ```
 
-> ⚠️ Note: As of bithuman 2.3.0 / libessence ABI v7, `bithuman render` is
-> implemented on Linux only. On macOS, the binary returns a "not implemented"
-> error from `be_video_encoder_*`. macOS support is queued. Workarounds:
-> run on Linux (Docker manylinux container or native Linux host), or use
-> `bithuman run` and record the browser tab (live-streaming variant).
+> ⚠️ `bithuman render` carries a **Linux-only encoder**. On macOS the binary
+> returns a "not implemented" error from `be_video_encoder_*`. Still true of
+> the current release — the tap's own `llms.txt` labels the command
+> "(Linux-only encoder)", read 2026-09-22. Workarounds: run on Linux (a Docker
+> manylinux container or a native Linux host), or use `bithuman run` and record
+> the browser tab.
 
 ### Validate your API secret
 
@@ -124,7 +131,7 @@ curl -s -X POST https://api.bithuman.ai/v1/validate \
 |--------|-------------|
 | [render-video.sh](render-video.sh) | Render a lip-synced MP4 from `.imx` + audio using `bithuman render` |
 | [live-stream.sh](live-stream.sh) | Start the live avatar server using `bithuman run` |
-| [mac-app.sh](mac-app.sh) | Wrapper for `bithuman install` + `bithuman run` |
+| [mac-app.sh](mac-app.sh) | `./mac-app.sh install` (runs `brew install`) then `./mac-app.sh run <model.imx>`. ★There is no `bithuman install` subcommand — installing is Homebrew's job, not the CLI's. |
 | [rest-api.sh](rest-api.sh) | Quickstart: validate API key + make an agent speak via curl |
 
 ## Environment Variables

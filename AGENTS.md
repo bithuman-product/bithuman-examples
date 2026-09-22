@@ -10,15 +10,19 @@ could not build at all. If you find another reference, fix it rather than preser
 
 ## What is bitHuman?
 
-Real-time avatar animation. Audio in, lip-synced video out — essence-2 at 25 FPS, expression-2 at 20 FPS (one frame per 50 ms of audio). Two models: Essence (CPU, `.imx`) and Expression (GPU/M3+, any face image).
+Real-time avatar animation: audio in, lip-synced video out.
+
+**essence-2 and expression-2 are two different products, not two tiers of one.** Pick by where the face comes from — a prebuilt `.imx` avatar file (essence-2, any CPU, 1920×1080 at 25 fps) or any face image chosen at runtime (expression-2, GPU or Apple Silicon M3+, 416×720 at 20 fps).
+
+★Do not present the two frame rates as a ranking. An essence-2 frame carries **6.92× the pixels** of an expression-2 frame (2,073,600 vs 299,520); 25 and 20 are not measuring the same thing, and neither model is "the fast one". `essence-1` and `expression-1` are the first generation and are not where a new integration starts.
 
 ## Layout
 
 ```
 app/                                  avatar_chat/: the one Flutter app (macOS · iOS · Android).
-                                      pub get resolves from a clone; the build stops at one
-                                      published-artifact gate per platform (README table).
-web/                                  EMPTY. Not started here yet.
+                                      Android builds from a clone; iOS and macOS do not — the
+                                      plugin's Apple engine is not published (README table).
+                                      (there is no web/ directory — the web surface is not in this repo)
 
 python/                               Python SDK examples (pip install bithuman)
   quickstart/                         First avatar in ~5 minutes (local-avatar.py, cloud-avatar.py)
@@ -39,7 +43,7 @@ swift/                                Swift SDK for Apple platforms — all infe
   ios-avatar/                         the bitHumanKit umbrella on iOS — source, not a runnable project
 
 android/                              Gradle + Maven Central setup for the native Android SDKs,
-                                      (the Flutter app in app/ is the successor once its two gates open)
+                                      (the Flutter app in app/ is the successor once its Apple engine is published)
 
 integrations/                         Framework and language bridges
   nextjs-ui/                          Next.js + LiveKit frontend
@@ -69,10 +73,28 @@ If you are an AI agent wiring bitHuman into a user's codebase:
 
 ### Onboarding
 
-1. **Get an API key**: [www.bithuman.ai](https://www.bithuman.ai) → Developer → API Keys. Set `BITHUMAN_API_SECRET` (Python/REST/CLI) or `BITHUMAN_API_KEY` (Swift).
+1. **Get an API key**: [www.bithuman.ai](https://www.bithuman.ai) → Developer → API Keys. Set **`BITHUMAN_API_SECRET`** — that is the canonical name and the one to write into new code. Three Swift examples (`swift/macos-avatar/`, `swift/ios-avatar/`, `swift/essence-playback/`) still read `BITHUMAN_API_KEY`; the CLI accepts it as an alias. Nothing else does.
 2. **Pick the model**: Essence (`.imx`, CPU) or Expression (any face, GPU/M3+). See [docs.bithuman.ai/getting-started/models](https://docs.bithuman.ai/getting-started/models).
 3. **Copy the example folder**. Every folder ships a `.env.example` + one-command run path.
-4. **Pricing**: [docs.bithuman.ai/getting-started/pricing](https://docs.bithuman.ai/getting-started/pricing). Free tier: 99 cr/month.
+4. **Pricing**: [docs.bithuman.ai/getting-started/pricing](https://docs.bithuman.ai/getting-started/pricing) — read the tier off that page rather than quoting a number here, which is how the Android version table went thirteen releases stale.
+
+### Names — use these exactly
+
+An example that calls the same thing three names is an example nobody can search. Measured 2026-09-22 against the published artifacts, not from memory:
+
+| Thing | Write | Not |
+|---|---|---|
+| The models | `essence-2`, `expression-2`, `essence-1`, `expression-1` | `Essence`/`Expression` bare (ambiguous between generations), `essence2-light`, `light xxx`, `tessera` (retired) |
+| The key | `BITHUMAN_API_SECRET` | `BITHUMAN_API_KEY` (alias; three Swift examples only), `BITHUMAN_API_TOKEN` |
+| Python entry | `bithuman.open(...)` → `Avatar.render(...)` — the taught surface of the published wheel. For LiveKit and other `bithuman<3` callers, `AsyncBithuman`. | `AsyncAvatar` — it exists and works, but the wheel's own source calls it an alias of the compatibility class, so it is the third-choice name for a teaching example |
+| The Python package | `bithuman` on PyPI | `bithuman-cli` — **retired on PyPI and it will not come back**; the CLI ships only via the tap formula, the tap's `install.sh`, or a release tarball |
+| The Swift package | `bitHumanKit`, from `homebrew-bithuman.git` | a local path, a vendored copy |
+
+### Versions
+
+★No file in this repository may advertise a version the registry does not serve, and the top-level README carries no version literal at all. `scripts/check_published_versions.py` reads Maven Central, PyPI and the tap's tag list — never a local checkout — and `.github/workflows/published-versions.yml` runs it on every pull request **and once a day**, because the failure it guards against takes no commit: `android/README.md` sat thirteen releases behind while nobody touched it. It carries six controls (`--selftest`) proving it can go red, including one proving an unreachable registry exits non-zero instead of passing.
+
+Two escapes, both narrow: `<!-- version-check-ignore: reason -->` on a line whose old number is the point (a dated measurement), and `.github/version-waivers.json` for a defect in a lane you do not own — every waiver carries an owner, a reason and an expiry, and an expired one is a hard failure.
 
 ### Machine-readable
 
@@ -81,10 +103,10 @@ If you are an AI agent wiring bitHuman into a user's codebase:
 
 ### What NOT to do
 
-- Add `homebrew-bithuman.git` as the SPM dependency (it is the Homebrew tap and CLI installer, not a Swift package; the SDK internals are closed-source — consume the published binary).
-- Don't clone Swift SDK source or reference apps — both private.
+- Don't tell anyone `homebrew-bithuman.git` is *only* a Homebrew tap. It is **both**: the tap that installs the `bithuman-cli` formula **and** the SwiftPM binary package. `.package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: …)` is the correct and only way to depend on `bitHumanKit` — it is what `swift/README.md` and every `Package.swift` in `swift/` already do, and what `.github/workflows/swift-examples.yml` fetches its xcframeworks from. (This line used to say the opposite, and contradicted every Swift example in this repository.)
+- Don't clone Swift SDK source or reference apps — both private. Consume the published binary.
 - Don't hardcode API keys. Use env vars.
-- Don't pin Swift SDK below 0.8.1.
-- Don't point users at `web/` (empty). `app/avatar_chat/` is here but stops at one published-artifact gate per platform (see README, "What `app/` stops at"). Point them at `swift/` or `android/`, which are fully open.
+- **Don't write a version number from memory.** Read it from the registry: Maven Central's `maven-metadata.xml`, PyPI's JSON API, `git ls-remote --tags` on the tap. `scripts/check_published_versions.py` is the authority and CI fails on a version the registry does not serve — see "Versions" below.
+- Don't point users at `web/` — there is no such directory. `app/avatar_chat/` exists but does not build for iOS or macOS from a clone (see README, "Known gaps"). Point them at `swift/` or `android/`, which are fully open.
 - Don't put a secret in `--dart-define` or a Gradle `BuildConfig` field in anything a user is told to ship: both land in build argv and in the built binary. Local development only; sign-in for anything distributed.
 - Don't add a relative link without checking it resolves from the file's own directory. These examples were moved out of `homebrew-bithuman/Examples/`, so paths that read plausibly may no longer exist.
