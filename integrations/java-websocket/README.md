@@ -4,7 +4,7 @@ A complete example showing how to stream audio to a bitHuman avatar server and
 receive lip-synced video frames back -- all from Java over a single WebSocket
 connection.
 
-**Tested with:** bitHuman SDK 1.7+, Java 17, Maven 3.6+, Python 3.10
+**Tested with:** bitHuman SDK 2.x, Java 17, Maven 3.6+, Python 3.10
 
 ## Architecture
 
@@ -39,19 +39,29 @@ connection.
 3. Go to the **Community** page and download an avatar model (`.imx` file)
    - Or use any `.imx` model you already have
 
-### Step 2: Set Up the Python Server
-
-The server requires Python 3.10+ with the bitHuman SDK.
+### Step 2: Get This Example
 
 ```bash
-# Install Python dependencies
-pip install "bithuman>=1.7.0" websockets opencv-python-headless loguru
-
-# Verify the SDK is installed
-python -c "import bithuman; print('OK')"
+git clone https://github.com/bithuman-product/bithuman-examples.git
+cd bithuman-examples/integrations/java-websocket
 ```
 
-### Step 3: Install Java and Maven
+Every path below is relative to that directory.
+
+### Step 3: Set Up the Python Server
+
+The server requires Python 3.10+ with the bitHuman SDK. `requirements.txt` is
+the one list — it pins `bithuman>=2.3`, which is what the server's
+`from bithuman import AsyncBithuman` needs.
+
+```bash
+pip install -r requirements.txt
+
+# Verify the SDK is installed
+python -c "from bithuman import AsyncBithuman; print('OK')"
+```
+
+### Step 4: Install Java and Maven
 
 **macOS:**
 ```bash
@@ -75,10 +85,10 @@ java -version   # should show 17.x
 mvn -version    # should show 3.6+
 ```
 
-### Step 4: Build the Java Client
+### Step 5: Build the Java Client
 
 ```bash
-cd integrations/java-websocket
+# from bithuman-examples/integrations/java-websocket
 
 # Build the fat JAR (includes all dependencies)
 mvn clean package -q
@@ -87,7 +97,7 @@ mvn clean package -q
 ls -lh target/bithuman-java-example-1.0.0.jar
 ```
 
-### Step 5: Prepare a Test Audio File
+### Step 6: Prepare a Test Audio File
 
 You need a WAV file with speech audio. The Java client automatically handles
 format conversion (sample rate, channels, bit depth), so any standard WAV works.
@@ -106,15 +116,19 @@ ffmpeg -f avfoundation -i ":0" -t 5 -ar 16000 -ac 1 -sample_fmt s16 test_speech.
 ffmpeg -f lavfi -i "sine=frequency=440:duration=3" -ar 16000 -ac 1 -sample_fmt s16 test_tone.wav
 ```
 
-### Step 6: Start the Python Streaming Server
+### Step 7: Start the Python Streaming Server
 
 Open **Terminal 1** (server):
 
+Pass the model path and your API secret in the environment, not on the
+command line — anything in a command line is visible to every user on the box
+through `ps`, and it lands in your shell history:
+
 ```bash
-python bithuman_streaming_server.py \
-    --model /path/to/your/avatar.imx \
-    --api-secret your_api_secret \
-    --port 8765
+export BITHUMAN_MODEL_PATH=/path/to/your/avatar.imx
+read -rs BITHUMAN_API_SECRET && export BITHUMAN_API_SECRET   # paste, press enter
+
+python bithuman_streaming_server.py --port 8765
 ```
 
 You should see:
@@ -123,15 +137,11 @@ INFO | Model loaded — frame size 722x1280
 INFO | WebSocket server listening on ws://0.0.0.0:8765
 ```
 
-**Using environment variables instead** (recommended):
-```bash
-export BITHUMAN_MODEL_PATH=/path/to/your/avatar.imx
-export BITHUMAN_API_SECRET=your_api_secret
+`--model` and `--api-secret` flags also exist and override the environment. The
+flags are there for scripting against a secret store; do not type a real secret
+after `--api-secret` on a shared machine.
 
-python bithuman_streaming_server.py
-```
-
-### Step 7: Run the Java Client
+### Step 8: Run the Java Client
 
 Open **Terminal 2** (client):
 
@@ -169,7 +179,7 @@ INFO - End-of-speech received from server
 INFO - Session complete — 127 video frames, 110 audio chunks received, 45 audio chunks sent
 ```
 
-### Step 8: Verify the Output
+### Step 9: Verify the Output
 
 If you saved frames, check them:
 
@@ -195,11 +205,10 @@ The server (with GPU/model) and client (Java app) can run on separate hosts:
 
 **Server machine** (with bitHuman SDK + model):
 ```bash
-python bithuman_streaming_server.py \
-    --model /path/to/avatar.imx \
-    --api-secret your_api_secret \
-    --host 0.0.0.0 \
-    --port 8765
+export BITHUMAN_MODEL_PATH=/path/to/avatar.imx
+read -rs BITHUMAN_API_SECRET && export BITHUMAN_API_SECRET
+
+python bithuman_streaming_server.py --host 0.0.0.0 --port 8765
 ```
 
 **Client machine** (Java only — no Python needed):
@@ -438,7 +447,7 @@ ffmpeg -framerate 25 -i frames/frame_%06d.jpg -c:v libx264 -pix_fmt yuv420p outp
 | Garbled/corrupted frames | Network packet loss (rare over TCP) | Check server logs for errors. Ensure WebSocket message size limit is sufficient. |
 | High latency | Network distance or slow model | Run server close to client. CPU-only mode is slower than GPU. |
 | `Model path required` | Missing `--model` argument | Pass `--model /path/to/avatar.imx` or set `BITHUMAN_MODEL_PATH` env |
-| `API secret or token required` | Missing credentials | Pass `--api-secret your_api_secret` or set `BITHUMAN_API_SECRET` env |
+| `API secret or token required` | Missing credentials | Set `BITHUMAN_API_SECRET` in the environment (a secret typed after `--api-secret` is readable in `ps`) |
 | Server exits immediately | Invalid model or credentials | Check the server logs for authentication or model loading errors |
 
 ---
