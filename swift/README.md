@@ -22,7 +22,7 @@ These are lower-level harnesses (benchmarks, A/B comparisons, a server daemon) c
 | Example | Consumes | What it shows |
 |---------|----------|---------------|
 | [hello-voice-chat/](hello-voice-chat/) | `bitHumanKit` | The smallest possible SPM executable embedding the SDK: `VoiceChat` + `VoiceChatConfig`, no avatar, no billing. |
-| [compare-quality/](compare-quality/) | `Expression` | Render a WAV → lip-synced MP4 to A/B fp16 vs int4 animator quality. Targets the Layer-1 Expression engine directly. |
+| [compare-quality/](compare-quality/) | `Expression` — **retired; does not build** | Render a WAV → lip-synced MP4 to A/B animator quality. It attaches a product the published package no longer vends, so `swift build` stops at `product 'Expression' … not found`. Kept as a record; use `Expression2` for a current engine. |
 | [compare-llm/](compare-llm/) | upstream MLX OSS | Load each on-device LLM (iOS vs macOS split) on a fixed prompt set. No bitHuman binary — same OSS path as `LLMClient`. |
 | [compare-tts/](compare-tts/) | `Voice` (private source) | Load Kokoro + Qwen3-TTS and synthesize a fixed utterance. **Requires the private bithuman-sdk-internal sibling checkout** (see its README). |
 | [bench-essence/](bench-essence/) | `bitHumanKit` | Essence runtime perf + correctness bench. Full correctness path needs an internal test seam (see its README). |
@@ -30,37 +30,51 @@ These are lower-level harnesses (benchmarks, A/B comparisons, a server daemon) c
 
 ## SwiftPM products
 
-The published package exposes three library products. Most apps want the umbrella; the two engine products are for when you need one layer without the rest.
+The published package vends **four** library products. Read from the tag
+`from: "2.13.8"` resolves, on 2026-09-21:
 
 | Product | `import` | What it is |
 |---------|----------|------------|
-| `bitHumanKit` | `import bitHumanKit` | Umbrella SDK — STT + LLM + TTS + both avatar engines. |
-| `Expression` | `import Expression` | Layer-1 avatar engine only (speech encoder → animator → face decoder → face renderer). Home of the `Bithuman` actor, `Bithuman.Quality`, `AvatarConfig`. |
-| `Bithuman` | `import Bithuman` | Layer-1 Essence engine only (libessence; audio → BGR frames from an `.imx`). CPU-only, any Apple Silicon. |
+| `bitHumanKit` | `import bitHumanKit` | Umbrella SDK — speech in, a language model, speech out, and an avatar. |
+| `Expression2` | `import Expression2` | The Expression 2 engine alone: a generated scene at 416x720, with a Swift API. |
+| `Essence2` | `import Essence2` | The Essence 2 engine alone, as a C interface. Also importable as `CLibEssence2`. |
+| `BithumanEngineProtocol` | `import BithumanEngineProtocol` | The source-only common engine interface. Do **not** take it beside `Expression2`, which already carries a binary copy. |
 
-## Supported models
+> **There is no `Expression` product and no `Bithuman` product.** Those are older
+> spellings this README used to document, and a target that names one fails with
+> `product 'Expression' … not found in package 'homebrew-bithuman'`. One example
+> here still names `Expression` — see the note on `compare-quality/` above.
 
-- **Expression** -- AI-generated facial animation from any face image, powered by the on-device Swift daemon.
-- **Essence** -- CPU-based lip sync from pre-built `.imx` model files. Supported on Apple Silicon via the same Swift SDK.
+**Attach exactly one engine product per app.** `Expression2` and `Essence2` in
+one target link green on the Simulator and fail at a device link with duplicate
+symbols.
 
 ## Hardware floor
 
-| Platform | Minimum device | OS |
-|----------|---------------|----|
-| Mac | Apple Silicon M3+ | macOS 26+ |
-| iPad | M4+ iPad Pro (16 GB) | iPadOS 26+ |
-| iPhone | iPhone 16 Pro+ | iOS 26+ |
+**It is per product, not per platform** — this table used to state
+`bitHumanKit`'s floor as if it were the whole SDK's, which sent people to buy a
+phone they did not need:
 
-M1 and M2 Macs are not supported for Expression (the SDK raises `ExpressionModelNotSupported`). Essence works on any Apple Silicon Mac.
+| You ship | Device floor | OS floor | Apple entitlements |
+|----------|--------------|----------|--------------------|
+| `Expression2` | any Apple Silicon iPhone, iPad or Mac — no hardware gate in the binary | iOS 16 / macOS 13 | none |
+| `Essence2` | any Apple Silicon iPhone; iPad with M-series; Mac with M3 or newer | iOS 26 / iPadOS 26 / macOS 26 | none |
+| `bitHumanKit` | iPhone 16 Pro or newer; iPad Pro M4 or newer (16 GB) | iOS 26 / iPadOS 26 / macOS 26 | **two, granted in 1–3 business days** |
+
+Only `bitHumanKit` carries a device gate and entitlements. The measured
+evidence, read out of the published binaries, is on
+[docs.bithuman.ai/sdk/ios](https://docs.bithuman.ai/sdk/ios#requirements).
 
 ## Links
 
 | Resource | URL |
 |----------|-----|
 | SwiftPM package | [github.com/bithuman-product/homebrew-bithuman](https://github.com/bithuman-product/homebrew-bithuman) |
-| Overview docs | [docs.bithuman.ai/sdk/swift](https://docs.bithuman.ai/sdk/swift) |
-| Quickstart | [docs.bithuman.ai/sdk/swift](https://docs.bithuman.ai/sdk/swift) |
-| CLI (no-code) | [docs.bithuman.ai/getting-started/cli](https://docs.bithuman.ai/getting-started/cli) |
+| Overview docs | [docs.bithuman.ai/sdk/ios](https://docs.bithuman.ai/sdk/ios) |
+| Expression 2 app, every file | [docs.bithuman.ai/examples/swift-ios-expression2](https://docs.bithuman.ai/examples/swift-ios-expression2) |
+| Essence 2 app, every file | [docs.bithuman.ai/examples/swift-ios-essence2](https://docs.bithuman.ai/examples/swift-ios-essence2) |
+| Check a resolve from any OS | [docs.bithuman.ai/examples/apple-swiftpm-check](https://docs.bithuman.ai/examples/apple-swiftpm-check) |
+| CLI (no-code) | [docs.bithuman.ai/sdk/cli](https://docs.bithuman.ai/sdk/cli) |
 
 ## Integration
 
@@ -68,11 +82,21 @@ Add the package to your Xcode project or `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.12.0")
+    .package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.13.8")
 ]
 ```
 
 Then `import bitHumanKit` in your source files.
+
+**Write `2.13.8` and nothing lower.** `from:` is a *floor*, and SwiftPM keeps
+whatever `Package.resolved` already holds — so a lower number leaves a project on
+an Essence 2 engine older than `essence2-v1.9.0`, and on that engine an iPhone
+under a 16 Pro warms up, refuses by name and stays idle-only: the face moves, it
+never speaks, and nothing is thrown. Every manifest in this directory was raised
+from `2.11.0` to `2.13.8` on 2026-09-21 for that reason. If you already resolved
+once, run `swift package update` — `Package.resolved` does not move on its own.
+Why, in full:
+[docs.bithuman.ai/sdk/ios](https://docs.bithuman.ai/sdk/ios#the-floor-is-the-number-that-matters).
 
 ## CLI (no-code path)
 
@@ -83,7 +107,7 @@ brew install bithuman-product/bithuman/bithuman-cli
 bithuman run
 ```
 
-See [docs.bithuman.ai/getting-started/cli](https://docs.bithuman.ai/getting-started/cli) for usage.
+See [docs.bithuman.ai/sdk/cli](https://docs.bithuman.ai/sdk/cli) for usage.
 
 ## Reference apps
 

@@ -36,8 +36,8 @@ A modern, responsive web interface for connecting to bitHuman's AI agents via Li
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/bithuman-product/homebrew-bithuman.git
-   cd homebrew-bithuman/Examples/integrations/nextjs-ui
+   git clone https://github.com/bithuman-product/bithuman-examples.git
+   cd bithuman-examples/integrations/nextjs-ui
    ```
 
 2. **Install dependencies**
