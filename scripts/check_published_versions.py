@@ -229,7 +229,12 @@ _RE_MAVEN_BARE_COORD = re.compile(
 )
 _RE_SEMVER = re.compile(SEMVER)
 _RE_TAP_TAG = re.compile(rf"\b(?P<tag>(?:{'|'.join(p.rstrip('v') + 'v' for p in TAP_TAG_PREFIXES)}){SEMVER})\b")
-_RE_TAP_DL = re.compile(r"homebrew-bithuman/releases/download/(?P<tag>[^/\s\"')]+)/")
+# ★The trailing slash is OPTIONAL. swift-examples.yml builds its download URL
+# as `BASE=.../releases/download/v2.6.1` with the filename appended later, so a
+# slash-required pattern read right past the one release tag this repo's own CI
+# depends on. (Found by listing what the checker had actually claimed, which is
+# a thing worth doing to any gate you have just written.)
+_RE_TAP_DL = re.compile(r"homebrew-bithuman/releases/download/(?P<tag>[^/\s\"'),]+)")
 _RE_TAP_SPM = re.compile(r'from:\s*"?(?P<ver>' + SEMVER + r')"?')
 _RE_PYPI_PIN = re.compile(
     r"(?<![\w.-])(?P<proj>" + "|".join(sorted(PYPI_PROJECTS, key=len, reverse=True)) + r")"
