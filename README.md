@@ -6,14 +6,14 @@ Runnable bitHuman demos for every surface we support — mobile, web, Python, th
 
 | Surface | Directory | Notes |
 |---|---|---|
-| macOS · iOS · Android | `app/avatar_chat/` | The one Flutter app. **Android builds from a clone today; iOS and macOS do not** — see [What `app/` stops at](#what-app-stops-at). For a working on-device app on iPhone or Mac, use `swift/`; for a native Android one, `android/`. |
+| macOS · iOS · Android | `app/avatar_chat/` | The one Flutter app. **Android builds from a clone today; iOS and macOS do not** — see [What `app/` stops at](#what-app-stops-at). For a working on-device app on iPhone or Mac, use `swift/`. |
 | Web | `web/` | Not here yet. |
 | Python | `python/` | SDK quickstart, self-hosted Essence (CPU), and cloud-hosted Essence via LiveKit. |
 | REST API & CLI | `api/` | `api/rest-api/` curl and Python scripts per endpoint; `api/cli/` shell scripts for the `bithuman` CLI. |
 | Swift (native, on-device) | `swift/` | macOS, iOS and iPadOS apps, plus playback, server and benchmark samples. |
 | Integrations (Next.js, Gradio, Java) | `integrations/` | Next.js + LiveKit frontend, Gradio browser UI, Java WebSocket client, offline macOS stack. |
 
-`android/` holds Gradle and Maven Central setup notes for the native Android SDKs.
+`android/` holds Gradle and Maven Central setup notes for the native Android SDKs — coordinates, repositories, and what a release build needs. It is notes only: there is no Gradle project checked in, because the complete Kotlin project for both models is printed in full on [Kotlin / Android — Hello, avatar](https://docs.bithuman.ai/examples/kotlin-android-hello), and that page is compiled by a scheduled gate so it cannot drift from something that builds.
 
 ### What `app/` stops at
 
