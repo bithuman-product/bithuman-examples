@@ -12,9 +12,18 @@ name: flutter tests
 on:
   push:
     branches: [main]
-    paths: ['app/avatar_chat/**', 'scripts/**', '.github/workflows/flutter-tests.yml']
+    paths: &flutter_paths
+      - 'app/avatar_chat/**'
+      # ★NAME THE TWO SCRIPTS, NOT THE DIRECTORY. `scripts/**` used to be this
+      # app's private toolbox; it is now shared, and the first unrelated tool to
+      # land there (scripts/check_published_versions.py, a 5 s registry read)
+      # made every PR touching it pay the 40-minute release-APK job below.
+      # A path filter is a cost knob: widen it only for a file this job reads.
+      - 'scripts/check_dev_levers.sh'
+      - 'scripts/prove_release_ignores_dev_levers.sh'
+      - '.github/workflows/flutter-tests.yml'
   pull_request:
-    paths: ['app/avatar_chat/**', 'scripts/**', '.github/workflows/flutter-tests.yml']
+    paths: *flutter_paths
   workflow_dispatch: {}
 
 permissions:
