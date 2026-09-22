@@ -148,7 +148,9 @@ async def main():
         mic_stream.stop()
         speaker_stream.stop()
         cv2.destroyAllWindows()
-        await runtime.stop()
+        # shutdown(), not stop(): stop() halts the frame producer but keeps the
+        # model loaded and the credential held. shutdown() frees both.
+        await runtime.shutdown()
 
 
 if __name__ == "__main__":

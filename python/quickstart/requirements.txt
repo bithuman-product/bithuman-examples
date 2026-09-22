@@ -1,7 +1,9 @@
-# For local-avatar.py (minimum):
-bithuman>=1.7.0
-opencv-python-headless>=4.0
+# local-avatar.py
+bithuman>=2.11,<3
+# The GUI build, NOT opencv-python-headless: these scripts open a window with
+# cv2.imshow, and the headless build raises "The function is not implemented".
+opencv-python>=4.8
 
-# For cloud-avatar.py (LiveKit + OpenAI):
+# cloud-avatar.py (LiveKit + OpenAI)
 livekit-agents[openai,silero]>=1.4
 livekit-plugins-bithuman>=1.4

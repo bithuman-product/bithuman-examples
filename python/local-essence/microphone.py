@@ -24,11 +24,8 @@ from loguru import logger
 from bithuman import AsyncBithuman
 
 
-# --- Inline replacement for bithuman.utils.FPSController (removed in SDK 2.3). ---
-# Tiny time.monotonic() pacer. Surface matches the original:
-#   wait_next_frame(sleep=False) -> float seconds until next frame deadline
-#   update()                     -> record that a frame was emitted
-#   average_fps                  -> float, recent observed FPS
+# A small pacer so the window is refreshed at the avatar's own frame rate
+# rather than as fast as frames arrive.
 class FPSController:
     def __init__(self, target_fps: int = 25, window: int = 50):
         self._target_dt = 1.0 / float(target_fps)
@@ -181,7 +178,9 @@ async def main():
         if speaker_stream:
             speaker_stream.stop()
         cv2.destroyAllWindows()
-        await runtime.stop()
+        # shutdown(), not stop(): stop() halts the frame producer but keeps the
+        # model loaded and the credential held. shutdown() frees both.
+        await runtime.shutdown()
 
 
 if __name__ == "__main__":
