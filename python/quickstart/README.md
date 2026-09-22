@@ -38,6 +38,15 @@ python local-avatar.py --model your-avatar.imx --audio speech.wav
 
 A window will open showing the avatar lip-syncing to the audio. Press `q` to quit.
 
+> **No display — ssh, Docker, CI? It says so and stops, before it costs you
+> anything.** This example is a window, and it now checks for one before it
+> downloads the model or starts a render. To get a file instead, the SDK ships
+> that as one command: `python -m bithuman <avatar> <audio>` writes
+> `<avatar>.mp4`. Why the check is not a `try`/`except`: the GUI build of
+> OpenCV with no display does not raise — Qt fails to load its platform plugin
+> and calls `abort()`, so the process dies on SIGABRT with no traceback and
+> nothing to catch (measured on a headless Linux box: exit 134).
+
 > **First run is slow (up to 60 seconds).** The first time: the sample model downloads (~148 MB), then the SDK may convert it from legacy format to v2. Both are one-time costs — subsequent runs start in under 2 seconds.
 
 > **The sample needs no account.** It is `A52DHS2219` ("Sofia Ramirez", Essence 2), one of the identities in the free gallery — `bithuman list` shows them all, and any of them can be fetched with `bithuman pull <SLUG>` or straight from `GET /v1/agent/<CODE>/model/download`, which needs no credential for a gallery identity. Your own agent's model does need `BITHUMAN_API_SECRET`, and so does running the avatar below.
