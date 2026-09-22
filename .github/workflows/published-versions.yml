@@ -22,11 +22,20 @@
 # unable to see a registry move, which is the only way this particular bug
 # happens. The daily run is the drift detector; the PR run is the ratchet.
 #
-# ★AND IT PROVES ITSELF BEFORE IT GRADES ANYTHING. `--selftest` runs six
-# controls: three shapes that MUST be rejected (a superseded Maven version, a
-# version never published, a pin to a tag that does not exist), two that MUST
-# pass (the live registry values, and the ignore marker), and one that proves an
-# unreachable registry exits 2 rather than reporting a green it never earned.
+# ★AND IT PROVES ITSELF BEFORE IT GRADES ANYTHING. `--selftest` runs ELEVEN
+# controls covering every rule: the shapes that must be REJECTED (a superseded
+# Maven version in a dependency line, a version never published, a pin to a tag
+# that does not exist, prose naming a version that never existed, an EXPIRED
+# waiver, a waiver whose claim has become correct), the shapes that must PASS
+# (the live registry values, the ignore marker, prose naming a superseded but
+# real version, a live waiver), and the one that proves an unreachable registry
+# exits 2 rather than reporting a green it never earned.
+#
+# ★Three of those eleven exist because the waiver rules were WRONG when first
+# written: a waiver was marked "used" when the claim it covered became CORRECT
+# — the one condition meant to delete it. That bug survived a full red/green
+# proof and surfaced only when a lane actually fixed its page. A rule with no
+# control is a rule nobody has watched fail.
 # A green that has never been shown to go red is not evidence. The passing
 # fixture is GENERATED from the registry at run time, so the control cannot go
 # stale in the way the thing it guards did.
@@ -56,7 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: the gate can fail — six controls, before anything is graded
+      - name: the gate can fail — eleven controls, before anything is graded
         run: python3 scripts/check_published_versions.py --selftest
 
       - name: grade this repository against Maven Central, PyPI and the tap

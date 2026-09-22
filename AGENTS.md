@@ -92,7 +92,7 @@ An example that calls the same thing three names is an example nobody can search
 
 ### Versions
 
-★No file in this repository may advertise a version the registry does not serve, and the top-level README carries no version literal at all. `scripts/check_published_versions.py` reads Maven Central, PyPI and the tap's tag list — never a local checkout — and `.github/workflows/published-versions.yml` runs it on every pull request **and once a day**, because the failure it guards against takes no commit: `android/README.md` sat thirteen releases behind while nobody touched it. It carries six controls (`--selftest`) proving it can go red, including one proving an unreachable registry exits non-zero instead of passing.
+★No file in this repository may advertise a version the registry does not serve, and the top-level README carries no version literal at all. `scripts/check_published_versions.py` reads Maven Central, PyPI and the tap's tag list — never a local checkout — and `.github/workflows/published-versions.yml` runs it on every pull request **and once a day**, because the failure it guards against takes no commit: `android/README.md` sat thirteen releases behind while nobody touched it. It carries eleven controls (`--selftest`) proving it can go red — including one proving an unreachable registry exits non-zero instead of passing, and three on the waiver ledger's own rules, which were wrong when first written.
 
 Two escapes, both narrow: `<!-- version-check-ignore: reason -->` on a line whose old number is the point (a dated measurement), and `.github/version-waivers.json` for a defect in a lane you do not own — every waiver carries an owner, a reason and an expiry, and an expired one is a hard failure.
 
