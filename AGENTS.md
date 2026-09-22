@@ -30,15 +30,11 @@ api/                                  No-SDK surfaces
   rest-api/python/                    Full Python scripts per endpoint
 
 swift/                                Swift SDK for Apple platforms — all inference on-device
+  macos-expression2/                  expression-2 on a Mac: a WAV in, frames out, no account
+  ios-expression2/                    the same engine on iPhone, 416x720 @ 20 FPS, no server
   macos-voice/                        macOS voice agent (audio only, no API key)
-  macos-avatar/                       macOS voice + lip-synced Expression avatar
-  ios-avatar/                         iOS/iPadOS Expression avatar with hardware gate
-  ios-expression2/                    expression-2 on iPhone, 416x720 @ 20 FPS, no server
-  essence-playback/                   Essence .imx on Apple Silicon
-  hello-voice-chat/                   Smallest SPM executable that embeds the SDK
-  essence-server/                     Native Swift LiveKit avatar service (HTTP /launch)
-  bench-essence/                      Essence perf + correctness bench
-  compare-quality/ compare-llm/ compare-tts/    Engine A/B harnesses
+  hello-voice-chat/                   the same agent in 20 lines, no window
+  ios-avatar/                         the bitHumanKit umbrella on iOS — source, not a runnable project
 
 android/                              Gradle + Maven Central setup for the native Android SDKs,
                                       (the Flutter app in app/ is the successor once its two gates open)
@@ -63,7 +59,7 @@ If you are an AI agent wiring bitHuman into a user's codebase:
 | "Web app, custom face" | [python/cloud-essence/](python/cloud-essence/) (Expression agent) | Same plugin, any face image |
 | "Kiosk / 24/7 / edge box" | [python/local-essence/](python/local-essence/) | CPU only, no idle timeout |
 | "On-prem, NVIDIA GPU" | [docs: deployment](https://docs.bithuman.ai/guides/deployment) | Docker, dynamic face |
-| "Mac/iPad/iPhone app" | [swift/macos-avatar/](swift/macos-avatar/) or [swift/ios-avatar/](swift/ios-avatar/) | All on-device |
+| "Mac/iPad/iPhone app" | [swift/macos-expression2/](swift/macos-expression2/) or [swift/ios-expression2/](swift/ios-expression2/) | All on-device, no account |
 | "Android app" | [android/](android/) | Maven Central coordinates + the `google()` repo trap |
 | "Mac, no code" | `brew install bithuman-product/bithuman/bithuman-cli` → see [api/cli/](api/cli/) | 30 seconds |
 | "REST API, any language" | [api/rest-api/curl/](api/rest-api/curl/) | Just curl |

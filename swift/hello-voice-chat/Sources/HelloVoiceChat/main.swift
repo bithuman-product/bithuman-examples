@@ -1,5 +1,5 @@
-// The minimum it takes to embed bitHumanKit into another
-// SPM-built macOS executable. Run after `./build-example.sh`.
+// The smallest bitHumanKit program: a voice agent with no window and no key.
+// Run with:  swift run -c release HelloVoiceChat
 import bitHumanKit
 import Foundation
 

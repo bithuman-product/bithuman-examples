@@ -13,7 +13,7 @@ let package = Package(
     dependencies: [
         .package(name: "bithuman",
                  url: "https://github.com/bithuman-product/homebrew-bithuman.git",
-                 from: "2.11.0")
+                 from: "2.14.0")
     ],
     targets: [
         .executableTarget(
