@@ -39,8 +39,24 @@ export BITHUMAN_API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first
 MODEL="${1:?Usage: ./render-video.sh <expression-2 model.imx>}"
 OUT="${2:-demo.mp4}"
 
+# ★`-f` IS LOAD-BEARING, and the missing `-f` is why this mattered. Without it
+# curl writes the server's error BODY to the file and still exits 0. This line
+# pointed into `homebrew-bithuman/Examples/`, a tree that has been retired, so a
+# fresh run produced a 14-byte `speech.wav` whose contents were the text
+# `404: Not Found` — and the render then failed on a corrupt WAV, one step away
+# from the real cause. Measured 2026-09-22: that URL answers 404, `curl -sO`
+# exits 0, and the file it leaves behind is 14 bytes.
 if [ ! -f speech.wav ]; then
-  curl -sO https://raw.githubusercontent.com/bithuman-product/homebrew-bithuman/main/Examples/python/local-essence/speech.wav
+  curl -fsSLo speech.wav \
+    https://raw.githubusercontent.com/bithuman-product/bithuman-examples/main/python/local-essence/speech.wav
+fi
+
+# A WAV is 44 bytes of header before a single sample, so anything this small is
+# not audio however it got here. The check is the floor that makes the next dead
+# URL an error instead of a puzzle.
+if [ "$(wc -c < speech.wav)" -lt 1024 ]; then
+  echo "speech.wav is $(wc -c < speech.wav) bytes — that is not audio. Delete it and re-run." >&2
+  exit 1
 fi
 
 bithuman render "$MODEL" --audio speech.wav --output "$OUT"
