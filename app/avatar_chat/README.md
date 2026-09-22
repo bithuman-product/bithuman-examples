@@ -32,6 +32,29 @@ against it carries `lib/arm64-v8a/lible_jni.so` byte-identical (sha256 `083ee4e5
 one inside Central's AAR. The previous pin, `flutter-plugin-v2.6.6`, resolved 0.5.10 and
 drew the wider region.
 
+The same tag pins the other engine at **`ai.bithuman:expression2-android:0.4.7`**,
+one release behind Central's current 0.4.8 (read from the plugin's
+`android/build.gradle` at the tag, 2026-09-22).
+
+**The accelerator is not at risk from that lag.** 0.4.8 is the first release whose
+POM declares the two Qualcomm coordinates itself; the plugin already declares
+`com.qualcomm.qti:qnn-litert-delegate:2.49.0` and `com.qualcomm.qti:qnn-runtime:2.49.0`
+by hand, so the Snapdragon accelerator is reached either way and an Expression 2
+build here does **not** silently fall back to the CPU. If you consume the SDK
+directly rather than through this plugin, take 0.4.8 and delete those two lines.
+
+What else moved between the two is **not** fully accounted for here. Comparing the
+published AARs entry by entry (2026-09-22, both verified against Central's own
+`.sha256` sidecars): the public class list is identical, the exported JNI symbol
+set is identical, `libLiteRt.so`, the manifest and the consumer ProGuard rules are
+byte-identical — but `libexpr2jni.so` differs and is 2,488 B larger, so the engine
+itself was rebuilt with a change this README has not identified. Treat 0.4.8 as the
+version to move to when the plugin's next tag takes it, not as a no-op.
+
+Both coordinates resolve anonymously from Maven Central; neither needs Google's
+Maven. `google()` is still in the repository list because the Android Gradle
+Plugin fetches its own `aapt2` from there.
+
 ## Run
 
 ```bash
@@ -132,8 +155,10 @@ xcrun devicectl device copy to --device <udid> --domain-type appDataContainer \
 shred -u "$TMP/.bootstrap_secret" 2>/dev/null || rm -f "$TMP/.bootstrap_secret"
 ```
 
-Older scripts on this estate pass the secret with `-e`. That is the pattern **not** to copy. With no key it shows the refusal
-`metering_no_credential` and the field; it never spins.
+Older scripts here pass the secret with `-e`. That is the pattern **not** to copy.
+
+Launched with no key at all, the app does not hang: it shows the refusal
+`metering_no_credential` and the credential screen, and waits for you to type one.
 
 For a test device, seed the store without a prompt: write the secret to
 `.bootstrap_secret` (iOS: `xcrun devicectl device copy to …` into `Documents/`; macOS: the

@@ -34,3 +34,12 @@ target/
 .env.*
 !.env.example
 !.env.gpu
+
+# macOS resource forks and Finder junk. 156 `._*` AppleDouble files were tracked
+# here until 2026-09-22 — they reach a clone from an archive unpacked on a Mac,
+# carry no source, and put files in `app/.../res/` that no one authored.
+._*
+.DS_Store
+.AppleDouble
+# Kotlin build sessions (AGP writes these beside `build/`)
+.kotlin/

@@ -44,7 +44,8 @@ android {
     packaging { jniLibs { useLegacyPackaging = true } }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        // Set above from `bhModel`, so the two models install side by side. If you fork
+        // this app, change both ids in `bhAppId` to your own.
         applicationId = bhAppId
         // The manifest reads the label from this placeholder, so the two apps are told
         // apart on the home screen without a second manifest or a second source tree.
