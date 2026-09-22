@@ -46,7 +46,9 @@ A window will open showing the avatar lip-syncing to the audio. Press `q` to qui
 
 > **Sample audio included.** This directory ships a `speech.wav` file you can use for testing. No need to find your own audio.
 
-> **macOS warning about AVFAudioReceiver / libavdevice?** This is a harmless conflict between OpenCV and PyAV shipping their own FFmpeg libraries. It prints once at import and doesn't affect functionality. If it bothers you: `pip install opencv-python-headless` (which `bithuman` already depends on) and avoid installing the full `opencv-python` package.
+> **macOS warning about AVFAudioReceiver / libavdevice?** Harmless — OpenCV and PyAV each ship their own FFmpeg libraries. It prints once at import and changes nothing.
+
+> **Keep `opencv-python`, not `opencv-python-headless`.** `bithuman` depends on the headless build, but `cv2.imshow` is not compiled into it — a window example that gets the headless build fails with *"The function is not implemented"*. `requirements.txt` asks for the GUI build for exactly this reason. In a container, where there is no window, prefer headless (that is what the agent dockerfiles do).
 
 ### Option B: Cloud avatar (more setup, but no model download needed)
 
@@ -75,8 +77,8 @@ Once your first demo works, pick the path that matches what you're building:
 
 | File | Purpose |
 |------|---------|
-| [local-avatar.py](local-avatar.py) | Minimal Python script — loads a model, pushes audio, displays frames |
+| [local-avatar.py](local-avatar.py) | Opens an avatar, renders an audio file through it, shows the frames |
 | [cloud-avatar.py](cloud-avatar.py) | LiveKit cloud agent with OpenAI voice chat |
-| [speech.wav](speech.wav) | Sample 13-second audio clip for testing |
+| [speech.wav](speech.wav) | Sample audio for testing — 13.9 s, 16 kHz mono |
 | [.env.example](.env.example) | Template for environment variables (copy to `.env` and fill in) |
 | [requirements.txt](requirements.txt) | Python dependencies for both scripts |

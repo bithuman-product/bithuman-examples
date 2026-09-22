@@ -30,7 +30,11 @@ pip install bithuman --upgrade
 pip install "livekit-agents>=1.4" "livekit-plugins-bithuman>=1.4"
 ```
 
-Pre-built wheels for Python 3.10-3.14 on Linux x86_64 + ARM64, macOS Intel + Apple Silicon, Windows x86_64.
+Pre-built wheels cover Python 3.10–3.14 on **Linux x86_64, Linux aarch64 and
+Apple Silicon macOS 14+** — the three platform tags the release actually
+publishes. There is **no Windows and no Intel-Mac wheel**; on Windows, run these
+examples under WSL2. `pip install` on any other platform stops with a message
+naming your platform rather than installing something older.
 
 ## Example structure
 
@@ -46,12 +50,17 @@ Most also include:
 
 ## Two models
 
+These examples all use the second-generation models (`essence-2`,
+`expression-2`). The rates that used to be copied into this table were the
+**first**-generation ones, which are half — so the pricing page is linked
+instead of duplicated, because it is the single source for every billing number
+and this copy went stale.
+
 | | **Essence** | **Expression** |
 |---|---|---|
 | Avatar source | `.imx` file from [bithuman.ai](https://www.bithuman.ai/#explore) | Any face image |
 | Compute | CPU only | NVIDIA GPU or Apple M3+ |
-| Pricing (self-hosted) | 1 cr/min | 2 cr/min |
-| Pricing (cloud) | 2 cr/min | 4 cr/min |
+| Pricing | [docs.bithuman.ai/guides/pricing ↗](https://docs.bithuman.ai/guides/pricing) | same page |
 
 ## Documentation
 

@@ -21,9 +21,7 @@ from dotenv import load_dotenv
 from bithuman import AsyncBithuman
 
 
-# --- Inline replacements for bithuman.audio (removed in SDK 2.3 slim wheel). ---
-# These helpers were tiny leaf utilities; we inline them so examples have no
-# dependency on internal SDK helpers that may move between releases.
+# push_audio() wants 16 kHz mono int16; these two turn any audio file into that.
 def load_audio(path: str, target_sr: int = 16000) -> tuple[np.ndarray, int]:
     """Load WAV/MP3/FLAC/etc., downmix to mono, resample to target_sr.
 
@@ -46,7 +44,6 @@ def load_audio(path: str, target_sr: int = 16000) -> tuple[np.ndarray, int]:
 def float32_to_int16(arr: np.ndarray) -> np.ndarray:
     """Clip + scale float32 [-1, 1] to int16 PCM."""
     return (np.clip(arr, -1.0, 1.0) * 32767.0).astype(np.int16)
-# --- end inline helpers ---
 
 load_dotenv()
 
@@ -115,7 +112,9 @@ async def main() -> None:
         pusher.cancel()
         speaker.stop()
         cv2.destroyAllWindows()
-        await runtime.stop()
+        # shutdown(), not stop(): stop() halts the frame producer but keeps the
+        # model loaded and the credential held. shutdown() frees both.
+        await runtime.shutdown()
 
 
 if __name__ == "__main__":
