@@ -12,6 +12,15 @@ fetched at runtime.
 
 `expression-1` is GPU-only and has no Android coordinate.
 
+**Start with a second-generation model.** `ai.bithuman:sdk` is the
+first-generation artifact and is listed for completeness, not as a
+recommendation: the published 2.3.6 installs and then throws before its first
+frame with `be_auth_authenticate: status=11`, because its native library ships
+with no CA trust store and there is no app-side workaround on that version. It is
+also a different integration — a `.imx` you push to the device yourself plus an
+API secret, rather than the model store the two rows above use. Details on
+[Android SDK](https://docs.bithuman.ai/sdk/android#troubleshooting).
+
 Verified against `repo1.maven.org` on 2026-09-22: each artifact's own
 `maven-metadata.xml` names exactly these as `<release>`. That file is the
 registry's own answer and is the thing to check — `search.maven.org` returns no
