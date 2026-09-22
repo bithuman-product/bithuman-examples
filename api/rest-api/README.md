@@ -6,11 +6,18 @@ HTTP API for managing agents, generating avatars, controlling live sessions, and
 
 **Auth:** Include your API secret in the `api-secret` header on every request. Get yours at [www.bithuman.ai/#developer](https://www.bithuman.ai/#developer).
 
-## Endpoints
+## Endpoints these examples cover
+
+**This table is the subset the scripts in this directory demonstrate, not the whole API.**
+The published spec carries **36 paths** (read from
+[docs.bithuman.ai/api/openapi.yaml](https://docs.bithuman.ai/api/openapi.yaml) on
+2026-09-22) — offline video rendering, TTS, voices, webhooks, usage and more are
+there and not here. Treat the spec as the list; treat this as the tour.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `POST` | `/v1/validate` | Validate API credentials and check credit balance |
+| `GET` | `/v1/agents` | List your agents |
 | `GET` | `/v1/agent/{code}` | Get agent details (name, status, model URL, prompt) |
 | `POST` | `/v1/agent/{code}` | Update agent settings (system prompt) |
 | `POST` | `/v1/agent/generate` | Start agent generation (~4 min) |
@@ -65,7 +72,7 @@ Minimal, self-contained bash scripts. Each one demonstrates a single endpoint.
 |--------|-------------|
 | [curl/validate.sh](curl/validate.sh) | Validate API credentials |
 | [curl/check-credits.sh](curl/check-credits.sh) | Check your credit balance |
-| [curl/list-agents.sh](curl/list-agents.sh) | List your agents |
+| [curl/list-agents.sh](curl/list-agents.sh) | List your agents (`GET /v1/agents`) |
 | [curl/speak.sh](curl/speak.sh) | Make a live agent speak |
 | [curl/add-context.sh](curl/add-context.sh) | Inject background context |
 | [curl/generate-agent.sh](curl/generate-agent.sh) | Generate an agent and poll until ready |
