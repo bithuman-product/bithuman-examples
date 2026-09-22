@@ -14,8 +14,11 @@ pin engines that fail in ways nothing throws. See
 
 ## The examples
 
-Every one of these builds from a clone against the published package. Start
-with the first row that matches the machine on your desk.
+Start with the first row that matches the machine on your desk. Nothing here is
+broken: on 2026-09-22 the three Mac packages were built and `macos-expression2`
+was run end to end, and both iOS examples were typechecked against the
+published binaries. `ios-avatar` is source to paste into an app target rather
+than a project to open — its README says why.
 
 | Example | Runs on | Needs an account? | What it shows |
 |---|---|---|---|

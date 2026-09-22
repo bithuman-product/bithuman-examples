@@ -3,8 +3,8 @@
 A small command-line tool: a 16 kHz WAV goes in, lip-synced frames come out,
 all on this machine. No server, no account, no key, no credits.
 
-This is the shortest native Apple path there is. The same `Expression2` product,
-the same three calls and the same files also run on an iPhone — see
+This is the shortest native Apple path there is. The same `Expression2` product
+and the same three calls — `create`, `feed`, `pull` — also run on an iPhone; see
 [`ios-expression2`](../ios-expression2) for the app shape.
 
 ## Run it
