@@ -43,7 +43,7 @@ One key, from [www.bithuman.ai/developer/api-keys](https://www.bithuman.ai/devel
 export BITHUMAN_API_SECRET="your_secret"
 ```
 
-`BITHUMAN_API_SECRET` is the name to use in anything you write. Every Python, CLI, REST and Flutter example here reads it. Three Swift examples still read `BITHUMAN_API_KEY` instead — `swift/macos-avatar/`, `swift/ios-avatar/`, `swift/essence-playback/` — so export both if you are moving between languages.
+`BITHUMAN_API_SECRET` is the name to use in anything you write. Every Python, CLI, REST, Flutter and current Swift example reads it. One example still reads `BITHUMAN_API_KEY` instead — `swift/ios-avatar/` — so export both if you are working across all of them.
 
 A key belongs in the environment or an untracked `.env`, never in a commit. Every example ships a `.env.example` to copy from, and `.env` is gitignored.
 
@@ -55,7 +55,7 @@ Said plainly here so you do not find them halfway through a build:
 
 - **`app/avatar_chat/` does not build for iOS or macOS from a clone.** The Flutter plugin's Apple half stages its engines from a private repository, and no published engine asset exists that a clone could use instead; the build stops at `cannot find 'Expression2Engine' in scope`. Android *does* build — every engine it needs is a public Maven Central coordinate resolved anonymously. For a working Apple app today use [`swift/`](swift/), which builds against the public Swift package and ships both engines.
 - **There is no `web/` directory.** The web surface is not in this repository.
-- **Several `swift/` examples target SDK APIs that have since been removed.** They are named individually in [`.github/workflows/swift-examples.yml`](.github/workflows/swift-examples.yml), which gates the rest against regression rather than letting the whole job sit red.
+- **Every `swift/` example here builds.** The ones that had rotted against removed SDK APIs were deleted rather than left to mislead, and [`.github/workflows/swift-examples.yml`](.github/workflows/swift-examples.yml) now holds an empty exemption list — so a package that stops building fails the job instead of joining a list.
 
 ## Keeping this honest
 
