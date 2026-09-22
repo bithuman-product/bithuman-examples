@@ -5,7 +5,7 @@
 # An "active session" means someone is connected to the agent via:
 #   - The web viewer (https://agent.viewer.bithuman.ai/AGENT_CODE)
 #   - A LiveKit room (from one of the Python/Docker examples)
-#   - The ImagineX dashboard (www.bithuman.ai)
+#   - The bitHuman dashboard (www.bithuman.ai)
 #
 # If no one is connected, you'll get: "No active rooms found for agent"
 # To test without a session, use the dashboard at www.bithuman.ai instead.

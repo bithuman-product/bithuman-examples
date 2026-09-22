@@ -1,0 +1,76 @@
+# published-versions — a version this repository advertises must be one the
+# registry actually serves.
+#
+# ★THE DEFECT THIS EXISTS FOR (measured 2026-09-22). `android/README.md` had a
+# column literally headed `latest`:
+#
+#     | essence-2    | `ai.bithuman:essence2-android`    | 0.2.0 |   (version-check-ignore: quoting the defect)
+#     | expression-2 | `ai.bithuman:expression2-android` | 0.3.0 |   (version-check-ignore: quoting the defect)
+#
+# (Those two trailing markers are the escape hatch in use: a line whose OLD
+#  number is the point says so, in its own file, and the checker skips it.)
+#
+# Maven Central was serving 0.5.12 and 0.4.8 — thirteen and five releases on.
+# The repository had CI (flutter-tests, swift-examples) and both were green,
+# because neither of them reads a registry: a stale version number compiles
+# fine, renders fine, and is wrong. A developer copying those two lines got an
+# engine from another quarter that still works and works DIFFERENTLY.
+#
+# ★AND THE ROT TOOK NO COMMIT. Nobody edited that file wrongly; it stopped
+# being true while it sat still. That is why this workflow runs on a SCHEDULE
+# as well as on pull requests — a check that only runs on a diff is structurally
+# unable to see a registry move, which is the only way this particular bug
+# happens. The daily run is the drift detector; the PR run is the ratchet.
+#
+# ★AND IT PROVES ITSELF BEFORE IT GRADES ANYTHING. `--selftest` runs six
+# controls: three shapes that MUST be rejected (a superseded Maven version, a
+# version never published, a pin to a tag that does not exist), two that MUST
+# pass (the live registry values, and the ignore marker), and one that proves an
+# unreachable registry exits 2 rather than reporting a green it never earned.
+# A green that has never been shown to go red is not evidence. The passing
+# fixture is GENERATED from the registry at run time, so the control cannot go
+# stale in the way the thing it guards did.
+#
+# Cost: 6 HTTP reads and one `git ls-remote`, ~5 s wall clock, no credentials.
+name: published versions
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # 13:20 UTC daily. The registry moves without us; this is the only run that
+    # can notice. (2026-09-22: expression2-android 0.4.8 was published at 10:46
+    # UTC, four hours after a lane hand-read 0.4.7 into an open PR.)
+    - cron: '20 13 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  versions:
+    name: every advertised version is one the registry serves
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: the gate can fail — six controls, before anything is graded
+        run: python3 scripts/check_published_versions.py --selftest
+
+      - name: grade this repository against Maven Central, PyPI and the tap
+        run: python3 scripts/check_published_versions.py
+
+      - name: show the unwaived state in the job summary (warnings included)
+        if: always()
+        run: |
+          set -uo pipefail
+          {
+            echo '## Version claims vs. the published registries'
+            echo
+            echo 'Unwaived — this is the real state, whatever the job above concluded:'
+            echo '```'
+            python3 scripts/check_published_versions.py --no-waivers 2>&1 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
