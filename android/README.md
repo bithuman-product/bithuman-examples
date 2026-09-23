@@ -6,8 +6,8 @@ fetched at runtime.
 
 | model | coordinate | latest |
 |---|---|---|
-| essence-2 | `ai.bithuman:essence2-android` | **0.5.13** |
-| expression-2 | `ai.bithuman:expression2-android` | **0.4.8** |
+| essence-2 | `ai.bithuman:essence2-android` | **0.5.14** |
+| expression-2 | `ai.bithuman:expression2-android` | **0.4.9** |
 | essence-1 | `ai.bithuman:sdk` | 2.3.6 |
 
 `expression-1` is GPU-only and has no Android coordinate.
@@ -51,9 +51,9 @@ android {
     packaging { jniLibs { useLegacyPackaging = true } }   // required — see below
 }
 dependencies {
-    implementation("ai.bithuman:essence2-android:0.5.13")
+    implementation("ai.bithuman:essence2-android:0.5.14")
     // and/or
-    implementation("ai.bithuman:expression2-android:0.4.8")
+    implementation("ai.bithuman:expression2-android:0.4.9")
 }
 ```
 
@@ -152,7 +152,8 @@ There is no Gradle project checked in beside this file, and nothing is missing.
 The complete Android project — seven files, printed in full, for **both** models —
 is
 [Kotlin / Android — Hello, avatar](https://docs.bithuman.ai/examples/kotlin-android-hello).
-The Expression 2 half needs no account, no key and no credits.
+From `expression2-android` 0.4.9 the Expression 2 half downloads its model with no account, and
+needs a free API secret to render (`Expression2Metering.apiSecret`; talking time is billed, idle is free).
 
 That page is not a copy of a project; it **is** the project. A scheduled gate
 fetches the published page, writes its code blocks out as the filenames on the
