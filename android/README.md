@@ -6,11 +6,27 @@ fetched at runtime.
 
 | model | coordinate | latest |
 |---|---|---|
-| essence-2 | `ai.bithuman:essence2-android` | **0.5.13** |
-| expression-2 | `ai.bithuman:expression2-android` | **0.4.8** |
+| essence-2 | `ai.bithuman:essence2-android` | **0.5.14** |
+| expression-2 | `ai.bithuman:expression2-android` | **0.4.9** |
 | essence-1 | `ai.bithuman:sdk` | 2.3.6 |
 
 `expression-1` is GPU-only and has no Android coordinate.
+
+**Both second-generation SDKs need a bitHuman API secret.** They meter the talking
+time they render, and from `expression2-android` 0.4.9 Expression 2 does too:
+`Expression2Avatar.create` throws `Expression2Exception` unless
+`Expression2Metering.apiSecret` is set (Essence 2: `Essence2Metering.apiSecret`).
+A free key: [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys).
+
+## Two complete apps
+
+| project | model | what it shows |
+|---|---|---|
+| [expression2-hello/](expression2-hello/) | expression-2 | Wise Pup (`A23WJF0199`) rendered on the phone from a WAV, played back on the audio clock |
+| [essence2-hello/](essence2-hello/) | essence-2 | Sofia Ramirez (`A52DHS2219`), full-resolution 1080x1920, same shape |
+
+Each is a whole Gradle project resolving only Maven Central coordinates, and each
+README carries the five commands that build, install and run it.
 
 **Start with a second-generation model.** `ai.bithuman:sdk` is the
 first-generation artifact and is listed for completeness, not as a
@@ -51,9 +67,9 @@ android {
     packaging { jniLibs { useLegacyPackaging = true } }   // required — see below
 }
 dependencies {
-    implementation("ai.bithuman:essence2-android:0.5.13")
+    implementation("ai.bithuman:essence2-android:0.5.14")
     // and/or
-    implementation("ai.bithuman:expression2-android:0.4.8")
+    implementation("ai.bithuman:expression2-android:0.4.9")
 }
 ```
 
@@ -73,7 +89,8 @@ which is published only on Google's Maven. **That was true of 0.3.0 and of no
 release since.** Reading every published POM for this artifact back from
 `repo1.maven.org` on 2026-09-22, the `com.google.ai.edge.litert` edge appears in
 0.3.0 alone and is absent from 0.3.1, 0.4.1, 0.4.6, 0.4.7 and 0.4.8. What 0.4.8
-declares is exactly three dependencies:
+declares is exactly three dependencies (0.4.9 declares the same three, read back
+from its POM on 2026-09-23):
 
 | dependency | scope | where it is served |
 |---|---|---|
@@ -89,7 +106,7 @@ The two Qualcomm entries are the Snapdragon accelerator runtime, and 0.4.8 is th
 first release that declares them for you; on 0.4.7 and older you had to add them
 by hand or the engine rendered on the CPU.
 
-`essence2-android:0.5.13` declares `kotlin-stdlib` and nothing else.
+`essence2-android:0.5.13` declares `kotlin-stdlib` and nothing else, and so does 0.5.14.
 
 ## Verify the graph, not the exit code
 
