@@ -1,22 +1,27 @@
 #!/usr/bin/env bash
-# Generate a new AI avatar agent and poll until ready (~4 minutes).
+# Generate a new avatar agent and poll until it is ready.
 # Usage: ./generate-agent.sh ["Your system prompt here"]
+# Model: BITHUMAN_MODEL=essence-2 | expression-2 (default) | auto.
+# Creation is a one-time credit charge: https://docs.bithuman.ai/guides/pricing
+# A second-generation agent takes about 2 to 2.5 hours to create.
 set -euo pipefail
 
 API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first (get yours at https://www.bithuman.ai/developer/api-keys)}"
 BASE="https://api.bithuman.ai"
 
 PROMPT="${1:-You are a friendly AI assistant.}"
+MODEL="${BITHUMAN_MODEL:-expression-2}"
 
 echo "Starting agent generation..."
 echo "  Prompt: $PROMPT"
+echo "  Model:  $MODEL"
 echo ""
 
 # 1. Start generation
 RESPONSE=$(curl -s -X POST "$BASE/v1/agent/generate" \
   -H "Content-Type: application/json" \
   -H "api-secret: $API_SECRET" \
-  -d "{\"prompt\": \"$PROMPT\", \"aspect_ratio\": \"16:9\"}")
+  -d "{\"prompt\": \"$PROMPT\", \"model\": \"$MODEL\", \"aspect_ratio\": \"16:9\"}")
 
 echo "$RESPONSE" | python3 -m json.tool
 
@@ -30,7 +35,7 @@ fi
 
 echo ""
 echo "Agent ID: $AGENT_ID"
-echo "Polling status (generation takes ~4 minutes)..."
+echo "Polling status (a second-generation agent takes about 2 to 2.5 hours)..."
 echo ""
 
 # 2. Poll until ready or failed
@@ -58,5 +63,5 @@ while true; do
     exit 1
   fi
 
-  sleep 10
+  sleep 30
 done
