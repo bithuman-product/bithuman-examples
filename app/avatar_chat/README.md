@@ -24,13 +24,15 @@ instead: it uses the **public** Swift package, which does ship both engines.
 ### Which engine the Android app actually runs
 
 The plugin is pinned by tag in `pubspec.yaml`, and that tag is what fixes the engine
-version. This app pins **`flutter-plugin-v2.6.10`**, which resolves
+version. This app pins **`flutter-plugin-v2.6.11`**, which resolves
 **`ai.bithuman:essence2-android:0.5.13`** and **`ai.bithuman:expression2-android:0.4.8`** —
-Maven Central's current release of each (2026-09-23). 2.6.10 changes only the plugin's Apple
-bootstrap; its Android engines are the same two as `flutter-plugin-v2.6.9`'s.
+Maven Central's current release of each (2026-09-23). Neither 2.6.10 (the plugin's Apple
+bootstrap) nor 2.6.11 (the engine, not the plugin's Dart, expands a downloaded model
+container) changes the Android engines: they are the same two as `flutter-plugin-v2.6.9`'s.
 
 Measured from a clean clone of this repository on 2026-09-23, empty Gradle and pub
-caches, `flutter build apk --release --target-platform android-arm64` against the tag:
+caches, `flutter build apk --release --target-platform android-arm64` against
+`flutter-plugin-v2.6.10`:
 Gradle resolves both engines plus the Qualcomm accelerator runtime
 (`com.qualcomm.qti:qnn-litert-delegate` and `qnn-runtime` 2.49.0, which 0.4.8 declares
 itself) from Maven Central; R8 keeps both engines' JNI bridges by name; and the APK's
