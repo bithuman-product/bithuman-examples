@@ -2,7 +2,7 @@
 package com.example.x2hello
 
 import ai.bithuman.expression2.Expression2Avatar
-import ai.bithuman.expression2.Expression2Metering
+import ai.bithuman.expression2.Expression2Credential
 import ai.bithuman.expression2.Expression2ModelStore
 import ai.bithuman.expression2.Expression2Options
 import android.app.Activity
@@ -105,7 +105,7 @@ class MainActivity : Activity() {
         }
         // The METER, before anything opens an engine: from 0.4.9 create() throws
         // Expression2Exception when no API secret is set. The model download stays anonymous.
-        Expression2Metering.apiSecret = secret
+        Expression2Credential.set(secret)
 
         val wav = File(getExternalFilesDir(null), "speech.wav")
         if (!wav.isFile) {
