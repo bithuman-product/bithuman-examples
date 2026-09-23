@@ -8,6 +8,7 @@ Usage:
 import logging
 import os
 
+import aiohttp
 from dotenv import load_dotenv
 from livekit.agents import (
     Agent,
@@ -25,6 +26,23 @@ logger.setLevel(logging.INFO)
 
 load_dotenv()
 
+async def livekit_cloud_token(agent_code: str, room_name: str) -> str:
+    """A one-hour token that can only start this agent's avatar in this room.
+
+    Never pass your API secret to the plugin: it copies `api_secret` into the avatar
+    participant's attributes, which every participant in the room can read. The secret
+    stays in this process and is only sent to bitHuman, to mint this token.
+    """
+    async with aiohttp.ClientSession() as http:
+        async with http.post(
+            "https://api.bithuman.ai/v1/runtime-tokens/mint",
+            headers={"api-secret": os.environ["BITHUMAN_API_SECRET"]},
+            json={"agent_code": agent_code, "scope": "livekit-cloud",
+                  "room_name": room_name, "livekit_url": os.environ["LIVEKIT_URL"]},
+        ) as resp:
+            resp.raise_for_status()
+            return (await resp.json())["scoped_token"]
+
 
 async def entrypoint(ctx: JobContext):
     await ctx.connect()
@@ -41,7 +59,7 @@ async def entrypoint(ctx: JobContext):
 
     avatar = bithuman.AvatarSession(
         avatar_id=avatar_id,
-        api_secret=os.getenv("BITHUMAN_API_SECRET"),
+        api_secret=await livekit_cloud_token(avatar_id, ctx.room.name),
     )
 
     session = AgentSession(
