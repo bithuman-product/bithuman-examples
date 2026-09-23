@@ -2,8 +2,7 @@
 package com.example.e2hello
 
 import ai.bithuman.essence2.Essence2Avatar
-import ai.bithuman.essence2.Essence2Metering
-import ai.bithuman.elevate.Essence2ModelStore.MeteredDoorResolver
+import ai.bithuman.essence2.Essence2Credential
 import ai.bithuman.essence2.Essence2ModelStore
 import android.app.Activity
 import android.graphics.Bitmap
@@ -90,11 +89,10 @@ class MainActivity : Activity() {
             return
         }
 
-        // 1. The METER, before anything opens an engine. create() arms the meter
-        //    while it opens the bundle and refuses there if it has no credential.
-        //    This is a DIFFERENT credential slot from the store's, and the engine
-        //    says so in its own refusal: setting one does not arm the other.
-        Essence2Metering.apiSecret = secret
+        // 1. The CREDENTIAL, once, before anything downloads or opens an engine.
+        //    One setter covers the store's download and the engine's meter;
+        //    create() refuses without it.
+        Essence2Credential.set(secret)
 
         val wav = File(getExternalFilesDir(null), "speech.wav")
         if (!wav.isFile) {
@@ -106,13 +104,9 @@ class MainActivity : Activity() {
         val expected = Math.round(seconds * FPS)
         say("audio: ${pcm.size / 2} samples = %.2f s\nfetching $agentCode — first run downloads about 238 MB…".format(seconds))
 
-        // 2. The STORE. Its default resolver carries an EMPTY credential and
-        //    throws on the first fetch, so name the resolver explicitly.
+        // 2. The STORE downloads with the credential set above.
         //    Blocks on the network the first time; that is why this is a worker thread.
-        val store = Essence2ModelStore(
-            this,
-            urlResolver = MeteredDoorResolver(secret),
-        )
+        val store = Essence2ModelStore(this)
         val identity = store.fetch(agentCode, progress = { member, done, total ->
             if (done == total) Log.i(TAG, "fetched $member ($total B)")
         })

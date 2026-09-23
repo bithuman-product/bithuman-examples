@@ -17,7 +17,7 @@ Maven Central, and nothing else from bitHuman.
 - `adb` on your `PATH` (it ships in `$ANDROID_HOME/platform-tools`).
 - A **bitHuman API secret**. A free one:
   [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys).
-  From `expression2-android` 0.4.9 the engine meters the talking time it renders, so `Expression2Avatar.create` throws `Expression2Exception` unless `Expression2Metering.apiSecret` is set. The app sets it from `BuildConfig` before `create`. The model download itself stays anonymous.
+  From `expression2-android` 0.4.9 the engine meters the talking time it renders, so `Expression2Avatar.create` throws `Expression2Exception` unless an API secret is set. The app sets it from `BuildConfig` with `Expression2Credential.set(secret)` before `create`. The model download itself stays anonymous.
 
 ## Run it
 
@@ -130,7 +130,7 @@ android {
 }
 
 dependencies {
-    implementation("ai.bithuman:expression2-android:0.4.9")
+    implementation("ai.bithuman:expression2-android:0.4.10")
 }
 ```
 
@@ -143,7 +143,7 @@ dependencies {
 package com.example.x2hello
 
 import ai.bithuman.expression2.Expression2Avatar
-import ai.bithuman.expression2.Expression2Metering
+import ai.bithuman.expression2.Expression2Credential
 import ai.bithuman.expression2.Expression2ModelStore
 import ai.bithuman.expression2.Expression2Options
 import android.app.Activity
@@ -246,7 +246,7 @@ class MainActivity : Activity() {
         }
         // The METER, before anything opens an engine: from 0.4.9 create() throws
         // Expression2Exception when no API secret is set. The model download stays anonymous.
-        Expression2Metering.apiSecret = secret
+        Expression2Credential.set(secret)
 
         val wav = File(getExternalFilesDir(null), "speech.wav")
         if (!wav.isFile) {

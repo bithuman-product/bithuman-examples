@@ -50,5 +50,5 @@ android {
 }
 
 dependencies {
-    implementation("ai.bithuman:expression2-android:0.4.9")
+    implementation("ai.bithuman:expression2-android:0.4.10")
 }

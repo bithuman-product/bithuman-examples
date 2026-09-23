@@ -50,5 +50,5 @@ android {
 }
 
 dependencies {
-    implementation("ai.bithuman:essence2-android:0.5.14")
+    implementation("ai.bithuman:essence2-android:0.5.15")
 }

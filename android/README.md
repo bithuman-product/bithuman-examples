@@ -6,8 +6,8 @@ fetched at runtime.
 
 | model | coordinate | latest |
 |---|---|---|
-| essence-2 | `ai.bithuman:essence2-android` | **0.5.14** |
-| expression-2 | `ai.bithuman:expression2-android` | **0.4.9** |
+| essence-2 | `ai.bithuman:essence2-android` | **0.5.15** |
+| expression-2 | `ai.bithuman:expression2-android` | **0.4.10** |
 | essence-1 | `ai.bithuman:sdk` | 2.3.6 |
 
 `expression-1` is GPU-only and has no Android coordinate.
@@ -15,7 +15,7 @@ fetched at runtime.
 **Both second-generation SDKs need a bitHuman API secret.** They meter the talking
 time they render, and from `expression2-android` 0.4.9 Expression 2 does too:
 `Expression2Avatar.create` throws `Expression2Exception` unless
-`Expression2Metering.apiSecret` is set (Essence 2: `Essence2Metering.apiSecret`).
+an API secret is set: `Expression2Credential.set(secret)` (Essence 2: `Essence2Credential.set(secret)`).
 A free key: [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys).
 
 ## Two complete apps
@@ -67,9 +67,9 @@ android {
     packaging { jniLibs { useLegacyPackaging = true } }   // required — see below
 }
 dependencies {
-    implementation("ai.bithuman:essence2-android:0.5.14")
+    implementation("ai.bithuman:essence2-android:0.5.15")
     // and/or
-    implementation("ai.bithuman:expression2-android:0.4.9")
+    implementation("ai.bithuman:expression2-android:0.4.10")
 }
 ```
 
