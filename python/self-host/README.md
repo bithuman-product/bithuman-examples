@@ -15,7 +15,7 @@ example's Expression 2 plays below that on a Mac today.
 
 ## Run it
 
-Prerequisites: Python 3.11, 3.12 or 3.13, and `livekit-server`.
+Prerequisites: Python 3.11, 3.12 or 3.13, and `livekit-server` 1.9.12 or newer (`livekit-server --version`; on macOS `brew upgrade livekit`). Older servers make the browser drop and rejoin the room every 15 s.
 
 ```sh
 # 1. LiveKit server + Python
@@ -107,4 +107,5 @@ NVIDIA GPU, LiveKit's WebRTC library may use it to encode the video, which is ex
 | `Address already in use` for port 8089 | another `agent.py` is still running | stop it, then start again |
 | The page says it could not connect | `livekit-server --dev` is not running | start it (terminal 1), then click Start again |
 | Nothing happens after joining | `livekit-server --dev` is not running, or `agent.py` is not | Start both, terminal 1 first |
+| The video stalls for 1–2 s every 15 s, or a LiveKit Meet tile goes black | `livekit-server` older than 1.9.12: the browser leaves and rejoins the room every 15 s | `brew upgrade livekit` (macOS) or rerun `curl -sSL https://get.livekit.io \| bash`, then restart `livekit-server --dev` |
 | Another device on your network cannot join | `--dev` listens on localhost only | `livekit-server --dev --bind 0.0.0.0 --node-ip <your LAN IP>`; browsers also need HTTPS for the mic off `localhost` |
