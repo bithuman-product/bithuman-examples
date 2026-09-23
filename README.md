@@ -71,7 +71,7 @@ This file deliberately contains no version numbers — a number written down her
 They remain archived and read-only; nothing new lands in them.
 
 - [bithuman-archive/bithuman-examples](https://github.com/bithuman-archive/bithuman-examples)
-- bithuman-archive/bithuman-apps _(private)_
+- bithuman-archive/bithuman-apps-legacy _(private; the June-2026 `bithuman-apps` — that name now belongs to the private repo holding bitHuman's own apps)_
 - [bithuman-archive/public-livekit-ui-example](https://github.com/bithuman-archive/public-livekit-ui-example)
 - bithuman-labs/local-deployment-examples _(private)_
 - [bithuman-ai/sdk-examples-python](https://github.com/bithuman-ai/sdk-examples-python)
