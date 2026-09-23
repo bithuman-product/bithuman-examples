@@ -11,7 +11,7 @@ if not (3, 11) <= sys.version_info[:2] <= (3, 13):  # livekit-plugins-bithuman s
 
 from dotenv import load_dotenv
 from livekit import api
-from livekit.agents import Agent, AgentServer, AgentSession, JobContext, cli
+from livekit.agents import Agent, AgentServer, AgentSession, AutoSubscribe, JobContext, cli
 from livekit.agents.voice.room_io import RoomOptions
 from livekit.plugins import bithuman, openai
 
@@ -41,7 +41,7 @@ def avatar_file(name: str) -> str:
 
 @server.rtc_session()
 async def entrypoint(ctx: JobContext):
-    await ctx.connect()
+    await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)  # the agent listens; it never needs your camera
     session = AgentSession(llm=openai.realtime.RealtimeModel(
         model=os.getenv("BITHUMAN_REALTIME_MODEL", "gpt-realtime-mini"),
         voice=os.getenv("BITHUMAN_VOICE", "coral")))
