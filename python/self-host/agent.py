@@ -3,7 +3,7 @@
 OpenAI Realtime listens, thinks and speaks; the avatar is rendered HERE, inside
 this process, on the CPU. Setup is in README.md. Run:  python agent.py dev
 """
-import json, os, pathlib, secrets, sys, urllib.parse, urllib.request, warnings
+import http.server, json, os, pathlib, secrets, sys, threading, urllib.parse, urllib.request, warnings
 from datetime import timedelta
 
 if not (3, 11) <= sys.version_info[:2] <= (3, 13):  # livekit-plugins-bithuman skips bithuman elsewhere
@@ -65,10 +65,22 @@ if __name__ == "__main__":
     os.environ["BITHUMAN_MODEL_PATH"] = avatar_file(os.getenv("BITHUMAN_AVATAR", "wise-pup"))
     url = os.environ["LIVEKIT_URL"]
     warnings.filterwarnings("ignore", module="jwt")  # the dev key "secret" is short on purpose
-    if urllib.parse.urlparse(url).hostname in ("localhost", "127.0.0.1", "::1"):  # a join link for your own machine only
+    if urllib.parse.urlparse(url).hostname in ("localhost", "127.0.0.1", "::1"):  # your own machine only
         room = "bithuman-" + secrets.token_hex(3)  # a fresh room each run; the worker joins every new room
         token = (api.AccessToken().with_identity("you").with_ttl(timedelta(hours=24))
                  .with_grants(api.VideoGrants(room_join=True, room=room)).to_jwt())
-        print("\nOpen in Chrome: https://meet.livekit.io/custom?"
+        page = pathlib.Path(__file__).with_name("viewer.html").read_bytes()
+
+        class Viewer(http.server.BaseHTTPRequestHandler):  # serves viewer.html, nothing else
+            def do_GET(self):
+                self.send_response(200); self.send_header("content-type", "text/html"); self.end_headers()
+                self.wfile.write(page)
+
+            def log_message(self, *args):
+                pass
+
+        viewer = http.server.ThreadingHTTPServer(("127.0.0.1", 8089), Viewer)
+        threading.Thread(target=viewer.serve_forever, daemon=True).start()
+        print("\nOpen in Chrome: http://localhost:8089/?"
               + urllib.parse.urlencode({"liveKitUrl": url, "token": token}) + "\n", flush=True)
     cli.run_app(server)
