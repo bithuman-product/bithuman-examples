@@ -18,7 +18,7 @@ The **Speak** path is what every number below was measured on. The **Talk to
 it** (microphone) path builds and installs with it but has never been driven by
 a human voice on a device — it is a fifteen-line starting point, not a result.
 
-The full tutorial, with every file explained, is at
+The docs page, with the app running on an iPhone, is
 <https://docs.bithuman.ai/examples/swift-ios-expression2>.
 
 ## What you need
@@ -30,10 +30,10 @@ The full tutorial, with every file explained, is at
   graphs: `brew install bithuman-product/bithuman/bithuman-cli`. `setup.sh`
   checks for it before it downloads anything.
 
-You do **not** need an account, a key or credits: `setup.sh` defaults to
-`A23WJF0199` (*Wise Pup*), an identity in the free showcase that the download
-endpoint serves to anyone. Pass your own agent's code to render your own
-identity instead.
+- A bitHuman **API secret** to render (free: [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys)).
+  The engine bills talking time; idle is free. The download needs no key:
+  `setup.sh` defaults to `A23WJF0199` (*Wise Pup*), an identity in the free
+  showcase. Pass your own agent's code to render your own identity instead.
 
 ## Run it
 

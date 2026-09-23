@@ -5,9 +5,8 @@ it reads `speech.wav` from its own external files directory, downloads
 `A23WJF0199` (Wise Pup, a free showcase identity) once through the SDK's model store, renders every frame of the clip on
 the device, then plays the audio and shows each frame on the audio clock.
 
-It is the project printed on
-[Kotlin / Android — Hello, avatar](https://docs.bithuman.ai/examples/kotlin-android-hello),
-as a Gradle tree you can clone. It resolves one coordinate, `ai.bithuman:expression2-android:0.4.9`, from
+Its page on the docs site, with the app running on a Galaxy S25+, is
+[Android example: Expression 2](https://docs.bithuman.ai/examples/android-expression2). It resolves one coordinate, `ai.bithuman:expression2-android:0.4.9`, from
 Maven Central, and nothing else from bitHuman.
 
 ## What you need

@@ -10,7 +10,7 @@ device: no server, no cloud GPU, no Docker.
 
 Write `2.14.2` and nothing lower — `from:` is a floor, and the tags below it
 pin engines that fail in ways nothing throws. See
-[Pin the version](https://docs.bithuman.ai/sdk/ios#pin-the-version).
+[Pin the version](https://docs.bithuman.ai/sdk/apple#install).
 
 **From 2.14.2 Expression 2 needs your API secret too.** Both engines bill the
 session they serve — talking time only, idle is free — and refuse to start without
@@ -47,7 +47,7 @@ which already carries a copy of it.
 | Product | You write | What it is |
 |---|---|---|
 | `Expression2` | `import Expression2` | the Expression 2 engine, pre-compiled, with a Swift API. Any Apple Silicon device |
-| `Essence2` | `import Essence2` | the Essence 2 engine as a static C library. iOS 26 / macOS 26, and **four link settings** your target must carry — [which, and why](https://docs.bithuman.ai/sdk/ios#what-essence-2-needs-at-link) |
+| `Essence2` | `import Essence2` | the Essence 2 engine as a static C library. iOS 26 / macOS 26 — [install notes](https://docs.bithuman.ai/sdk/apple#install) |
 | `bitHumanKit` | `import bitHumanKit` | the voice-agent umbrella: recognition, a language model, speech, avatar, renderer views |
 | `BithumanEngineProtocol` | `import BithumanEngineProtocol` | the common engine interface, as source |
 
@@ -78,8 +78,8 @@ bithuman run
 
 ## Documentation
 
-- [Apple SDK — install, minimal code, device floors](https://docs.bithuman.ai/sdk/ios)
-- [Apple API reference](https://docs.bithuman.ai/sdk/ios-api)
-- [Expression 2 on iPhone, every file explained](https://docs.bithuman.ai/examples/swift-ios-expression2)
-- [Essence 2 on iPhone, every file explained](https://docs.bithuman.ai/examples/swift-ios-essence2)
+- [Apple SDK — install, minimal code, device floors](https://docs.bithuman.ai/sdk/apple)
+- [Apple API reference](https://docs.bithuman.ai/sdk/apple-api)
+- [iOS example: Expression 2](https://docs.bithuman.ai/examples/swift-ios-expression2) · [macOS example](https://docs.bithuman.ai/examples/macos-expression2)
+- [iOS example: Essence 2](https://docs.bithuman.ai/examples/swift-ios-essence2)
 - [CLI](https://docs.bithuman.ai/sdk/cli) · [Models](https://docs.bithuman.ai/concepts/models)
