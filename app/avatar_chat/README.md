@@ -24,9 +24,10 @@ instead: it uses the **public** Swift package, which does ship both engines.
 ### Which engine the Android app actually runs
 
 The plugin is pinned by tag in `pubspec.yaml`, and that tag is what fixes the engine
-version. This app pins **`flutter-plugin-v2.6.9`**, which resolves
+version. This app pins **`flutter-plugin-v2.6.10`**, which resolves
 **`ai.bithuman:essence2-android:0.5.13`** and **`ai.bithuman:expression2-android:0.4.8`** —
-Maven Central's current release of each (2026-09-23).
+Maven Central's current release of each (2026-09-23). 2.6.10 changes only the plugin's Apple
+bootstrap; its Android engines are the same two as `flutter-plugin-v2.6.9`'s.
 
 Measured from a clean clone of this repository on 2026-09-23, empty Gradle and pub
 caches, `flutter build apk --release --target-platform android-arm64` against the tag:
