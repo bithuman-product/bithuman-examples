@@ -6,7 +6,7 @@ No GPU needed. Audio stays on your machine -- only authentication calls the clou
 ## Prerequisites
 
 - Python 3.10+ (or Docker)
-- bitHuman API secret ([www.bithuman.ai](https://www.bithuman.ai/#developer) → Developer → API Keys)
+- bitHuman API secret ([www.bithuman.ai](https://www.bithuman.ai/developer/api-keys) → Developer → API Secrets)
 - `.imx` model file (see below)
 - OpenAI API key (for `conversation.py` and `agent.py`)
 - **Linux only:** the PortAudio library for the three window scripts, which
@@ -43,7 +43,7 @@ cp /path/to/avatar.imx models/
 
 # 3. Create your .env file
 cp .env.example .env
-# Edit .env: set BITHUMAN_API_SECRET and OPENAI_API_KEY
+# Edit .env: set BITHUMAN_API_SECRET, OPENAI_API_KEY and LIVEKIT_API_SECRET (any long random string)
 
 # 4. Start everything
 docker compose up

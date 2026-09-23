@@ -6,7 +6,7 @@ No local GPU, no `.imx` model files. Just an API secret and an agent ID.
 ## Prerequisites
 
 - Python 3.10+ (or Docker)
-- bitHuman API secret ([www.bithuman.ai](https://www.bithuman.ai/#developer) → Developer → API Keys)
+- bitHuman API secret ([www.bithuman.ai](https://www.bithuman.ai/developer/api-keys) → Developer → API Secrets)
 - An agent ID (create one at [www.bithuman.ai](https://www.bithuman.ai) or via [`rest-api/`](../../api/rest-api/python/generation.py))
 - OpenAI API key (for `agent.py`)
 
@@ -19,7 +19,7 @@ cd bithuman-examples/python/cloud-essence
 
 # 2. Create your .env file
 cp .env.example .env
-# Edit .env: set BITHUMAN_API_SECRET, BITHUMAN_AGENT_ID, and OPENAI_API_KEY
+# Edit .env: set BITHUMAN_API_SECRET, BITHUMAN_AGENT_ID, OPENAI_API_KEY and LIVEKIT_API_SECRET (any long random string)
 
 # 3. Start everything
 docker compose up
@@ -164,7 +164,7 @@ Set `BITHUMAN_AGENT_ID` in `.env`. Get your agent ID from [www.bithuman.ai](http
 ```
 Error: 401 Unauthorized
 ```
-Check `BITHUMAN_API_SECRET` in `.env`. Copy the full secret from [Developer Dashboard](https://www.bithuman.ai/#developer).
+Check `BITHUMAN_API_SECRET` in `.env`. Copy the full secret from [Developer Dashboard](https://www.bithuman.ai/developer/api-keys).
 
 **Port 4202 already in use?**
 ```bash

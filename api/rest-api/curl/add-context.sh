@@ -5,7 +5,7 @@
 # Usage: ./add-context.sh [AGENT_ID] [CONTEXT]
 set -euo pipefail
 
-API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first (get yours at https://www.bithuman.ai/#developer)}"
+API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first (get yours at https://www.bithuman.ai/developer/api-keys)}"
 BASE="https://api.bithuman.ai"
 
 AGENT_ID="${1:-${BITHUMAN_AGENT_ID:?Provide agent ID as argument or set BITHUMAN_AGENT_ID}}"

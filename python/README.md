@@ -6,9 +6,9 @@ All Python examples use `pip install bithuman`. Pick the one that matches where 
 
 | I want to... | Example | What I need |
 |---|---|---|
-| Fastest cloud demo (no GPU) | [cloud-essence/](cloud-essence/) | API key + agent ID |
-| Cloud with custom face image (Expression) | [Deployment guide ↗](https://docs.bithuman.ai/guides/deployment) | API key + face image |
-| Run on my own server (CPU) | [local-essence/](local-essence/) | API key + `.imx` file |
+| Fastest cloud demo (no GPU) | [cloud-essence/](cloud-essence/) | API secret + agent ID |
+| Cloud with custom face image (Expression) | [Deployment guide ↗](https://docs.bithuman.ai/guides/deployment) | API secret + face image |
+| Run on my own server (CPU) | [local-essence/](local-essence/) | API secret + `.imx` file |
 | Self-hosted NVIDIA GPU (Expression) | [Self-hosted GPU guide ↗](https://docs.bithuman.ai/guides/deployment) | NVIDIA GPU 8 GB+ |
 | Run on Mac M3+ | [Swift SDK examples ↗](../swift/) | Apple Silicon M3+ |
 
@@ -16,7 +16,7 @@ All Python examples use `pip install bithuman`. Pick the one that matches where 
 
 If you're new to bitHuman, follow this order:
 
-1. **Start with** [cloud-essence/](cloud-essence/) — no model files, no GPU, just an API key. Gives you a working avatar in minutes.
+1. **Start with** [cloud-essence/](cloud-essence/) — no model files, no GPU, just an API secret. Gives you a working avatar in minutes.
 2. **Try local rendering** with [local-essence/](local-essence/) — download a `.imx` model and run it on your own machine (CPU only).
 3. **Add AI conversation** — the `conversation.py` script in local-essence/ wires OpenAI for voice chat.
 4. **Explore Expression** — dynamic faces from any image — via the [deployment guide ↗](https://docs.bithuman.ai/guides/deployment).

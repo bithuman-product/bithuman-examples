@@ -36,11 +36,12 @@ reply is the long pole:
    (16 GB), on iOS or iPadOS 26 or newer. `HardwareCheck.evaluate()` refuses
    anything else at launch: iPhone 15 Pro and earlier, iPhone 16 and 16 Plus,
    iPad Air M2 and M3, iPad Pro M1 and M2. The Simulator cannot stand in.
-3. **Get an API key** — free at
-   [Developer → API Keys](https://www.bithuman.ai/developer/api-keys). The Swift
-   SDK reads `BITHUMAN_API_KEY`; the value is the one every other surface reads
-   as `BITHUMAN_API_SECRET`. Set it in your scheme under *Product → Scheme →
-   Edit Scheme → Run → Arguments → Environment Variables*, never in source.
+3. **Get an API secret** — free at
+   [Developer → API Secrets](https://www.bithuman.ai/developer/api-keys). Set
+   `BITHUMAN_API_SECRET` in your scheme under *Product → Scheme → Edit Scheme →
+   Run → Arguments → Environment Variables*, never in source. The app reads it
+   and hands it to `bitHumanKit` as `config.apiKey` (a field that keeps its
+   published name).
    Avatar mode is metered; the voice-only path is not.
 4. **Leave room.** The first launch downloads about 1.6 GB of weights.
 

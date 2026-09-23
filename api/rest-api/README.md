@@ -4,7 +4,7 @@ HTTP API for managing agents, generating avatars, controlling live sessions, and
 
 **Base URL:** `https://api.bithuman.ai`
 
-**Auth:** Include your API secret in the `api-secret` header on every request. Get yours at [www.bithuman.ai/#developer](https://www.bithuman.ai/#developer).
+**Auth:** Include your API secret in the `api-secret` header on every request. Get yours at [www.bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys).
 
 ## Endpoints these examples cover
 

@@ -137,9 +137,9 @@ INFO | Model loaded — frame size 722x1280
 INFO | WebSocket server listening on ws://0.0.0.0:8765
 ```
 
-`--model` and `--api-secret` flags also exist and override the environment. The
-flags are there for scripting against a secret store; do not type a real secret
-after `--api-secret` on a shared machine.
+`--model` also exists as a flag and overrides the environment. Your API secret
+is read from `BITHUMAN_API_SECRET` only — there is no flag for it, because a
+value on the command line is readable by anyone who can run `ps`.
 
 ### Step 8: Run the Java Client
 
@@ -243,10 +243,11 @@ Options:
 Usage:
   python bithuman_streaming_server.py [options]
 
+Environment:
+  BITHUMAN_API_SECRET      your API secret (required; never a flag)
+
 Options:
   --model <path>           Path to .imx avatar model (or BITHUMAN_MODEL_PATH env)
-  --api-secret <secret>    bitHuman API secret (or BITHUMAN_API_SECRET env)
-  --token <token>          bitHuman runtime token, optional (or BITHUMAN_RUNTIME_TOKEN env)
   --host <addr>            Listen address (default: 0.0.0.0)
   --port <port>            Listen port (default: 8765)
   --insecure               Disable SSL verification (development only)
@@ -447,7 +448,7 @@ ffmpeg -framerate 25 -i frames/frame_%06d.jpg   # 20 for an Expression 2 avatar 
 | Garbled/corrupted frames | Network packet loss (rare over TCP) | Check server logs for errors. Ensure WebSocket message size limit is sufficient. |
 | High latency | Network distance or slow model | Run server close to client. CPU-only mode is slower than GPU. |
 | `Model path required` | Missing `--model` argument | Pass `--model /path/to/avatar.imx` or set `BITHUMAN_MODEL_PATH` env |
-| `API secret or token required` | Missing credentials | Set `BITHUMAN_API_SECRET` in the environment (a secret typed after `--api-secret` is readable in `ps`) |
+| `API secret required: export BITHUMAN_API_SECRET …` | Missing credentials | Set `BITHUMAN_API_SECRET` in the environment |
 | Server exits immediately | Invalid model or credentials | Check the server logs for authentication or model loading errors |
 
 ---

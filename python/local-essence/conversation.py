@@ -132,10 +132,12 @@ async def main():
     parser = argparse.ArgumentParser(description="bitHuman Essence -- AI conversation")
     parser.add_argument("--model", default=os.getenv("BITHUMAN_MODEL_PATH"),
                         help="Path to .imx avatar model")
-    parser.add_argument("--api-secret", default=os.getenv("BITHUMAN_API_SECRET"))
     parser.add_argument("--voice", default=os.getenv("OPENAI_VOICE", "coral"),
                         help="OpenAI voice (alloy, coral, echo, etc.)")
     args = parser.parse_args()
+    # Your API secret, from the environment only — a value on the command line
+    # is readable by anyone who can run `ps`.
+    args.api_secret = os.getenv("BITHUMAN_API_SECRET")
 
     model_path = args.model
     api_secret = args.api_secret
@@ -146,7 +148,7 @@ async def main():
         print("Download .imx models from https://www.bithuman.ai")
         return
     if not api_secret:
-        print("Error: Set --api-secret or BITHUMAN_API_SECRET")
+        print("Error: set BITHUMAN_API_SECRET (your API secret, from https://www.bithuman.ai/developer/api-keys)")
         return
     if not openai_key:
         print("Error: Set OPENAI_API_KEY in your .env")

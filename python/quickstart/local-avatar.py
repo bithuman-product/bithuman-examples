@@ -105,7 +105,7 @@ def main() -> None:
     if not os.environ.get("BITHUMAN_API_SECRET"):
         sys.exit(
             "Set BITHUMAN_API_SECRET first — it is free at\n"
-            "https://www.bithuman.ai → Developer → API Keys:\n\n"
+            "https://www.bithuman.ai → Developer → API Secrets:\n\n"
             "    export BITHUMAN_API_SECRET='your_key'"
         )
     if not Path(args.audio).exists():

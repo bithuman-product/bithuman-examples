@@ -1,11 +1,11 @@
 # Quickstart — Your First bitHuman Avatar
 
-Get a talking avatar running in about 5 minutes. You'll need an API key first.
+Get a talking avatar running in about 5 minutes. You'll need an API secret first.
 
-## Step 1: Get your API key (30 seconds)
+## Step 1: Get your API secret (30 seconds)
 
 1. Go to [www.bithuman.ai](https://www.bithuman.ai) and create a free account
-2. Click **Developer** → **API Keys**
+2. Click **Developer** → **API Secrets**
 3. Copy your API secret
 
 ```bash

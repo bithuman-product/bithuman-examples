@@ -6,7 +6,7 @@
 # Usage: ./upload-file.sh [FILE_URL]
 set -euo pipefail
 
-API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first (get yours at https://www.bithuman.ai/#developer)}"
+API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first (get yours at https://www.bithuman.ai/developer/api-keys)}"
 BASE="https://api.bithuman.ai"
 
 FILE_URL="${1:?Usage: ./upload-file.sh <file-url>  (e.g. https://example.com/face.jpg)}"

@@ -2,7 +2,7 @@
 //
 // Demonstrates VoiceChat + VoiceChatConfig for an audio-only
 // conversational agent. All inference runs on-device: speech
-// recognition, LLM, and text-to-speech. No API key required.
+// recognition, LLM, and text-to-speech. No API secret required.
 //
 // Run:  swift run MacOSVoice
 // Stop: Ctrl-C or close the window.

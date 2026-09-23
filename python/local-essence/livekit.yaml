@@ -6,8 +6,8 @@ rtc:
 
 log_level: info
 
-keys:
-  devkey: UPivas8PQvWiYhubkqxqfkY8kfB9TgGj
+# keys: supplied through LIVEKIT_KEYS (docker-compose.yml), from LIVEKIT_API_SECRET in
+# your untracked .env — never committed here.
 
 redis:
   address: redis:6379

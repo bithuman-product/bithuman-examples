@@ -8,9 +8,9 @@ video frames, PCM audio output, and end-of-speech markers.
 Wire protocol details are documented in README.md.
 
 Usage:
+    export BITHUMAN_API_SECRET=...   # your API secret — from the environment, never argv
     python bithuman_streaming_server.py \
         --model /path/to/avatar.imx \
-        --api-secret your_api_secret \
         --port 8765
 """
 
@@ -241,8 +241,7 @@ class BithumanStreamingServer:
 
 async def main(args: argparse.Namespace) -> None:
     runtime = await AsyncBithuman.create(
-        model_path=args.model, api_secret=args.api_secret,
-        token=args.token, insecure=args.insecure,
+        model_path=args.model, api_secret=args.api_secret, insecure=args.insecure,
     )
     frame_size = runtime.frame_width, runtime.frame_height
     logger.info(f"Model loaded — frame size {frame_size[0]}x{frame_size[1]}")
@@ -263,16 +262,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="bitHuman WebSocket Streaming Server")
     parser.add_argument("--model", type=str, default=os.environ.get("BITHUMAN_MODEL_PATH"),
                         help="Path to .imx avatar model")
-    parser.add_argument("--api-secret", type=str, default=os.environ.get("BITHUMAN_API_SECRET"),
-                        help="bitHuman API secret")
-    parser.add_argument("--token", type=str, default=os.environ.get("BITHUMAN_RUNTIME_TOKEN"),
-                        help="bitHuman runtime token (optional)")
     parser.add_argument("--host", type=str, default="0.0.0.0")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--insecure", action="store_true")
 
     args = parser.parse_args()
-    assert args.model, "Model path required (--model or BITHUMAN_MODEL_PATH env)"
-    assert args.api_secret or args.token, "API secret or token required"
+    # Your API secret comes from the environment only: a value on the command
+    # line is readable by anyone who can run `ps` on this machine.
+    args.api_secret = os.environ.get("BITHUMAN_API_SECRET", "").strip()
+    if not args.model:
+        sys.exit("Model path required (--model or BITHUMAN_MODEL_PATH env)")
+    if not args.api_secret:
+        sys.exit("API secret required: export BITHUMAN_API_SECRET "
+                 "(get one at https://www.bithuman.ai/developer/api-keys)")
 
     asyncio.run(main(args))
