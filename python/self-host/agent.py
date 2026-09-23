@@ -14,6 +14,7 @@ from livekit import api
 from livekit.agents import Agent, AgentServer, AgentSession, AutoSubscribe, JobContext, cli
 from livekit.agents.voice.room_io import RoomOptions
 from livekit.plugins import bithuman, openai
+from openai.types.realtime.realtime_audio_input_turn_detection import ServerVad
 
 load_dotenv()
 API = "https://api.bithuman.ai"
@@ -44,7 +45,10 @@ async def entrypoint(ctx: JobContext):
     await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)  # the agent listens; it never needs your camera
     session = AgentSession(llm=openai.realtime.RealtimeModel(
         model=os.getenv("BITHUMAN_REALTIME_MODEL", "gpt-realtime-2.1-mini"),
-        voice=os.getenv("BITHUMAN_VOICE", "coral")))
+        voice=os.getenv("BITHUMAN_VOICE", "coral"),
+        # reply 0.5 s after you stop (the plugin's default semantic VAD can wait ~4 s)
+        turn_detection=ServerVad(type="server_vad", silence_duration_ms=500, create_response=True,
+                                 interrupt_response=True)))
     # Local mode: the avatar renders in this process and publishes the lip-synced video AND audio.
     avatar = bithuman.AvatarSession(model_path=os.environ["BITHUMAN_MODEL_PATH"])
     await avatar.start(session, room=ctx.room)
