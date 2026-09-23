@@ -30,8 +30,8 @@ jobs:
       - name: Fetch the published xcframeworks (pinned by tag + sha256)
         run: |
           set -euo pipefail
-          # ★THE TAGS AND CHECKSUMS BELOW ARE LIFTED FROM Package.swift AT v2.14.0 —
-          # they are the bytes `from: "2.14.0"` actually resolves, which is what every
+          # ★THE TAGS AND CHECKSUMS BELOW ARE LIFTED FROM Package.swift AT v2.14.1 —
+          # they are the bytes `from: "2.14.1"` actually resolves, which is what every
           # example here now pins. Until 2026-09-22 this step fetched v2.6.1, so the
           # gate compiled against bytes no reader of these examples has ever had.
           REL=https://github.com/bithuman-product/homebrew-bithuman/releases/download
@@ -43,14 +43,14 @@ jobs:
             unzip -q "$2"
             echo "$2 OK ($GOT)"
           }
-          # expression2Tag in the v2.14.0 manifest
-          fetch v2.6.3 Expression2.xcframework.zip            3722710998831779acc33e5f1c8e60a8af6ef6879764c26d9f1cbae717b78aea
-          fetch v2.6.3 BithumanEngineProtocol.xcframework.zip ee58694d6bd7663047750702f21a51ace1a35bfe421403349e001885b6678641
+          # expression2Tag in the v2.14.1 manifest
+          fetch v2.6.4 Expression2.xcframework.zip            644d192d29fb32f80a5ddd03cbf131b828432b93fecc15a623144c1398f2b302
+          fetch v2.6.4 BithumanEngineProtocol.xcframework.zip a980483a92d5eb8900c76f0f6391ec2eb66b30992ecefa61ab0f0e5f4b9a033c
           # REQUIRED, not optional: Expression2's own .swiftinterface starts with
           # `import UnifiedModelHeader`, so omitting it fails with "no such module"
           # before a line of the example is even read. (Found by this job's first run.)
-          fetch v2.6.3 UnifiedModelHeader.xcframework.zip     a8bf748cd564dc1348eb3c8f789fbc1e79077d34bdacb7755c5135c4abc744a5
-          # releaseTag in the v2.14.0 manifest — the umbrella ios-avatar imports
+          fetch v2.6.4 UnifiedModelHeader.xcframework.zip     eb5fde201bd122200332f656ba6049b494bbb6a2dc50ebd5906f11f2b4a01a41
+          # releaseTag in the v2.14.1 manifest — the umbrella ios-avatar imports
           fetch v2.4.0 bitHumanKit.xcframework.zip            5c536e37919b693591dff234db8627c01952ae24ae58651aeacbd875bd78e9db
 
       - name: Select a toolchain new enough to read the published module

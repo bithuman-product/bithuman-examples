@@ -5,19 +5,20 @@ voice agent, for iPhone, iPad and Mac alike. Everything here renders on the
 device: no server, no cloud GPU, no Docker.
 
 ```swift
-.package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.14.0")
+.package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.14.1")
 ```
 
-Write `2.14.0` and nothing lower — `from:` is a floor, and the tags below it
+Write `2.14.1` and nothing lower — `from:` is a floor, and the tags below it
 pin engines that fail in ways nothing throws. See
 [Pin the version](https://docs.bithuman.ai/sdk/ios#pin-the-version).
 
 ## The examples
 
 Start with the first row that matches the machine on your desk. Nothing here is
-broken: on 2026-09-22 the three Mac packages were built and `macos-expression2`
-was run end to end, and both iOS examples were typechecked against the
-published binaries. `ios-avatar` is source to paste into an app target rather
+broken: on 2026-09-23, against 2.14.1, the three Mac packages were built and
+`macos-expression2` was run end to end, both iOS examples were typechecked
+against the published binaries, and `ios-expression2` was built for the
+Simulator and for a device. `ios-avatar` is source to paste into an app target rather
 than a project to open — its README says why.
 
 | Example | Runs on | Needs an account? | What it shows |
