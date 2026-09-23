@@ -10,6 +10,8 @@ A voice agent with a face, where everything except the voice model runs on your 
 
 No Docker and no web app to build: `agent.py` prints a LiveKit Meet link that joins your local room.
 Rather not write code? `bithuman run wise-pup` does the same in one command — see [api/cli/](../../api/cli/).
+On a Mac, use that CLI for Expression 2: it renders on the Neural Engine at the full 20 fps, while this
+example's Expression 2 plays below that on a Mac today.
 
 ## Run it
 
