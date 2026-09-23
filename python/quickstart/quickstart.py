@@ -1,4 +1,4 @@
-"""Play an audio file through a self-hosted bitHuman Essence avatar.
+"""Play an audio file through a bitHuman avatar rendered on this machine (Essence 2 or Expression 2).
 
 Loads a local .imx model on CPU, streams audio in, shows the avatar in a
 window, plays the synchronized audio back through the default speaker.
@@ -174,7 +174,7 @@ async def stream_audio(runtime: AsyncBithuman, audio_file: str) -> None:
 
 
 async def main() -> None:
-    p = argparse.ArgumentParser(description="bitHuman Essence — play audio through a local avatar")
+    p = argparse.ArgumentParser(description="bitHuman — play audio through a local avatar")
     p.add_argument("--model", default=os.getenv("BITHUMAN_MODEL_PATH"), help="Path to .imx model")
     p.add_argument("--audio-file", required=True, help="Path to WAV/MP3/FLAC/M4A")
     args = p.parse_args()

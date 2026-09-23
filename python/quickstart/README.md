@@ -18,6 +18,9 @@ export BITHUMAN_API_SECRET="paste_your_key_here"
 |---------|-------------|--------------------|
 | **[local-avatar.py](local-avatar.py)** | Load an avatar model, play audio through it, see the animated face | None — auto-downloads a sample model on first run |
 | **[cloud-avatar.py](cloud-avatar.py)** | Run a cloud-hosted avatar with AI conversation | LiveKit server + OpenAI API key |
+| **[conversation.py](conversation.py)** | Talk to the avatar in a window: your mic → OpenAI Realtime → the avatar answers | OpenAI API key; Linux: `sudo apt install libportaudio2` |
+| **[microphone.py](microphone.py)** | The avatar lip-syncs your own voice from the mic | Linux: `sudo apt install libportaudio2` |
+| **[quickstart.py](quickstart.py)** | Play an audio file through an avatar file you pass with `--model` | None |
 
 **Recommended: start with `local-avatar.py`** — it has fewer dependencies.
 
@@ -77,7 +80,7 @@ Once your first demo works, pick the path that matches what you're building:
 | I want to build... | Go to |
 |---|---|
 | A web app with a talking avatar | [python/cloud-essence/](../cloud-essence/) |
-| A server-side avatar (my own hardware) | [python/local-essence/](../local-essence/) |
+| A voice agent on my own machine, in the browser (my own LiveKit server) | [python/self-host/](../self-host/) |
 | A Mac/iPad/iPhone app | [swift/](../../swift/) |
 | Something without writing code | [cli/](../../api/cli/) |
 | An integration in Java, Go, or another language | [rest-api/](../../api/rest-api/) |
@@ -88,6 +91,9 @@ Once your first demo works, pick the path that matches what you're building:
 |------|---------|
 | [local-avatar.py](local-avatar.py) | Opens an avatar, renders an audio file through it, shows the frames |
 | [cloud-avatar.py](cloud-avatar.py) | LiveKit cloud agent with OpenAI voice chat |
+| [conversation.py](conversation.py) | Mic → OpenAI Realtime (`gpt-realtime-mini`) → the avatar speaks the answer, in a window |
+| [microphone.py](microphone.py) | Mic → the avatar lip-syncs you, in a window |
+| [quickstart.py](quickstart.py) | An audio file → the avatar, in a window |
 | [speech.wav](speech.wav) | Sample audio for testing — 13.9 s, 16 kHz mono |
 | [.env.example](.env.example) | Template for environment variables (copy to `.env` and fill in) |
-| [requirements.txt](requirements.txt) | Python dependencies for both scripts |
+| [requirements.txt](requirements.txt) | Python dependencies for every script here |

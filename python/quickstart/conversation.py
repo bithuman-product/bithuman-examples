@@ -1,19 +1,19 @@
-"""Real-time microphone input driving a self-hosted bitHuman Essence avatar.
+"""AI voice conversation (OpenAI Realtime) with a bitHuman avatar rendered on this machine.
 
-Captures audio from your microphone, detects speech vs silence,
-and animates the avatar in real time with optional audio echo.
+Speak into your mic, hear the AI respond via OpenAI Realtime,
+and watch the avatar lip-sync in real time. No LiveKit server needed.
 
 Usage:
-    python microphone.py --model avatar.imx
-    python microphone.py --model avatar.imx --echo   # hear yourself back
+    python conversation.py
+    python conversation.py --model avatar.imx --voice alloy
 """
 
-import argparse
 import asyncio
+import base64
+import logging
 import os
 import sys
 import threading
-import time
 
 import cv2
 import numpy as np
@@ -33,6 +33,7 @@ except OSError:
     )
 from dotenv import load_dotenv
 from loguru import logger
+from openai import AsyncOpenAI
 
 from bithuman import AsyncBithuman
 
@@ -116,114 +117,59 @@ def require_window() -> None:
     except cv2.error:
         sys.exit(NO_GUI_BUILD)
 
-
-# A small pacer so the window is refreshed at the avatar's own frame rate
-# rather than as fast as frames arrive.
-class FPSController:
-    def __init__(self, target_fps: int = 25, window: int = 50):
-        self._target_dt = 1.0 / float(target_fps)
-        self._next_t = time.monotonic()
-        self._window = window
-        self._ticks: list[float] = []
-
-    def wait_next_frame(self, sleep: bool = True) -> float:
-        now = time.monotonic()
-        wait = self._next_t - now
-        if wait > 0 and sleep:
-            time.sleep(wait)
-        return max(wait, 0.0)
-
-    def update(self) -> None:
-        now = time.monotonic()
-        self._next_t += self._target_dt
-        if self._next_t < now - self._target_dt:
-            self._next_t = now + self._target_dt
-        self._ticks.append(now)
-        if len(self._ticks) > self._window:
-            self._ticks.pop(0)
-
-    @property
-    def average_fps(self) -> float:
-        if len(self._ticks) < 2:
-            return 0.0
-        span = self._ticks[-1] - self._ticks[0]
-        return (len(self._ticks) - 1) / span if span > 0 else 0.0
-# --- end inline FPSController ---
-
 load_dotenv()
 logger.remove()
 logger.add(sys.stdout, level="INFO")
+logging.getLogger("numba").setLevel(logging.WARNING)
 
-SAMPLE_RATE = 16000
-MIC_CHUNK = 160       # 10ms at 16kHz
-SILENCE_TIMEOUT = 3.0  # seconds of silence before draining stale audio
-
-
-async def read_and_push_audio(
-    runtime: AsyncBithuman,
-    audio_queue: asyncio.Queue,
-    volume: float = 1.0,
-    silent_threshold_db: int = -40,
-):
-    """Read mic audio from queue and push to bitHuman runtime with silence detection."""
-    last_speech_time = asyncio.get_running_loop().time()
-
-    while True:
-        audio_data, rms_db = await audio_queue.get()
-        now = asyncio.get_running_loop().time()
-
-        if rms_db > silent_threshold_db:
-            last_speech_time = now
-        elif now - last_speech_time > SILENCE_TIMEOUT:
-            while audio_queue.qsize() > 10:
-                audio_queue.get_nowait()
-
-        if volume != 1.0:
-            samples = np.frombuffer(audio_data, dtype=np.int16)
-            samples = np.clip(samples * volume, -32768, 32767).astype(np.int16)
-            audio_data = samples.tobytes()
-
-        await runtime.push_audio(audio_data, SAMPLE_RATE, last_chunk=False)
+OPENAI_SAMPLE_RATE = 24000  # OpenAI Realtime requires 24kHz PCM16
+AVATAR_SAMPLE_RATE = 16000  # bitHuman outputs at 16kHz
+MIC_CHUNK = 240             # 10ms at 24kHz
 
 
 async def main():
-    parser = argparse.ArgumentParser(description="bitHuman Essence -- microphone input")
+    import argparse
+    parser = argparse.ArgumentParser(description="bitHuman -- AI conversation")
     parser.add_argument("--model", default=os.getenv("BITHUMAN_MODEL_PATH"),
                         help="Path to .imx avatar model")
-    parser.add_argument("--volume", type=float, default=1.0, help="Mic volume multiplier")
-    parser.add_argument("--silent-threshold-db", type=int, default=-40)
-    parser.add_argument("--echo", action="store_true", help="Play avatar audio back through speakers")
+    parser.add_argument("--voice", default=os.getenv("OPENAI_VOICE", "coral"),
+                        help="OpenAI voice (alloy, coral, echo, etc.)")
     args = parser.parse_args()
     # Your API secret, from the environment only — a value on the command line
     # is readable by anyone who can run `ps`.
     args.api_secret = os.getenv("BITHUMAN_API_SECRET")
 
-    if not args.model:
-        print("Error: Provide --model or set BITHUMAN_MODEL_PATH")
+    model_path = args.model
+    api_secret = args.api_secret
+    openai_key = os.getenv("OPENAI_API_KEY")
+
+    if not model_path:
+        print("Error: Set --model or BITHUMAN_MODEL_PATH")
         print("Download .imx models from https://www.bithuman.ai")
+        return
+    if not api_secret:
+        print("Error: set BITHUMAN_API_SECRET (your API secret, from https://www.bithuman.ai/developer/api-keys)")
+        return
+    if not openai_key:
+        print("Error: Set OPENAI_API_KEY in your .env")
         return
 
     # Before the model loads, before the credential is held, before anything bills.
     require_window()
 
-    runtime = await AsyncBithuman.create(
-        model_path=args.model, api_secret=args.api_secret, input_buffer_size=5,
-    )
-
+    runtime = await AsyncBithuman.create(model_path=model_path, api_secret=api_secret)
     width, height = runtime.frame_width, runtime.frame_height
     cv2.resizeWindow(WINDOW, width, height)
 
     loop = asyncio.get_running_loop()
-    audio_queue: asyncio.Queue = asyncio.Queue()
+    mic_queue: asyncio.Queue[bytes] = asyncio.Queue()
+    ai_audio_queue: asyncio.Queue[bytes | None] = asyncio.Queue()
     speaker_buf = bytearray()
     speaker_lock = threading.Lock()
 
     def mic_callback(indata, frames, time_info, status):
-        samples = indata[:, 0].copy()
-        int16 = (samples * 32767).astype(np.int16)
-        rms = np.sqrt(np.mean(samples ** 2))
-        db = 20 * np.log10(rms + 1e-9)
-        asyncio.run_coroutine_threadsafe(audio_queue.put((int16.tobytes(), db)), loop)
+        samples = (indata[:, 0] * 32767).astype(np.int16)
+        asyncio.run_coroutine_threadsafe(mic_queue.put(samples.tobytes()), loop)
 
     def speaker_callback(outdata, frames, time_info, status):
         n_bytes = frames * 2
@@ -234,46 +180,75 @@ async def main():
             del speaker_buf[:avail]
 
     mic_stream = sd.InputStream(
-        samplerate=SAMPLE_RATE, channels=1, dtype="float32",
+        samplerate=OPENAI_SAMPLE_RATE, channels=1, dtype="float32",
         blocksize=MIC_CHUNK, callback=mic_callback,
     )
-    speaker_stream = None
-    if args.echo:
-        speaker_stream = sd.OutputStream(
-            samplerate=SAMPLE_RATE, channels=1, dtype="int16",
-            blocksize=640, callback=speaker_callback,
-        )
-        speaker_stream.start()
-
-    mic_stream.start()
-    logger.info("Microphone started -- press Q in the video window to quit")
-
-    mic_task = asyncio.create_task(
-        read_and_push_audio(runtime, audio_queue, args.volume, args.silent_threshold_db)
+    speaker_stream = sd.OutputStream(
+        samplerate=AVATAR_SAMPLE_RATE, channels=1, dtype="int16",
+        blocksize=640, callback=speaker_callback,
     )
+    mic_stream.start()
+    speaker_stream.start()
 
-    fps = FPSController(target_fps=25)
+    async def run_openai():
+        client = AsyncOpenAI(api_key=openai_key)
+        # gpt-realtime-mini on the GA Realtime API (client.realtime); the older
+        # preview models and the beta API were shut down by OpenAI on 2026-05-07.
+        async with client.realtime.connect(model="gpt-realtime-mini") as conn:
+            await conn.session.update(session={
+                "type": "realtime",
+                "instructions": "You are a friendly AI assistant. Keep responses concise.",
+                "output_modalities": ["audio"],
+                "audio": {
+                    "input": {"format": {"type": "audio/pcm", "rate": OPENAI_SAMPLE_RATE},
+                              "turn_detection": {"type": "server_vad"}},
+                    "output": {"format": {"type": "audio/pcm", "rate": OPENAI_SAMPLE_RATE},
+                               "voice": args.voice},
+                },
+            })
+            logger.info("Connected to OpenAI Realtime -- speak now (press Q to quit)")
+
+            async def send_mic():
+                while True:
+                    data = await mic_queue.get()
+                    await conn.input_audio_buffer.append(audio=base64.b64encode(data).decode())
+
+            send_task = asyncio.create_task(send_mic())
+            try:
+                async for event in conn:
+                    if event.type == "response.output_audio.delta":
+                        await ai_audio_queue.put(base64.b64decode(event.delta))
+                    elif event.type == "response.output_audio.done":
+                        await ai_audio_queue.put(None)
+            finally:
+                send_task.cancel()
+
+    async def push_to_bithuman():
+        while True:
+            data = await ai_audio_queue.get()
+            if data is None:
+                await runtime.flush()
+            else:
+                await runtime.push_audio(data, OPENAI_SAMPLE_RATE, last_chunk=False)
+
+    openai_task = asyncio.create_task(run_openai())
+    bithuman_task = asyncio.create_task(push_to_bithuman())
+
     try:
         async for frame in runtime.run():
-            sleep_time = fps.wait_next_frame(sleep=False)
-            if sleep_time > 0:
-                await asyncio.sleep(sleep_time)
-
             if frame.has_image:
                 cv2.imshow(WINDOW, frame.bgr_image)
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     break
 
-            if args.echo and frame.audio_chunk:
+            if frame.audio_chunk:
                 with speaker_lock:
                     speaker_buf.extend(frame.audio_chunk.array.tobytes())
-
-            fps.update()
     finally:
-        mic_task.cancel()
+        openai_task.cancel()
+        bithuman_task.cancel()
         mic_stream.stop()
-        if speaker_stream:
-            speaker_stream.stop()
+        speaker_stream.stop()
         cv2.destroyAllWindows()
         # shutdown(), not stop(): stop() halts the frame producer but keeps the
         # model loaded and the credential held. shutdown() frees both.
