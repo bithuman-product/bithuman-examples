@@ -6,7 +6,7 @@ fetched at runtime.
 
 | model | coordinate | latest |
 |---|---|---|
-| essence-2 | `ai.bithuman:essence2-android` | **0.5.12** |
+| essence-2 | `ai.bithuman:essence2-android` | **0.5.13** |
 | expression-2 | `ai.bithuman:expression2-android` | **0.4.8** |
 | essence-1 | `ai.bithuman:sdk` | 2.3.6 |
 
@@ -51,7 +51,7 @@ android {
     packaging { jniLibs { useLegacyPackaging = true } }   // required — see below
 }
 dependencies {
-    implementation("ai.bithuman:essence2-android:0.5.12")
+    implementation("ai.bithuman:essence2-android:0.5.13")
     // and/or
     implementation("ai.bithuman:expression2-android:0.4.8")
 }
@@ -89,7 +89,7 @@ The two Qualcomm entries are the Snapdragon accelerator runtime, and 0.4.8 is th
 first release that declares them for you; on 0.4.7 and older you had to add them
 by hand or the engine rendered on the CPU.
 
-`essence2-android:0.5.12` declares `kotlin-stdlib` and nothing else.
+`essence2-android:0.5.13` declares `kotlin-stdlib` and nothing else.
 
 ## Verify the graph, not the exit code
 
@@ -111,30 +111,31 @@ almost none of the differences throws. The per-version table of what silently
 changes is on
 [Pin the version](https://docs.bithuman.ai/sdk/android#pin-the-version).
 
-## Release builds — keep the default ProGuard file
+## Release builds — nothing to add, from `essence2-android` 0.5.13
 
 Both SDKs reach their native code by **name** through JNI, so a shrinker that
-renames or removes those entry points turns a working app into an
-`UnsatisfiedLinkError` at the first frame.
+renames those entry points turns a working app into an `UnsatisfiedLinkError`
+at the first frame. **Both AARs now carry their own keep rule** (`proguard.txt`
+inside the AAR), and Gradle applies it to your R8 run whatever your
+`proguardFiles(...)` line says — so `isMinifyEnabled = true` needs nothing from
+you, with or without `getDefaultProguardFile(...)`.
 
-The default Android file already covers this, so the template Android Studio
-generates is correct as written. The part that matters is the first argument:
+Measured 2026-09-23 on a Galaxy S25+, the docs' own
+[Essence 2 project](https://docs.bithuman.ai/examples/kotlin-android-hello#essence-2-on-android--the-same-seven-files-three-of-them-changed)
+resolved from Maven Central with `isMinifyEnabled = true` and
+`proguardFiles("proguard-rules.pro")` **only**:
 
-```kotlin
-proguardFiles(
-    getDefaultProguardFile("proguard-android-optimize.txt"),  // keeps native methods
-    "proguard-rules.pro",
-)
-```
+| `essence2-android` | R8 `mapping.txt` | on the phone |
+|---|---|---|
+| 0.5.12 | `ai.bithuman.elevate.NativeBridge -> a.P` | downloads the identity, then `UnsatisfiedLinkError: No implementation found for long a.P.l(...)` |
+| 0.5.13 | `ai.bithuman.elevate.NativeBridge -> ai.bithuman.elevate.NativeBridge` | renders and plays |
 
-Measured 2026-09-22 by building a release APK twice with AGP 8.7.3, Gradle
-8.11.1 and JDK 17 — one app opening both engines, `isMinifyEnabled = true`,
-changing nothing but that first argument. With the default file the engine's JNI
-bridge keeps its name; with `proguard-rules.pro` alone R8 **renames** it
-(`ai.bithuman.elevate.NativeBridge -> a.k` in the build's own `mapping.txt`).
-Renamed, not deleted — so the APK is complete and installs, and the first native
-call throws instead. If you replace the default file rather than adding to it,
-carry its rule across:
+`expression2-android` has shipped its rule since before 0.4.8 and came through
+the same build unchanged.
+
+**If you are pinned to `essence2-android` 0.5.12 or older** and your release
+build replaces the default file instead of adding to it, carry the default
+file's native-methods rule into your own:
 
 ```proguard
 -keepclasseswithmembernames,includedescriptorclasses class * {
@@ -142,12 +143,7 @@ carry its rule across:
 }
 ```
 
-Nothing else is needed. In that same pair of builds, **Expression 2 came through
-both columns untouched** — same APK, same R8 invocation, only Essence 2 lost its
-binding — because `expression2-android` ships its own keep rules *inside* the
-AAR and Gradle applies them whatever your `proguardFiles` line says.
-`essence2-android` ships none and needs none beyond the rule above. Full detail
-on
+Full detail on
 [Shrink the release build](https://docs.bithuman.ai/sdk/android#shrink-the-release-build).
 
 ## The worked example lives on the docs site, on purpose
