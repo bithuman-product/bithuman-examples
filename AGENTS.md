@@ -44,6 +44,8 @@ swift/                                Swift SDK for Apple platforms — all infe
 
 android/                              Gradle + Maven Central setup for the native Android SDKs,
                                       (the Flutter app in app/ is the successor once its Apple engine is published)
+  expression2-hello/                  expression-2 on a phone: a WAV in, frames rendered on the device, played back
+  essence2-hello/                     essence-2, the same shape, full-resolution frames
 
 integrations/                         Framework and language bridges
   nextjs-ui/                          Next.js + LiveKit frontend
