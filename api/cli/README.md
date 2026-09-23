@@ -23,6 +23,11 @@ bithuman run wise-pup                                     # Expression 2
 bithuman run sofia-ramirez                                # Essence 2
 ```
 
+<p>
+<img src="screenshots/expression-2-wise-pup.jpg" alt="bithuman run wise-pup: Expression 2, mid-sentence" height="280">
+<img src="screenshots/essence-2-sofia-ramirez.jpg" alt="bithuman run sofia-ramirez: Essence 2, mid-sentence" height="280">
+</p>
+
 The first run downloads the avatar and sets up the voice agent once (a
 minute or two). The terminal prints `http://127.0.0.1:8088/<CODE>` and your
 browser opens it: allow the microphone, say "hi", and the avatar answers,
