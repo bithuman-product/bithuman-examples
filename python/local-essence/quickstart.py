@@ -15,7 +15,20 @@ import threading
 
 import cv2
 import numpy as np
-import sounddevice as sd
+try:
+    import sounddevice as sd
+except OSError:
+    # ★`pip install` gets the sounddevice package but not the PortAudio
+    # library it loads: its Linux wheels do not carry one (macOS and Windows
+    # wheels do). Measured 2026-09-23 on a stock Ubuntu 24.04 with a display
+    # and a sound server: `OSError: PortAudio library not found` at this
+    # import, before anything else in the script ran. Say what to install.
+    sys.exit(
+        "sounddevice needs the PortAudio library, which pip cannot install.\n\n"
+        "    sudo apt install libportaudio2      # Debian, Ubuntu\n"
+        "    sudo dnf install portaudio          # Fedora\n\n"
+        "then run this again. (macOS needs nothing: the wheel carries it.)"
+    )
 import soundfile as sf
 from dotenv import load_dotenv
 

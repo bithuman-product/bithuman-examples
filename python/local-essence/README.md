@@ -9,6 +9,12 @@ No GPU needed. Audio stays on your machine -- only authentication calls the clou
 - bitHuman API secret ([www.bithuman.ai](https://www.bithuman.ai/#developer) → Developer → API Keys)
 - `.imx` model file (see below)
 - OpenAI API key (for `conversation.py` and `agent.py`)
+- **Linux only:** the PortAudio library for the three window scripts, which
+  play and record sound through `sounddevice` — `sudo apt install libportaudio2`
+  (Fedora: `sudo dnf install portaudio`). pip cannot install it; without it the
+  scripts stop at start-up and say so. macOS needs nothing.
+- An **Expression 2** avatar needs the `[expression-2]` extra, which
+  `requirements.txt` already asks for; Essence 2 needs nothing extra.
 
 ## Get an .imx Model
 

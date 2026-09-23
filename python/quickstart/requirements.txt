@@ -1,5 +1,8 @@
 # local-avatar.py
-bithuman>=2.11,<3
+# `[expression-2]`: without it an Expression 2 avatar is refused at open with
+# "this avatar needs one more package" (measured 2026-09-23, bithuman 2.11.6);
+# Essence 2 needs nothing extra.
+bithuman[expression-2]>=2.11,<3
 # local-avatar.py opens a window with cv2.imshow, which needs the GUI build.
 #
 # ★BOTH OpenCV distributions land here, and they collide. `bithuman` depends on
@@ -23,6 +26,15 @@ bithuman>=2.11,<3
 #
 # Collapsing this to one distribution means changing what `bithuman` depends
 # on, which is not this repo's to change.
+#
+# ★AND `bithuman` CANNOT SIMPLY DROP IT (measured 2026-09-23, both resolves):
+# `bithuman` itself imports no cv2, but livekit-plugins-bithuman (1.8.2, and
+# upstream main) does `import cv2` at module scope and declares no OpenCV — it
+# gets one through `bithuman`. With the requirement removed, a clean
+# `pip install bithuman livekit-plugins-bithuman` imports the plugin as
+# `ModuleNotFoundError: No module named 'cv2'` on Linux and macOS alike. On
+# macOS the collision is harmless anyway: the headless wheel reports
+# `GUI: COCOA`. It bites on Linux, where headless is `GUI: NONE`.
 opencv-python>=4.8
 
 # cloud-avatar.py (LiveKit + OpenAI) — uses no cv2 at all
