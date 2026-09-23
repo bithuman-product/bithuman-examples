@@ -1,7 +1,10 @@
 # macos-expression2 — an Expression 2 avatar on your Mac
 
 A small command-line tool: a 16 kHz WAV goes in, lip-synced frames come out,
-all on this machine. No server, no account, no key, no credits.
+all on this machine. No server. From package 2.14.2 it needs your API secret
+(`export BITHUMAN_API_SECRET=…`, a free key at
+[bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys)): the
+engine bills the talking time it renders, and idle is free.
 
 This is the shortest native Apple path there is. The same `Expression2` product
 and the same three calls — `create`, `feed`, `pull` — also run on an iPhone; see
