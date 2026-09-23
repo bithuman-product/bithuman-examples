@@ -91,7 +91,7 @@ Once your first demo works, pick the path that matches what you're building:
 |------|---------|
 | [local-avatar.py](local-avatar.py) | Opens an avatar, renders an audio file through it, shows the frames |
 | [cloud-avatar.py](cloud-avatar.py) | LiveKit cloud agent with OpenAI voice chat |
-| [conversation.py](conversation.py) | Mic → OpenAI Realtime (`gpt-realtime-mini`) → the avatar speaks the answer, in a window |
+| [conversation.py](conversation.py) | Mic → OpenAI Realtime (`gpt-realtime-2.1-mini`) → the avatar speaks the answer, in a window |
 | [microphone.py](microphone.py) | Mic → the avatar lip-syncs you, in a window |
 | [quickstart.py](quickstart.py) | An audio file → the avatar, in a window |
 | [speech.wav](speech.wav) | Sample audio for testing — 13.9 s, 16 kHz mono |

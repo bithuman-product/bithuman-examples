@@ -65,7 +65,7 @@ async def entrypoint(ctx: JobContext):
     session = AgentSession(
         llm=openai.realtime.RealtimeModel(
             voice=os.getenv("OPENAI_VOICE", "coral"),
-            model="gpt-realtime-mini",
+            model="gpt-realtime-2.1-mini",
         ),
         vad=silero.VAD.load(),
     )

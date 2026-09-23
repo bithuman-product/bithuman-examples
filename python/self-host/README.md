@@ -64,7 +64,7 @@ Everything is read from `.env` ([.env.example](.env.example)):
 | `BITHUMAN_API_SECRET` | — (required) | Your bitHuman API secret. Rendering is metered on it. |
 | `OPENAI_API_KEY` | — (required) | Your OpenAI key, for OpenAI Realtime. |
 | `BITHUMAN_AVATAR` | `wise-pup` | Which avatar (table above). |
-| `BITHUMAN_REALTIME_MODEL` | `gpt-realtime-mini` | The OpenAI Realtime model. |
+| `BITHUMAN_REALTIME_MODEL` | `gpt-realtime-2.1-mini` | The OpenAI Realtime model. |
 | `BITHUMAN_VOICE` | `coral` | Any OpenAI Realtime voice. |
 | `BITHUMAN_INSTRUCTIONS` | `You are a friendly assistant. Keep answers short.` | The agent's system prompt. |
 | `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET` | `ws://localhost:7880`, `devkey`, `secret` | Your LiveKit server. The join link is printed only for a `localhost` URL. |

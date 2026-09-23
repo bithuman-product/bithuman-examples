@@ -43,7 +43,7 @@ def avatar_file(name: str) -> str:
 async def entrypoint(ctx: JobContext):
     await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)  # the agent listens; it never needs your camera
     session = AgentSession(llm=openai.realtime.RealtimeModel(
-        model=os.getenv("BITHUMAN_REALTIME_MODEL", "gpt-realtime-mini"),
+        model=os.getenv("BITHUMAN_REALTIME_MODEL", "gpt-realtime-2.1-mini"),
         voice=os.getenv("BITHUMAN_VOICE", "coral")))
     # Local mode: the avatar renders in this process and publishes the lip-synced video AND audio.
     avatar = bithuman.AvatarSession(model_path=os.environ["BITHUMAN_MODEL_PATH"])
