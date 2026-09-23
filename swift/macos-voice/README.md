@@ -35,5 +35,5 @@ For the same thing with no window at all, see
 
 ## Documentation
 
-- [Apple SDK](https://docs.bithuman.ai/sdk/ios)
-- [Apple API reference](https://docs.bithuman.ai/sdk/ios-api)
+- [Apple SDK](https://docs.bithuman.ai/sdk/apple)
+- [Apple API reference](https://docs.bithuman.ai/sdk/apple-api)

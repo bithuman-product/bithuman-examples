@@ -8,7 +8,7 @@ SwiftPM package, and a SwiftPM `.executableTarget` builds no `.app`: there is no
 scheme to run on a phone and no *Signing & Capabilities* tab. To put this on a
 device, make an app project of your own, add the package to it and paste
 `Sources/IOSAvatarApp.swift` in. The whole path, step by step, is at
-[docs.bithuman.ai/examples/swift-ios-hello](https://docs.bithuman.ai/examples/swift-ios-hello).
+[docs.bithuman.ai/examples/swift-ios-voice-agent](https://docs.bithuman.ai/examples/swift-ios-voice-agent).
 
 For an avatar you can build and run on a phone today, with no device floor and
 no entitlement, take [`ios-expression2`](../ios-expression2) instead — it ships
@@ -55,5 +55,5 @@ reply is the long pole:
 
 ## Documentation
 
-- [Swift / iOS — Hello, avatar](https://docs.bithuman.ai/examples/swift-ios-hello) — the whole path, every file
-- [Apple SDK](https://docs.bithuman.ai/sdk/ios) · [Apple API reference](https://docs.bithuman.ai/sdk/ios-api)
+- [Swift / iOS — Hello, avatar](https://docs.bithuman.ai/examples/swift-ios-voice-agent) — the whole path, every file
+- [Apple SDK](https://docs.bithuman.ai/sdk/apple) · [Apple API reference](https://docs.bithuman.ai/sdk/apple-api)

@@ -30,7 +30,7 @@ Each subdirectory has its own README with setup steps.
 ## Documentation
 
 - [Python SDK](https://docs.bithuman.ai/sdk/python)
-- [Swift SDK (iOS & macOS)](https://docs.bithuman.ai/sdk/ios)
-- [API overview](https://docs.bithuman.ai/api/overview)
+- [Swift SDK (iOS & macOS)](https://docs.bithuman.ai/sdk/apple)
+- [API overview](https://docs.bithuman.ai/api)
 - [LiveKit integration](https://docs.bithuman.ai/sdk/livekit)
 - [Python SDK on PyPI](https://pypi.org/project/bithuman/)

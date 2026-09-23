@@ -137,8 +137,8 @@ inside the AAR), and Gradle applies it to your R8 run whatever your
 `proguardFiles(...)` line says — so `isMinifyEnabled = true` needs nothing from
 you, with or without `getDefaultProguardFile(...)`.
 
-Measured 2026-09-23 on a Galaxy S25+, the docs' own
-[Essence 2 project](https://docs.bithuman.ai/examples/kotlin-android-hello#essence-2-on-android--the-same-seven-files-three-of-them-changed)
+Measured 2026-09-23 on a Galaxy S25+, the
+[Essence 2 project](essence2-hello/)
 resolved from Maven Central with `isMinifyEnabled = true` and
 `proguardFiles("proguard-rules.pro")` **only**:
 
@@ -161,27 +161,17 @@ file's native-methods rule into your own:
 ```
 
 Full detail on
-[Shrink the release build](https://docs.bithuman.ai/sdk/android#shrink-the-release-build).
+[Android SDK: platform notes](https://docs.bithuman.ai/sdk/android#platform-notes).
 
-## The worked example lives on the docs site, on purpose
+## Where the docs pages point
 
-There is no Gradle project checked in beside this file, and nothing is missing.
-The complete Android project — seven files, printed in full, for **both** models —
-is
-[Kotlin / Android — Hello, avatar](https://docs.bithuman.ai/examples/kotlin-android-hello).
-From `expression2-android` 0.4.9 the Expression 2 half downloads its model with no account, and
-needs a free API secret to render (`Expression2Metering.apiSecret`; talking time is billed, idle is free).
-
-That page is not a copy of a project; it **is** the project. A scheduled gate
-fetches the published page, writes its code blocks out as the filenames on the
-page say, and compiles them against a real Android SDK — so the page cannot drift
-from something that builds. A project checked in here would have no such gate, and
-this very file is the evidence for why that matters: until 2026-09-22 it
-advertised `essence2-android` **0.2.0** and `expression2-android` **0.3.0** — 14
-and 5 releases behind — because nothing graded it.
-
-So when this page and the docs site disagree, **the docs site is right** — and
-tell us, because this page should not have been allowed to disagree.
+The docs pages [Android example: Expression 2](https://docs.bithuman.ai/examples/android-expression2)
+and [Android example: Essence 2](https://docs.bithuman.ai/examples/android-essence2)
+send readers to the two projects above, with the apps running on a Galaxy S25+.
+Both projects are built on every change by
+[`.github/workflows/android-examples.yml`](../.github/workflows/android-examples.yml),
+and the docs site's scheduled gate builds `expression2-hello` from this
+repository's `main` every day.
 
 ## See also
 

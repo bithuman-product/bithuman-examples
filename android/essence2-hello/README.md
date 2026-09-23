@@ -5,9 +5,8 @@ it reads `speech.wav` from its own external files directory, downloads
 `A52DHS2219` (Sofia Ramirez, a free showcase identity) once through the SDK's model store, renders every frame of the clip on
 the device, then plays the audio and shows each frame on the audio clock.
 
-It is the project printed on
-[Kotlin / Android — Hello, avatar](https://docs.bithuman.ai/examples/kotlin-android-hello),
-as a Gradle tree you can clone. It resolves one coordinate, `ai.bithuman:essence2-android:0.5.14`, from
+Its page on the docs site, with the app running on a Galaxy S25+, is
+[Android example: Essence 2](https://docs.bithuman.ai/examples/android-essence2). It resolves one coordinate, `ai.bithuman:essence2-android:0.5.14`, from
 Maven Central, and nothing else from bitHuman.
 
 ## What you need
