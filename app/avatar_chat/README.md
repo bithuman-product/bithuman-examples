@@ -24,32 +24,22 @@ instead: it uses the **public** Swift package, which does ship both engines.
 ### Which engine the Android app actually runs
 
 The plugin is pinned by tag in `pubspec.yaml`, and that tag is what fixes the engine
-version. This app pins **`flutter-plugin-v2.6.8`**, which resolves
-`ai.bithuman:essence2-android:0.5.12` — the first engine that draws the Essence 2 mouth
-with the identity's own lip contour rather than a wider elliptical region. Measured from a
-clean clone at that tag: Gradle resolves 0.5.12 from Maven Central, and a release APK built
-against it carries `lib/arm64-v8a/lible_jni.so` byte-identical (sha256 `083ee4e5…`) to the
-one inside Central's AAR. The previous pin, `flutter-plugin-v2.6.6`, resolved 0.5.10 and
-drew the wider region.
+version. This app pins **`flutter-plugin-v2.6.9`**, which resolves
+**`ai.bithuman:essence2-android:0.5.13`** and **`ai.bithuman:expression2-android:0.4.8`** —
+Maven Central's current release of each (2026-09-23).
 
-The same tag pins the other engine at **`ai.bithuman:expression2-android:0.4.7`**,
-one release behind Central's current 0.4.8 (read from the plugin's
-`android/build.gradle` at the tag, 2026-09-22).
+Measured from a clean clone of this repository on 2026-09-23, empty Gradle and pub
+caches, `flutter build apk --release --target-platform android-arm64` against the tag:
+Gradle resolves both engines plus the Qualcomm accelerator runtime
+(`com.qualcomm.qti:qnn-litert-delegate` and `qnn-runtime` 2.49.0, which 0.4.8 declares
+itself) from Maven Central; R8 keeps both engines' JNI bridges by name; and the APK's
+`lib/arm64-v8a/lible_jni.so` (sha256 `b97e7ff0…`) and `libexpr2jni.so` (`e8dab183…`) are
+byte-identical to the ones inside Central's AARs.
 
-**The accelerator is not at risk from that lag.** 0.4.8 is the first release whose
-POM declares the two Qualcomm coordinates itself; the plugin already declares
-`com.qualcomm.qti:qnn-litert-delegate:2.49.0` and `com.qualcomm.qti:qnn-runtime:2.49.0`
-by hand, so the Snapdragon accelerator is reached either way and an Expression 2
-build here does **not** silently fall back to the CPU. If you consume the SDK
-directly rather than through this plugin, take 0.4.8 and delete those two lines.
-
-What else moved between the two is **not** fully accounted for here. Comparing the
-published AARs entry by entry (2026-09-22, both verified against Central's own
-`.sha256` sidecars): the public class list is identical, the exported JNI symbol
-set is identical, `libLiteRt.so`, the manifest and the consumer ProGuard rules are
-byte-identical — but `libexpr2jni.so` differs and is 2,488 B larger, so the engine
-itself was rebuilt with a change this README has not identified. Treat 0.4.8 as the
-version to move to when the plugin's next tag takes it, not as a no-op.
+What the two moves give you: 0.5.12 (the previous pin, via `flutter-plugin-v2.6.8`) was the
+first engine that draws the Essence 2 mouth with the identity's own lip contour, and 0.5.13
+keeps that picture unchanged while shipping its own ProGuard rule for its native bridge. 0.4.8
+declares the Snapdragon accelerator runtime itself, so the plugin no longer lists it by hand.
 
 Both coordinates resolve anonymously from Maven Central; neither needs Google's
 Maven. `google()` is still in the repository list because the Android Gradle
