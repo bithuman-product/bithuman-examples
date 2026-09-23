@@ -24,7 +24,7 @@ If you're new to bitHuman, follow this order:
 ## Install
 
 ```bash
-pip install bithuman --upgrade
+pip install "bithuman[expression-2]" --upgrade   # the extra opens Expression 2 avatars
 
 # For LiveKit agent examples (cloud-* and docker stacks):
 pip install "livekit-agents>=1.4" "livekit-plugins-bithuman>=1.4"

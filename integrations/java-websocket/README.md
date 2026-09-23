@@ -333,7 +333,7 @@ appropriate Java SPI library to the classpath, or pre-convert with `ffmpeg`.
 | Property | Value |
 |----------|-------|
 | Codec | JPEG (quality 80) |
-| Frame rate | 25 FPS |
+| Frame rate | the avatar's own: 25 FPS for Essence 2, 20 FPS for Expression 2 — the `connected` message's `video_format.fps` says which |
 | Resolution | Model-dependent (e.g. 1280x2270) |
 | Typical frame size | ~150-200 KB |
 | End-to-end latency | ~200-500 ms from audio input to video output |
@@ -431,7 +431,7 @@ public class AvatarService {
 After saving frames, stitch them into a video with `ffmpeg`:
 
 ```bash
-ffmpeg -framerate 25 -i frames/frame_%06d.jpg -c:v libx264 -pix_fmt yuv420p output.mp4
+ffmpeg -framerate 25 -i frames/frame_%06d.jpg   # 20 for an Expression 2 avatar -c:v libx264 -pix_fmt yuv420p output.mp4
 ```
 
 ---

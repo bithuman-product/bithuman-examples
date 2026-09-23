@@ -75,6 +75,9 @@ class FPSController:
 logger.remove()
 logger.add(sys.stdout, level="INFO")
 
+# The end-of-utterance marker, queued in order with the audio it ends.
+_END = object()
+
 TAG_VIDEO = 0x01
 TAG_AUDIO = 0x02
 TAG_END_OF_SPEECH = 0x03
@@ -88,10 +91,14 @@ class BithumanStreamingServer:
         self.runtime = runtime
         self.host = host
         self.port = port
-        self._audio_queue: asyncio.Queue[bytes] = asyncio.Queue()
+        # Audio chunks AND the end marker travel through ONE queue, in arrival
+        # order — see _handle_json for why the marker may not skip the line.
+        self._audio_queue: asyncio.Queue[object] = asyncio.Queue()
         self._clients: dict[str, websockets.WebSocketServerProtocol] = {}
         self._running = False
-        self._fps = FPSController(target_fps=25)
+        # The avatar's own rate (essence-2 25, expression-2 20) — not a constant.
+        self.fps = int(round(runtime.settings.FPS))
+        self._fps = FPSController(target_fps=self.fps)
 
     async def start(self) -> None:
         self._running = True
@@ -127,7 +134,7 @@ class BithumanStreamingServer:
             "type": "connected",
             "message": "bitHuman streaming server ready",
             "audio_format": {"sample_rate": 16000, "channels": 1, "encoding": "int16_le", "chunk_ms": 100},
-            "video_format": {"codec": "jpeg", "fps": 25},
+            "video_format": {"codec": "jpeg", "fps": self.fps},
         }))
 
         try:
@@ -150,8 +157,21 @@ class BithumanStreamingServer:
 
         msg_type = msg.get("type", "")
         if msg_type == "end":
-            await self.runtime.flush()
+            # ★QUEUED BEHIND THE AUDIO IT ENDS, NEVER FLUSHED FROM HERE. This
+            # handler used to call flush() the moment "end" arrived, while
+            # chunks the client had already sent could still be waiting in
+            # _audio_queue — so the utterance was closed early and its tail
+            # pushed afterwards as a new one. Measured 2026-09-23 (bithuman
+            # 2.11.6, 6.0 s of speech sent in 100 ms chunks, then "end"): an
+            # Expression 2 avatar, whose push_audio takes longer to return,
+            # delivered 88-106 frames (4.4-5.3 s) before end-of-speech instead
+            # of 120 (6.0 s); AsyncBithuman driven directly with the same
+            # pushes delivered all 120.
+            await self._audio_queue.put(_END)
         elif msg_type == "interrupt":
+            # Barge-in: drop audio not pushed yet, then cut what is playing.
+            while not self._audio_queue.empty():
+                self._audio_queue.get_nowait()
             self.runtime.interrupt()
         else:
             logger.warning(f"Unknown message type: {msg_type}")
@@ -160,8 +180,11 @@ class BithumanStreamingServer:
         """Forward queued PCM audio from clients to the runtime."""
         while self._running:
             try:
-                audio_bytes = await self._audio_queue.get()
-                await self.runtime.push_audio(audio_bytes, 16000, last_chunk=False)
+                item = await self._audio_queue.get()
+                if item is _END:
+                    await self.runtime.flush()
+                else:
+                    await self.runtime.push_audio(item, 16000, last_chunk=False)
             except asyncio.CancelledError:
                 break
             except Exception as e:

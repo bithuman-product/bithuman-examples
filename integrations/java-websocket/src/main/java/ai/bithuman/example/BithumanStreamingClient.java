@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * from the bitHuman streaming server.
  *
  * Audio input:   16 kHz, mono, signed 16-bit little-endian PCM
- * Video output:  JPEG frames at 25 FPS
+ * Video output:  JPEG frames at the avatar's own rate (Essence 2: 25 FPS, Expression 2: 20 FPS)
  * Audio output:  16 kHz, mono, signed 16-bit little-endian PCM
  *
  * Usage:
