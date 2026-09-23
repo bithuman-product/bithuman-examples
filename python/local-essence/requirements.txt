@@ -5,7 +5,8 @@ python-dotenv~=1.1
 bithuman[expression-2]>=2.11,<3
 livekit-agents[openai,silero]>=1.4
 livekit-plugins-bithuman>=1.4
-openai>=1.0
+# conversation.py uses the GA Realtime API (client.realtime).
+openai[realtime]>=2.50,<3
 loguru>=0.7.0
 sounddevice>=0.4
 # quickstart.py, microphone.py and conversation.py open a window with
