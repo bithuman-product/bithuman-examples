@@ -17,21 +17,29 @@ Find the row that matches what you are building and open that directory. Each on
 | A demo with no code at all | [`api/cli/`](api/cli/) | the `bithuman` command |
 | Next.js, Gradio, Java, or a fully offline Mac | [`integrations/`](integrations/) | varies — one README each |
 
+## See them running
+
+Each of these was built from this repository and run on a real device with the published SDKs. The docs page for each has the clip, the commands and how to make it your own.
+
+| | Example | Runs on | Docs page |
+|---|---|---|---|
+| <img src="https://docs.bithuman.ai/examples/web/hero.webp" width="96" alt="Web embed"> | an iframe (no folder needed) | any browser | [Web](https://docs.bithuman.ai/examples/web) |
+| <img src="https://docs.bithuman.ai/examples/cli/hero.webp" width="96" alt="CLI render"> | [`api/cli/`](api/cli/) | macOS, Linux | [CLI](https://docs.bithuman.ai/examples/cli) |
+| <img src="https://docs.bithuman.ai/examples/python/hero.webp" width="96" alt="Python window"> | [`python/quickstart/`](python/quickstart/) | macOS, Linux | [Python](https://docs.bithuman.ai/examples/python) |
+| <img src="https://docs.bithuman.ai/examples/ios/hero.webp" width="96" alt="iPhone frame"> | [`swift/ios-expression2/`](swift/ios-expression2/) | iPhone, iPad | [iOS: Expression 2](https://docs.bithuman.ai/examples/swift-ios-expression2) |
+| <img src="https://docs.bithuman.ai/examples/macos/hero.webp" width="96" alt="Mac frame"> | [`swift/macos-expression2/`](swift/macos-expression2/) | Mac | [macOS](https://docs.bithuman.ai/examples/macos-expression2) |
+| <img src="https://docs.bithuman.ai/examples/android/expression2.webp" width="96" alt="Android, Expression 2"> | [`android/expression2-hello/`](android/expression2-hello/) | Android phone | [Android: Expression 2](https://docs.bithuman.ai/examples/android-expression2) |
+| <img src="https://docs.bithuman.ai/examples/android/essence2.webp" width="96" alt="Android, Essence 2"> | [`android/essence2-hello/`](android/essence2-hello/) | Android phone | [Android: Essence 2](https://docs.bithuman.ai/examples/android-essence2) |
+
 ## Which model
 
-**essence-2 and expression-2 are two different products, not two tiers of one.** Pick by where the face comes from.
-
-| | **essence-2** | **expression-2** |
+| | **Essence 2** (`essence-2`) | **Expression 2** (`expression-2`) |
 |---|---|---|
-| The face comes from | a prebuilt `.imx` avatar file | any face image, chosen at runtime |
-| Native output | 1920×1080 at 25 fps | 416×720 at 20 fps |
-| Needs | any CPU | a GPU, or Apple Silicon M3+ |
+| Renders | a photoreal person from one portrait | any character (people, animals, cartoons) from one portrait |
+| Output | the avatar's own resolution, up to 1920×1080, at 25 fps | 416×720 at 20 fps |
+| Runs on | the cloud, macOS, Linux, iPhone, iPad, Android; the browser where the avatar has a browser build | the cloud, macOS, Linux, iPhone, iPad, Android, the browser |
 
-**Choose essence-2** when you ship one character over and over and you want it full-frame: it is the 1080p product, and it runs on a plain CPU with no accelerator at all.
-
-**Choose expression-2** when the face is not known until runtime — a user's own photo, a different character per session — and you have a GPU or an M3+ Mac.
-
-Do not read the two frame rates as a ranking. An essence-2 frame carries **6.92× the pixels** of an expression-2 frame (2,073,600 vs 299,520), so 25 and 20 are measuring different things and neither model is "the fast one". Choose on the face, then on the hardware you have.
+Both are created once from a portrait (about 2 to 2.5 hours) and then run anywhere their SDK does. Not sure? Create with `"model": "auto"`. The full comparison is on [Models](https://docs.bithuman.ai/concepts/models).
 
 `essence-1` and `expression-1` are the first generation and are not where to start. `expression-1` is GPU-only and has no mobile build.
 
