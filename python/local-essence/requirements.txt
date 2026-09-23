@@ -5,7 +5,25 @@ livekit-plugins-bithuman>=1.4
 openai>=1.0
 loguru>=0.7.0
 sounddevice>=0.4
-# The GUI build: these scripts open a window with cv2.imshow, which the
-# headless build does not implement. The containerised agents use headless.
+# quickstart.py, microphone.py and conversation.py open a window with
+# cv2.imshow, which needs the GUI build. The containerised agents use headless.
+#
+# ★BOTH OpenCV distributions land here, and they collide. `bithuman` depends on
+# `opencv-python-headless`; the line below asks for `opencv-python`. They own
+# the same `cv2/` package — 39 of their 40 files are the same paths, including
+# `cv2/cv2.abi3.so`, the extension that carries `imshow` — so whichever pip
+# writes LAST is the cv2 you get. A requirements file cannot express install
+# order, so it cannot pin the winner. Measured 2026-09-22 with pip 26.2.1,
+# bithuman 2.11.6, opencv 5.0.0.93:
+#
+#   clean venv, pip install -r requirements.txt   ->  GUI: QT5    window works
+#   opencv-python already there, then this file   ->  GUI: NONE   imshow gone
+#   pip install opencv-python, then bithuman      ->  GUI: NONE   imshow gone
+#
+# So the three window scripts do not rely on winning: require_window() checks
+# before the model loads and names whichever thing is actually wrong. If you
+# land on the headless build, this repairs it and touches nothing else:
+#
+#   pip install --force-reinstall --no-deps opencv-python
 opencv-python>=4.8
 numpy>=1.24
