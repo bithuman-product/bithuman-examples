@@ -178,7 +178,7 @@ docker-compose stack. For `npm run dev`/`npm start`, they default to
 ### Docker
 
 A `webui.dockerfile` that clones this folder is provided by the
-`python/local-essence/` and `integrations/offline-mac/`
+`python/cloud-essence/` and `integrations/offline-mac/`
 docker-compose stacks (built via `frontend.build.dockerfile`). There
 is no standalone Dockerfile in this directory.
 

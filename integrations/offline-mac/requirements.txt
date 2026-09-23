@@ -2,7 +2,7 @@ python-dotenv~=1.1
 # `<3` matters: livekit-plugins-bithuman pins `bithuman<3` and imports
 # `AsyncBithuman`, so an unbounded floor lets a future 3.x in and breaks the
 # import this example's agent.py reaches through `from livekit.plugins import
-# bithuman`. Matches the floor python/quickstart and python/local-essence use.
+# bithuman`. Matches the floor python/quickstart uses.
 # `[expression-2]`: without it an Expression 2 avatar is refused at open with
 # "this avatar needs one more package" (measured 2026-09-23, bithuman 2.11.6);
 # Essence 2 needs nothing extra.

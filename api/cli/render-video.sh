@@ -48,7 +48,7 @@ OUT="${2:-demo.mp4}"
 # exits 0, and the file it leaves behind is 14 bytes.
 if [ ! -f speech.wav ]; then
   curl -fsSLo speech.wav \
-    https://raw.githubusercontent.com/bithuman-product/bithuman-examples/main/python/local-essence/speech.wav
+    https://raw.githubusercontent.com/bithuman-product/bithuman-examples/main/python/quickstart/speech.wav
 fi
 
 # A WAV is 44 bytes of header before a single sample, so anything this small is

@@ -1,0 +1,48 @@
+name: python examples
+
+# python/self-host installs from its own requirements.txt and imports on every
+# Python it claims (3.11 and 3.13), and no file in the repo names an OpenAI
+# Realtime model that OpenAI has shut down. Importing agent.py makes no network
+# call: the avatar is resolved only under `if __name__ == "__main__"`.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  self-host-imports:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: install python/self-host/requirements.txt
+        run: |
+          python -m venv /tmp/venv
+          /tmp/venv/bin/pip install --quiet --upgrade pip
+          /tmp/venv/bin/pip install --quiet -r python/self-host/requirements.txt
+      - name: import agent.py
+        working-directory: python/self-host
+        run: /tmp/venv/bin/python -c "import agent; print('agent.py imports; server =', type(agent.server).__name__)"
+      - name: every python example compiles
+        run: /tmp/venv/bin/python -m compileall -q python
+
+  no-retired-realtime-model:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: no gpt-4o realtime preview model anywhere (shut down by OpenAI 2026-05-07)
+        run: |
+          if grep -rnE 'gpt-4o(-mini)?-realtime-previe[w]' --exclude-dir=.git .; then
+            echo "::error::a shut-down OpenAI Realtime preview model is named above; use gpt-realtime-mini"
+            exit 1
+          fi

@@ -1,0 +1,70 @@
+"""Talk to a bitHuman avatar through your own LiveKit server.
+
+OpenAI Realtime listens, thinks and speaks; the avatar is rendered HERE, inside
+this process, on the CPU. Setup is in README.md. Run:  python agent.py dev
+"""
+import json, os, pathlib, secrets, sys, urllib.parse, urllib.request, warnings
+from datetime import timedelta
+
+if not (3, 11) <= sys.version_info[:2] <= (3, 13):  # livekit-plugins-bithuman skips bithuman elsewhere
+    sys.exit("This example needs Python 3.11, 3.12 or 3.13 (you have %d.%d)." % sys.version_info[:2])
+
+from dotenv import load_dotenv
+from livekit import api
+from livekit.agents import Agent, AgentServer, AgentSession, JobContext, cli
+from livekit.agents.voice.room_io import RoomOptions
+from livekit.plugins import bithuman, openai
+
+load_dotenv()
+API = "https://api.bithuman.ai"
+server = AgentServer()
+
+
+def avatar_file(name: str) -> str:
+    """A showcase slug, your agent code, or a file path -> a local avatar file (downloaded once)."""
+    if pathlib.Path(name).is_file():
+        return name
+    dest = pathlib.Path.home() / ".cache" / "bithuman" / "examples" / f"{name}.imx"
+    if not dest.is_file():
+        showcase = json.load(urllib.request.urlopen(f"{API}/v1/models/showcase", timeout=30))["models"]
+        url = next((m["url"] for m in showcase if name in (m["slug"], m["agent_code"])),
+                   f"{API}/v1/agent/{name}/model/download")  # your own agent: needs your API secret
+        ask = urllib.request.Request(url + ("&" if "?" in url else "?") + "redirect=false",
+                                     headers={"api-secret": os.environ.get("BITHUMAN_API_SECRET", "")})
+        signed = json.load(urllib.request.urlopen(ask, timeout=30))["data"]["url"]
+        print(f"Downloading avatar {name} (first run only) ...", flush=True)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        urllib.request.urlretrieve(signed, f"{dest}.part")
+        os.replace(f"{dest}.part", dest)
+    return str(dest)
+
+
+@server.rtc_session()
+async def entrypoint(ctx: JobContext):
+    await ctx.connect()
+    session = AgentSession(llm=openai.realtime.RealtimeModel(
+        model=os.getenv("BITHUMAN_REALTIME_MODEL", "gpt-realtime-mini"),
+        voice=os.getenv("BITHUMAN_VOICE", "coral")))
+    # Local mode: the avatar renders in this process and publishes the lip-synced video AND audio.
+    avatar = bithuman.AvatarSession(model_path=os.environ["BITHUMAN_MODEL_PATH"])
+    await avatar.start(session, room=ctx.room)
+    await session.start(
+        agent=Agent(instructions=os.getenv("BITHUMAN_INSTRUCTIONS", "You are a friendly assistant. Keep answers short.")),
+        room=ctx.room, room_options=RoomOptions(audio_output=False, close_on_disconnect=False))
+
+
+if __name__ == "__main__":
+    for key in ("BITHUMAN_API_SECRET", "OPENAI_API_KEY", "LIVEKIT_URL", "LIVEKIT_API_KEY", "LIVEKIT_API_SECRET"):
+        if not os.getenv(key):
+            sys.exit(f"{key} is not set. Copy .env.example to .env and fill it in.")
+    # Resolved once, here: the job processes inherit it (the plugin also reads this variable).
+    os.environ["BITHUMAN_MODEL_PATH"] = avatar_file(os.getenv("BITHUMAN_AVATAR", "wise-pup"))
+    url = os.environ["LIVEKIT_URL"]
+    warnings.filterwarnings("ignore", module="jwt")  # the dev key "secret" is short on purpose
+    if urllib.parse.urlparse(url).hostname in ("localhost", "127.0.0.1", "::1"):  # a join link for your own machine only
+        room = "bithuman-" + secrets.token_hex(3)  # a fresh room each run; the worker joins every new room
+        token = (api.AccessToken().with_identity("you").with_ttl(timedelta(hours=24))
+                 .with_grants(api.VideoGrants(room_join=True, room=room)).to_jwt())
+        print("\nOpen in Chrome: https://meet.livekit.io/custom?"
+              + urllib.parse.urlencode({"liveKitUrl": url, "token": token}) + "\n", flush=True)
+    cli.run_app(server)

@@ -25,10 +25,12 @@ app/                                  avatar_chat/: the one Flutter app (macOS �
                                       (there is no web/ directory — the web surface is not in this repo)
 
 python/                               Python SDK examples (pip install bithuman)
-  quickstart/                         First avatar in ~5 minutes (local-avatar.py, cloud-avatar.py)
+  quickstart/                         First avatar in ~5 minutes (local-avatar.py, cloud-avatar.py) + terminal
+                                      scripts: quickstart.py, microphone.py, conversation.py (OpenAI Realtime, no LiveKit)
   cloud-essence/                      Essence via bitHuman Cloud + LiveKit (no GPU, no model files)
-  local-essence/                      Essence on any machine (CPU, your own .imx)
-  (Expression / self-hosted GPU: docs.bithuman.ai/guides/deployment)
+  self-host/                          Voice agent on YOUR machine: livekit-server --dev + OpenAI Realtime +
+                                      the avatar rendered in-process (Essence 2 or Expression 2, CPU, no Docker)
+  (other self-hosting options: docs.bithuman.ai/guides/self-hosting)
 
 api/                                  No-SDK surfaces
   cli/                                Command-line tools (no code): run, render, info, pull, list, doctor
@@ -65,8 +67,9 @@ If you are an AI agent wiring bitHuman into a user's codebase:
 | "Never used this before" | [python/quickstart/](python/quickstart/) | One script, sample model auto-downloads |
 | "Web app, fastest demo" | [python/cloud-essence/](python/cloud-essence/) | LiveKit plugin, no GPU, no model files |
 | "Web app, custom face" | [python/cloud-essence/](python/cloud-essence/) (Expression agent) | Same plugin, any face image |
-| "Kiosk / 24/7 / edge box" | [python/local-essence/](python/local-essence/) | CPU only, no idle timeout |
-| "On-prem, NVIDIA GPU" | [docs: deployment](https://docs.bithuman.ai/guides/deployment) | Docker, dynamic face |
+| "Talk to an avatar on my machine" | `bithuman run wise-pup` ([api/cli/](api/cli/)), or [python/self-host/](python/self-host/) for your own agent code | One command; or ~70 lines of LiveKit Agents, rendered in-process |
+| "Kiosk / 24/7 / edge box" | [python/self-host/](python/self-host/) | CPU only, your own LiveKit server |
+| "On-prem servers" | [docs: self-hosting](https://docs.bithuman.ai/guides/self-hosting) | containers, GPU servers |
 | "Mac/iPad/iPhone app" | [swift/macos-expression2/](swift/macos-expression2/) or [swift/ios-expression2/](swift/ios-expression2/) | All on-device, no account |
 | "Android app" | [android/](android/) | Maven Central coordinates + the `google()` repo trap |
 | "Mac, no code" | `brew install bithuman-product/bithuman/bithuman-cli` → see [api/cli/](api/cli/) | 30 seconds |

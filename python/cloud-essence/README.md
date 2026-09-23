@@ -33,7 +33,7 @@ First frame arrives in 2-4 seconds. No model files to manage -- the cloud handle
 
 Cloud Essence avatars dispatch through the LiveKit plugin (`bithuman.AvatarSession`), not standalone `AsyncBithuman` — there's no terminal quickstart for this stack. Run the Docker Compose stack above and open http://localhost:4202, or use `agent.py` directly if you already have a LiveKit project.
 
-For a terminal-only, standalone demo, see [`../local-essence/`](../local-essence/) (local `.imx`, no Docker, no LiveKit).
+For the avatar rendered on your own machine instead of the cloud, see [`../self-host/`](../self-host/) (your own LiveKit server, no Docker); for a terminal-only demo, [`../quickstart/conversation.py`](../quickstart/).
 
 ## Architecture
 
