@@ -30,7 +30,7 @@ def get_headers():
     if not secret:
         print("FAIL: BITHUMAN_API_SECRET not set.")
         print()
-        print("  Fix: Get your API secret from https://www.bithuman.ai/#developer")
+        print("  Fix: Get your API secret from https://www.bithuman.ai/developer/api-keys")
         print("  Then: export BITHUMAN_API_SECRET='your_secret'")
         print("  Or:   Add it to a .env file in this directory")
         sys.exit(1)
@@ -50,7 +50,7 @@ def test_validate():
     if resp.status_code == 401:
         print("  FAIL: Invalid API secret")
         print("  Fix:  Check your BITHUMAN_API_SECRET value")
-        print("        Get a valid secret from https://www.bithuman.ai/#developer")
+        print("        Get a valid secret from https://www.bithuman.ai/developer/api-keys")
         return False
 
     if resp.status_code != 200:

@@ -43,7 +43,6 @@ async def entrypoint(ctx: JobContext):
     avatar = bithuman.AvatarSession(
         model_path=str(models[0]),
         api_secret=os.getenv("BITHUMAN_API_SECRET"),
-        api_token=os.getenv("BITHUMAN_API_TOKEN") or None,
     )
 
     session = AgentSession(

@@ -3,7 +3,7 @@
 # Usage: ./generate-agent.sh ["Your system prompt here"]
 set -euo pipefail
 
-API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first (get yours at https://www.bithuman.ai/#developer)}"
+API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first (get yours at https://www.bithuman.ai/developer/api-keys)}"
 BASE="https://api.bithuman.ai"
 
 PROMPT="${1:-You are a friendly AI assistant.}"

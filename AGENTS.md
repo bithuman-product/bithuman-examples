@@ -38,7 +38,7 @@ api/                                  No-SDK surfaces
 swift/                                Swift SDK for Apple platforms — all inference on-device
   macos-expression2/                  expression-2 on a Mac: a WAV in, frames out, no account
   ios-expression2/                    the same engine on iPhone, 416x720 @ 20 FPS, no server
-  macos-voice/                        macOS voice agent (audio only, no API key)
+  macos-voice/                        macOS voice agent (audio only, no API secret)
   hello-voice-chat/                   the same agent in 20 lines, no window
   ios-avatar/                         the bitHumanKit umbrella on iOS — source, not a runnable project
 
@@ -73,7 +73,7 @@ If you are an AI agent wiring bitHuman into a user's codebase:
 
 ### Onboarding
 
-1. **Get an API key**: [www.bithuman.ai](https://www.bithuman.ai) → Developer → API Keys. Set **`BITHUMAN_API_SECRET`** — that is the canonical name and the one to write into new code. One Swift example (`swift/ios-avatar/`) still reads `BITHUMAN_API_KEY`; the CLI accepts it as an alias. Nothing else does.
+1. **Get an API secret**: [www.bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys) → API Secrets. Set **`BITHUMAN_API_SECRET`** — the one name every example reads. `bitHumanKit` 2.4.0 (`swift/ios-avatar/`) takes it through `config.apiKey`, a field that keeps its published name; the example reads `BITHUMAN_API_SECRET` into it.
 2. **Pick the model**: Essence (`.imx`, CPU) or Expression (any face, GPU/M3+). See [docs.bithuman.ai/getting-started/models](https://docs.bithuman.ai/getting-started/models).
 3. **Copy the example folder**. Every folder ships a `.env.example` + one-command run path.
 4. **Pricing**: [docs.bithuman.ai/getting-started/pricing](https://docs.bithuman.ai/getting-started/pricing) — read the tier off that page rather than quoting a number here, which is how the Android version table went thirteen releases stale.
@@ -85,7 +85,7 @@ An example that calls the same thing three names is an example nobody can search
 | Thing | Write | Not |
 |---|---|---|
 | The models | `essence-2`, `expression-2`, `essence-1`, `expression-1` | `Essence`/`Expression` bare (ambiguous between generations), `essence2-light`, `light xxx`, `tessera` (retired) |
-| The key | `BITHUMAN_API_SECRET` | `BITHUMAN_API_KEY` (alias; `swift/ios-avatar/` only), `BITHUMAN_API_TOKEN` |
+| The credential | "API secret"; `BITHUMAN_API_SECRET`; header `api-secret` | "API secret"; BITHUMAN_API_KEY (a deprecated alias, still read — never write it); `BITHUMAN_API_TOKEN`, `BITHUMAN_RUNTIME_TOKEN` (short-lived tokens are passed per call, never through the environment) |
 | Python entry | `bithuman.open(...)` → `Avatar.render(...)` — the taught surface of the published wheel. For LiveKit and other `bithuman<3` callers, `AsyncBithuman`. | `AsyncAvatar` — it exists and works, but the wheel's own source calls it an alias of the compatibility class, so it is the third-choice name for a teaching example |
 | The Python package | `bithuman` on PyPI | `bithuman-cli` — **retired on PyPI and it will not come back**; the CLI ships only via the tap formula, the tap's `install.sh`, or a release tarball |
 | The Swift package | `bitHumanKit`, from `homebrew-bithuman.git` | a local path, a vendored copy |
@@ -105,7 +105,7 @@ Two escapes, both narrow: `<!-- version-check-ignore: reason -->` on a line whos
 
 - Don't tell anyone `homebrew-bithuman.git` is *only* a Homebrew tap. It is **both**: the tap that installs the `bithuman-cli` formula **and** the SwiftPM binary package. `.package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: …)` is the correct and only way to depend on `bitHumanKit` — it is what `swift/README.md` and every `Package.swift` in `swift/` already do, and what `.github/workflows/swift-examples.yml` fetches its xcframeworks from. (This line used to say the opposite, and contradicted every Swift example in this repository.)
 - Don't clone Swift SDK source or reference apps — both private. Consume the published binary.
-- Don't hardcode API keys. Use env vars.
+- Don't hardcode your API secret. Use env vars — never argv either (`ps` shows it).
 - **Don't write a version number from memory.** Read it from the registry: Maven Central's `maven-metadata.xml`, PyPI's JSON API, `git ls-remote --tags` on the tap. `scripts/check_published_versions.py` is the authority and CI fails on a version the registry does not serve — see "Versions" below.
 - Don't point users at `web/` — there is no such directory. `app/avatar_chat/` exists but does not build for iOS or macOS from a clone (see README, "Known gaps"). Point them at `swift/` or `android/`, which are fully open.
 - Don't put a secret in `--dart-define` or a Gradle `BuildConfig` field in anything a user is told to ship: both land in build argv and in the built binary. Local development only; sign-in for anything distributed.

@@ -190,11 +190,13 @@ async def main():
     parser = argparse.ArgumentParser(description="bitHuman Essence -- microphone input")
     parser.add_argument("--model", default=os.getenv("BITHUMAN_MODEL_PATH"),
                         help="Path to .imx avatar model")
-    parser.add_argument("--api-secret", default=os.getenv("BITHUMAN_API_SECRET"))
     parser.add_argument("--volume", type=float, default=1.0, help="Mic volume multiplier")
     parser.add_argument("--silent-threshold-db", type=int, default=-40)
     parser.add_argument("--echo", action="store_true", help="Play avatar audio back through speakers")
     args = parser.parse_args()
+    # Your API secret, from the environment only — a value on the command line
+    # is readable by anyone who can run `ps`.
+    args.api_secret = os.getenv("BITHUMAN_API_SECRET")
 
     if not args.model:
         print("Error: Provide --model or set BITHUMAN_MODEL_PATH")

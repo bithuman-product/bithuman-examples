@@ -177,8 +177,10 @@ async def main() -> None:
     p = argparse.ArgumentParser(description="bitHuman Essence — play audio through a local avatar")
     p.add_argument("--model", default=os.getenv("BITHUMAN_MODEL_PATH"), help="Path to .imx model")
     p.add_argument("--audio-file", required=True, help="Path to WAV/MP3/FLAC/M4A")
-    p.add_argument("--api-secret", default=os.getenv("BITHUMAN_API_SECRET"))
     args = p.parse_args()
+    # Your API secret, from the environment only — a value on the command line
+    # is readable by anyone who can run `ps`.
+    args.api_secret = os.getenv("BITHUMAN_API_SECRET")
 
     if not args.model:
         raise SystemExit("Provide --model or set BITHUMAN_MODEL_PATH (download .imx from https://www.bithuman.ai)")

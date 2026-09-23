@@ -15,7 +15,7 @@ Framework and language bridges that show how to connect bitHuman to different st
 
 Each integration has its own prerequisites listed in its README. Common requirements:
 
-- A bitHuman API secret -- get one at [www.bithuman.ai](https://www.bithuman.ai/#developer) (Developer > API Keys)
+- A bitHuman API secret -- get one at [www.bithuman.ai](https://www.bithuman.ai/developer/api-keys) (Developer > API Secrets)
 - `.imx` model files for Essence-based integrations (download from [www.bithuman.ai](https://www.bithuman.ai))
 
 ## Getting started

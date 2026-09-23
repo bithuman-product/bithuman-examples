@@ -13,7 +13,7 @@
 # For more curl examples, see ../rest-api/curl/
 set -euo pipefail
 
-API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first (get yours at https://www.bithuman.ai/#developer)}"
+API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first (get yours at https://www.bithuman.ai/developer/api-keys)}"
 BASE="https://api.bithuman.ai"
 
 echo "bitHuman REST API Quickstart"

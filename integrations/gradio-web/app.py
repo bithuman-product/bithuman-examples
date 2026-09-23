@@ -193,7 +193,7 @@ stream = Stream(
     modality="audio-video",
     additional_inputs=[
         gr.Textbox(label="Message", info="Type what you want the avatar to say"),
-        gr.Textbox(label="API Key", type="password", value=os.getenv("BITHUMAN_API_SECRET")),
+        gr.Textbox(label="bitHuman API secret", type="password", value=os.getenv("BITHUMAN_API_SECRET")),
         gr.Dropdown(choices=list(BitHumanHandler.AVATARS.keys()), value=next(iter(BitHumanHandler.AVATARS), None), label="Avatar"),
     ],
     ui_args={"title": "bitHuman Avatar"},

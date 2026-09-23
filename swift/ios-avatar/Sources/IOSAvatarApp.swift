@@ -4,7 +4,7 @@
 // hosting, and the full avatar pipeline on iOS. Requires memory
 // entitlements approved by Apple (see Info.plist and README).
 //
-// Requires: BITHUMAN_API_KEY set in Xcode scheme environment
+// Requires: BITHUMAN_API_SECRET (your API secret) set in the Xcode scheme environment
 //           variables (Product -> Scheme -> Edit Scheme -> Run ->
 //           Arguments -> Environment Variables).
 
@@ -146,7 +146,10 @@ final class AvatarLifecycle: ObservableObject {
             var config = VoiceChatConfig()
             config.systemPrompt = agent.systemPrompt
             config.avatar = AvatarConfig(modelPath: weights, portraitPath: portrait)
-            config.apiKey = ProcessInfo.processInfo.environment["BITHUMAN_API_KEY"]
+            // bitHumanKit's field keeps its published name, apiKey; it takes your API secret.
+            // BITHUMAN_API_KEY is the deprecated alias an older scheme may still set.
+            let env = ProcessInfo.processInfo.environment
+            config.apiKey = env["BITHUMAN_API_SECRET"] ?? env["BITHUMAN_API_KEY"]
 
             let chat = VoiceChat(config: config)
             try await chat.start()

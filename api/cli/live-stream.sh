@@ -18,7 +18,7 @@
 #   ./live-stream.sh <model.imx> --port 8088 --host 0.0.0.0
 set -euo pipefail
 
-export BITHUMAN_API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first (get yours at https://www.bithuman.ai/#developer)}"
+export BITHUMAN_API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first (get yours at https://www.bithuman.ai/developer/api-keys)}"
 
 MODEL="${1:?Usage: ./live-stream.sh <model.imx> [--port PORT] [--host HOST]}"
 shift

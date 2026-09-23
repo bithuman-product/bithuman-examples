@@ -24,7 +24,7 @@ def get_headers():
     secret = os.getenv("BITHUMAN_API_SECRET")
     if not secret:
         print("Error: BITHUMAN_API_SECRET not set.")
-        print("  Get yours at https://www.bithuman.ai/#developer")
+        print("  Get yours at https://www.bithuman.ai/developer/api-keys")
         print("  Then: export BITHUMAN_API_SECRET='your_secret'")
         sys.exit(1)
     return {"Content-Type": "application/json", "api-secret": secret}

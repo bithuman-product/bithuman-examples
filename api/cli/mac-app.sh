@@ -16,7 +16,7 @@
 # Prerequisites:
 #   - macOS with Apple Silicon M3+ (or Linux x86_64 / aarch64)
 #   - Homebrew (https://brew.sh) for the install step
-#   - A bitHuman API secret (https://www.bithuman.ai/#developer)
+#   - A bitHuman API secret (https://www.bithuman.ai/developer/api-keys)
 #
 # Usage:
 #   ./mac-app.sh install              Install the bithuman CLI via Homebrew
@@ -26,7 +26,7 @@ set -euo pipefail
 ACTION="${1:-help}"
 
 if [[ "$ACTION" != "install" && "$ACTION" != "help" && "$ACTION" != "--help" && "$ACTION" != "-h" ]]; then
-  export BITHUMAN_API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first (get yours at https://www.bithuman.ai/#developer)}"
+  export BITHUMAN_API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first (get yours at https://www.bithuman.ai/developer/api-keys)}"
 fi
 
 case "$ACTION" in

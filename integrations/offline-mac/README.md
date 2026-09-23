@@ -6,7 +6,7 @@ A local deployment of bitHuman's AI visual agent running on Apple M2+/M3/M4 devi
 
 **For M2+/M3/M4 macOS devices:**
 - Docker and Docker Compose (**We strongly recommend [OrbStack](https://orbstack.dev/) for better performance and easier management**)
-- `BITHUMAN_API_SECRET` (requires periodic internet access) or offline token for 100% internet-free operation (contact bitHuman team)
+- `BITHUMAN_API_SECRET` — your API secret (requires periodic internet access), or an offline licence (`BITHUMAN_LICENSE_FILE`) for 100% internet-free operation — Business/Enterprise only, see [offline licensing](https://docs.bithuman.ai/guides/pricing#offline-licensing)
 - `.imx` model files (place in `./models/` directory)
 - Python 3.10+ for bitHuman's Apple plugin
 - [Ollama](https://ollama.com/) for local LLM
@@ -59,13 +59,19 @@ Ollama serves on port 11434 by default.
 
 ### 5. Configure Environment
 
-**Get your bitHuman API Secret** from [https://www.bithuman.ai](https://www.bithuman.ai/#developer) (Developer → API Keys).
+**Get your bitHuman API secret** from [Developer → API Secrets](https://www.bithuman.ai/developer/api-keys).
 
 Create a `.env` file:
 
 ```bash
-BITHUMAN_API_SECRET=your_api_secret_here
+BITHUMAN_API_SECRET=<your API secret>
+# The local LiveKit server's secret — any long random string, e.g. `openssl rand -hex 32`.
+# docker-compose.yml hands it to the server, the agent and the web UI.
+LIVEKIT_API_SECRET=<a long random string>
 ```
+
+For an offline licence instead of periodic internet access, mount the licence file
+into the `agent` container and add `BITHUMAN_LICENSE_FILE=/path/in/container/licence.bhl`.
 
 Optional environment variables for custom service URLs:
 
@@ -113,8 +119,8 @@ Now you have a **locally-running AI agent** on your Mac! The system includes:
 - **Redis**: Message broker
 
 **100% Offline Mode:**
-- **API Secret**: Requires periodic internet access for authentication and metering
-- **Offline Token**: For complete internet-free operation, contact the bitHuman team directly for a dedicated offline token. This is available for Enterprise customers and developers who need fully offline access.
+- **API secret**: requires periodic internet access for authentication and metering.
+- **Offline licence** (`BITHUMAN_LICENSE_FILE`): for complete internet-free operation. Business and Enterprise only — see [offline licensing](https://docs.bithuman.ai/guides/pricing#offline-licensing).
 
 ## Development
 

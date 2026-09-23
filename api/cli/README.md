@@ -24,11 +24,11 @@ The CLI is not distributed on PyPI: `pip install bithuman` installs the
 Python library only.
 
 All commands need a bitHuman API secret. Get yours at
-[www.bithuman.ai/#developer](https://www.bithuman.ai/#developer).
+[www.bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys).
 
 ```bash
 export BITHUMAN_API_SECRET="your_secret_here"
-bithuman doctor      # verify host setup + API key presence
+bithuman doctor      # verify host setup + API secret presence
 ```
 
 ---
@@ -43,7 +43,7 @@ including `login`, which is the command a first-run developer wants most.
 | Command | Description |
 |---------|-------------|
 | `bithuman login` | Sign in. The alternative to exporting a secret by hand. |
-| `bithuman doctor` | Host capability check (arch, OS, RAM, disk, API key, brain availability). `--json` exits 0 iff `.ready` is true. |
+| `bithuman doctor` | Host capability check (arch, OS, RAM, disk, API secret, brain availability). `--json` exits 0 iff `.ready` is true. |
 | `bithuman list` | Browse showcase avatars — manifest + local cache state. |
 | `bithuman pull <slug>` | Download a showcase avatar by slug into the local cache; prints the cached `.imx` path. |
 | `bithuman run [<model.imx>]` | Live avatar — self-contained LiveKit pool + embedded server. Prints a landing-page URL to open in a browser. |
@@ -132,13 +132,13 @@ curl -s -X POST https://api.bithuman.ai/v1/validate \
 | [render-video.sh](render-video.sh) | Render a lip-synced MP4 from `.imx` + audio using `bithuman render` |
 | [live-stream.sh](live-stream.sh) | Start the live avatar server using `bithuman run` |
 | [mac-app.sh](mac-app.sh) | `./mac-app.sh install` (runs `brew install`) then `./mac-app.sh run <model.imx>`. ★There is no `bithuman install` subcommand — installing is Homebrew's job, not the CLI's. |
-| [rest-api.sh](rest-api.sh) | Quickstart: validate API key + make an agent speak via curl |
+| [rest-api.sh](rest-api.sh) | Quickstart: validate API secret + make an agent speak via curl |
 
 ## Environment Variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `BITHUMAN_API_SECRET` | Yes | Your API secret from [www.bithuman.ai/#developer](https://www.bithuman.ai/#developer) (`BITHUMAN_API_KEY` is accepted as an alias) |
+| `BITHUMAN_API_SECRET` | Yes | Your API secret from [www.bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys) (BITHUMAN_API_KEY is still read as a deprecated alias) |
 | `OPENAI_API_KEY` | One of | Cloud brain for `bithuman run` (default path) |
 | `BITHUMAN_LOCAL` | One of | `=1` flips `bithuman run` to the on-device brain |
 

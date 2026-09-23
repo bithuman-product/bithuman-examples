@@ -3,7 +3,7 @@
 # Uses GET /v2/credit-summaries (the validate endpoint does NOT return credits).
 set -euo pipefail
 
-API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first (get yours at https://www.bithuman.ai/#developer)}"
+API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first (get yours at https://www.bithuman.ai/developer/api-keys)}"
 BASE="https://api.bithuman.ai"
 
 echo "Checking credit balance..."

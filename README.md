@@ -35,17 +35,17 @@ Do not read the two frame rates as a ranking. An essence-2 frame carries **6.92�
 
 `essence-1` and `expression-1` are the first generation and are not where to start. `expression-1` is GPU-only and has no mobile build.
 
-## Your API key
+## Your API secret
 
-One key, from [www.bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys). Export it before running anything:
+One API secret, from [www.bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys). Export it before running anything:
 
 ```bash
-export BITHUMAN_API_SECRET="your_secret"
+export BITHUMAN_API_SECRET="<your API secret>"
 ```
 
-`BITHUMAN_API_SECRET` is the name to use in anything you write. Every Python, CLI, REST, Flutter and current Swift example reads it. One example still reads `BITHUMAN_API_KEY` instead — `swift/ios-avatar/` — so export both if you are working across all of them.
+`BITHUMAN_API_SECRET` is the one name every example reads — Python, CLI, REST, Flutter and Swift. (`swift/ios-avatar/` hands it to `bitHumanKit` as `config.apiKey`, a field that keeps its published name.)
 
-A key belongs in the environment or an untracked `.env`, never in a commit. Every example ships a `.env.example` to copy from, and `.env` is gitignored.
+Your API secret belongs in the environment or an untracked `.env`, never in a commit or on a command line. Every example ships a `.env.example` to copy from, and `.env` is gitignored.
 
 **Never put a key in a build flag.** `--dart-define=BITHUMAN_API_SECRET=…` (Flutter) and a generated `BuildConfig` field (Android Gradle) each put the secret on the command line of every build step — readable by any local `ps`, and captured by build logs and crash reporters — and then compile it into the app as a plain string that `strings` will find in the shipped binary or APK. Those flags are for local development on your own machine. **For anything you distribute, ship sign-in instead**, so the app obtains a short-lived token at runtime and the long-lived secret never leaves your machine.
 

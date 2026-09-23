@@ -8,6 +8,9 @@ services:
       - "17880:17880"     # WebSocket/HTTP API
       - "17881:17881"     # TCP for signaling
       - "50700-50720:50700-50720/udp" # UDP for media (WebRTC)
+    environment:
+      # The LiveKit server's key/secret pair; the secret comes from your untracked .env — never committed.
+      - "LIVEKIT_KEYS=devkey: ${LIVEKIT_API_SECRET:?set LIVEKIT_API_SECRET in .env}"
     volumes:
       - ./livekit.yaml:/etc/livekit.yaml  # Mount LiveKit configuration
     networks:
@@ -25,11 +28,11 @@ services:
     environment:
       # LiveKit connection settings
       - LIVEKIT_URL=ws://livekit:17880  # Internal Docker network URL
-      - LIVEKIT_API_KEY=devkey  # Default dev key (change in production)
-      - LIVEKIT_API_SECRET=UPivas8PQvWiYhubkqxqfkY8kfB9TgGj
+      - LIVEKIT_API_KEY=devkey  # the key name; its secret comes from .env
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:?set LIVEKIT_API_SECRET in .env}
       - IMX_MODEL_ROOT=/imx-models  # Path to mounted models
     env_file:
-      - ./.env  # API keys (BITHUMAN_API_SECRET)
+      - ./.env  # BITHUMAN_API_SECRET (and BITHUMAN_LICENSE_FILE for an offline licence)
     volumes:
       - ./models:/imx-models  # Mount .imx models directory
       - ./agent.py:/app/agent.py  # Mount for live editing
@@ -52,7 +55,7 @@ services:
       - "4202:4202"  # Map container port 3000 to host port 4202
     environment:
       - LIVEKIT_API_KEY=devkey  # API key for LiveKit connection
-      - LIVEKIT_API_SECRET=UPivas8PQvWiYhubkqxqfkY8kfB9TgGj
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:?set LIVEKIT_API_SECRET in .env}
       - PORT=4202  # Override Next.js default port
     networks:
       - livekit-network
