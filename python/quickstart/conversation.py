@@ -192,9 +192,9 @@ async def main():
 
     async def run_openai():
         client = AsyncOpenAI(api_key=openai_key)
-        # gpt-realtime-mini on the GA Realtime API (client.realtime); the older
+        # gpt-realtime-2.1-mini on the GA Realtime API (client.realtime); the older
         # preview models and the beta API were shut down by OpenAI on 2026-05-07.
-        async with client.realtime.connect(model="gpt-realtime-mini") as conn:
+        async with client.realtime.connect(model="gpt-realtime-2.1-mini") as conn:
             await conn.session.update(session={
                 "type": "realtime",
                 "instructions": "You are a friendly AI assistant. Keep responses concise.",
