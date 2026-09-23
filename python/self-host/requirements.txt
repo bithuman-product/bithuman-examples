@@ -1,5 +1,5 @@
 # Python 3.11, 3.12 or 3.13 — livekit-plugins-bithuman installs without bithuman on 3.10 and 3.14.
-bithuman[expression-2]>=2.11.7,<3        # 2.11.7: the first release that meters an Expression 2 stream
+bithuman[expression-2]>=2.11.8,<3        # 2.11.8: meters an Expression 2 stream; streams Essence 2 on macOS
 livekit-agents[openai]>=1.8.2,<1.9       # upper bound: the avatar runner is private API across minors
 livekit-plugins-bithuman>=1.8.2,<1.9
 pillow                                   # the plugin imports PIL but does not declare it
