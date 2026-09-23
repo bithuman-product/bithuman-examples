@@ -34,6 +34,7 @@ than a project to open — its README says why.
 |---|---|---|---|
 | [macos-expression2/](macos-expression2/) | any Apple Silicon Mac | an API secret (free) | Expression 2 on your Mac: a WAV in, lip-synced frames out, in one file |
 | [ios-expression2/](ios-expression2/) | any Apple Silicon iPhone or iPad | an API secret (free) | the same engine as a whole SwiftUI app, measured rendering on an iPhone 15 |
+| [ios-essence2/](ios-essence2/) | any Apple Silicon iPhone or iPad on iOS 26 | an API secret (free) | a photoreal Essence 2 avatar at full resolution, as a whole SwiftUI app |
 | [macos-voice/](macos-voice/) | Mac, M3 or newer | no | a voice agent with no avatar — recognition, a language model and speech, all on device |
 | [hello-voice-chat/](hello-voice-chat/) | Mac, M3 or newer | no | the same thing in 20 lines, with no UI at all |
 | [ios-avatar/](ios-avatar/) | iPhone 16 Pro or newer | yes | the voice agent *with* a lip-synced avatar. Source to attach to your own app target — read its README before you clone it |
