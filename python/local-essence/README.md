@@ -55,6 +55,23 @@ cp .env.example .env
 # Edit .env with your API secret
 ```
 
+> **These three scripts open a window. No display — ssh, Docker, CI? They say
+> so and stop, before the model loads and before anything bills.** Why the
+> check is not a `try`/`except`: the GUI build of OpenCV with no display does
+> not raise — Qt fails to load its platform plugin and calls `abort()`, so the
+> process dies on SIGABRT with no traceback and nothing to catch (measured on a
+> headless Linux box: exit 134, *after* the model had loaded). On a headless
+> machine use the Docker stack above and watch the avatar in a browser; for
+> `quickstart.py` specifically, `python -m bithuman <avatar> <audio>` writes an
+> MP4 without needing a window at all.
+
+> **"This OpenCV cannot open a window"?** You have a display but the headless
+> build of OpenCV won the install — `bithuman` depends on
+> `opencv-python-headless` while `requirements.txt` also asks for
+> `opencv-python`, and the two own the same `cv2/`. Repair it with
+> `pip install --force-reinstall --no-deps opencv-python`. See the comment in
+> `requirements.txt` for the measurements.
+
 ### Play an audio file through the avatar
 
 A sample `speech.wav` is included in this directory. Or use your own:

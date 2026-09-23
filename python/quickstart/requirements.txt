@@ -1,9 +1,30 @@
 # local-avatar.py
 bithuman>=2.11,<3
-# The GUI build, NOT opencv-python-headless: these scripts open a window with
-# cv2.imshow, and the headless build raises "The function is not implemented".
+# local-avatar.py opens a window with cv2.imshow, which needs the GUI build.
+#
+# ★BOTH OpenCV distributions land here, and they collide. `bithuman` depends on
+# `opencv-python-headless`; the line below asks for `opencv-python`. They own
+# the same `cv2/` package — 39 of their 40 files are the same paths, including
+# `cv2/cv2.abi3.so`, the extension that carries `imshow` — so whichever pip
+# writes LAST is the cv2 you get. A requirements file cannot express install
+# order (measured: swapping these two lines changes nothing), so it cannot pin
+# the winner. Measured 2026-09-22 with pip 26.2.1, bithuman 2.11.6, opencv
+# 5.0.0.93:
+#
+#   clean venv, pip install -r requirements.txt   ->  GUI: QT5    window works
+#   opencv-python already there, then this file   ->  GUI: NONE   imshow gone
+#   pip install opencv-python, then bithuman      ->  GUI: NONE   imshow gone
+#
+# So local-avatar.py does not rely on winning: require_window() checks before
+# the model loads and names whichever thing is actually wrong. If you land on
+# the headless build, this repairs it and touches nothing else:
+#
+#   pip install --force-reinstall --no-deps opencv-python
+#
+# Collapsing this to one distribution means changing what `bithuman` depends
+# on, which is not this repo's to change.
 opencv-python>=4.8
 
-# cloud-avatar.py (LiveKit + OpenAI)
+# cloud-avatar.py (LiveKit + OpenAI) — uses no cv2 at all
 livekit-agents[openai,silero]>=1.4
 livekit-plugins-bithuman>=1.4
