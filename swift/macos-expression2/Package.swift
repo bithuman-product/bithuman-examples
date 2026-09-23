@@ -5,7 +5,7 @@ let package = Package(
     name: "MacOSExpression2",
     platforms: [.macOS(.v13)],
     dependencies: [
-        .package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.14.1")
+        .package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.14.2")
     ],
     targets: [
         .executableTarget(

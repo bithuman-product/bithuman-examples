@@ -5,12 +5,21 @@ voice agent, for iPhone, iPad and Mac alike. Everything here renders on the
 device: no server, no cloud GPU, no Docker.
 
 ```swift
-.package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.14.1")
+.package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.14.2")
 ```
 
-Write `2.14.1` and nothing lower — `from:` is a floor, and the tags below it
+Write `2.14.2` and nothing lower — `from:` is a floor, and the tags below it
 pin engines that fail in ways nothing throws. See
 [Pin the version](https://docs.bithuman.ai/sdk/ios#pin-the-version).
+
+**From 2.14.2 Expression 2 needs your API secret too.** Both engines bill the
+session they serve — talking time only, idle is free — and refuse to start without
+a key: `Expression2Engine.create` throws `meteringRefused` (*"refusing to serve: no
+API secret was found, …"*). Export `BITHUMAN_API_SECRET` before running a Mac
+example; for an iOS example set it in the scheme (*Edit Scheme → Run → Environment
+Variables*). An app you ship calls `Expression2Credential.set(key)` with a key it
+fetched from your backend or the Keychain. A free key:
+[bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys).
 
 ## The examples
 
@@ -23,8 +32,8 @@ than a project to open — its README says why.
 
 | Example | Runs on | Needs an account? | What it shows |
 |---|---|---|---|
-| [macos-expression2/](macos-expression2/) | any Apple Silicon Mac | no | Expression 2 on your Mac: a WAV in, lip-synced frames out, in one file |
-| [ios-expression2/](ios-expression2/) | any Apple Silicon iPhone or iPad | no | the same engine as a whole SwiftUI app, measured rendering on an iPhone 15 |
+| [macos-expression2/](macos-expression2/) | any Apple Silicon Mac | an API secret (free) | Expression 2 on your Mac: a WAV in, lip-synced frames out, in one file |
+| [ios-expression2/](ios-expression2/) | any Apple Silicon iPhone or iPad | an API secret (free) | the same engine as a whole SwiftUI app, measured rendering on an iPhone 15 |
 | [macos-voice/](macos-voice/) | Mac, M3 or newer | no | a voice agent with no avatar — recognition, a language model and speech, all on device |
 | [hello-voice-chat/](hello-voice-chat/) | Mac, M3 or newer | no | the same thing in 20 lines, with no UI at all |
 | [ios-avatar/](ios-avatar/) | iPhone 16 Pro or newer | yes | the voice agent *with* a lip-synced avatar. Source to attach to your own app target — read its README before you clone it |

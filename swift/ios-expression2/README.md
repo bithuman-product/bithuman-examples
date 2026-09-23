@@ -50,6 +50,13 @@ cd bithuman-examples/swift/ios-expression2
 open IOSExpression2.xcodeproj
 ```
 
+**Set your API secret before you Run.** From package 2.14.2 the engine bills the
+session it renders (talking time only) and `create` refuses without a key —
+*"refusing to serve: no API secret was found, …"*. In Xcode: *Product → Scheme →
+Edit Scheme → Run → Environment Variables*, add `BITHUMAN_API_SECRET`. The download
+above stays anonymous; only rendering needs the key. An app you ship calls
+`Expression2Credential.set(key)` with a key from your backend or the Keychain.
+
 `setup.sh` puts three things in `Sources/Model/`:
 
 | file | where it comes from | why |

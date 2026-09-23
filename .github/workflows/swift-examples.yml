@@ -30,8 +30,8 @@ jobs:
       - name: Fetch the published xcframeworks (pinned by tag + sha256)
         run: |
           set -euo pipefail
-          # ★THE TAGS AND CHECKSUMS BELOW ARE LIFTED FROM Package.swift AT v2.14.1 —
-          # they are the bytes `from: "2.14.1"` actually resolves, which is what every
+          # ★THE TAGS AND CHECKSUMS BELOW ARE LIFTED FROM Package.swift AT v2.14.2 —
+          # they are the bytes `from: "2.14.2"` actually resolves, which is what every
           # example here now pins. Until 2026-09-22 this step fetched v2.6.1, so the
           # gate compiled against bytes no reader of these examples has ever had.
           REL=https://github.com/bithuman-product/homebrew-bithuman/releases/download
@@ -43,21 +43,21 @@ jobs:
             unzip -q "$2"
             echo "$2 OK ($GOT)"
           }
-          # expression2Tag in the v2.14.1 manifest
-          fetch v2.6.4 Expression2.xcframework.zip            644d192d29fb32f80a5ddd03cbf131b828432b93fecc15a623144c1398f2b302
-          fetch v2.6.4 BithumanEngineProtocol.xcframework.zip a980483a92d5eb8900c76f0f6391ec2eb66b30992ecefa61ab0f0e5f4b9a033c
+          # expression2Tag in the v2.14.2 manifest
+          fetch v2.6.5 Expression2.xcframework.zip            f1fb6775deca2884739432cb0f0c8d85173234c7f1137c3b8a01dd96ac84c732
+          fetch v2.6.5 BithumanEngineProtocol.xcframework.zip 1dcb82534267ccb59f3f46681b202d3d1029eb40ef667a953e1f9669be11fe5f
           # REQUIRED, not optional: Expression2's own .swiftinterface starts with
           # `import UnifiedModelHeader`, so omitting it fails with "no such module"
           # before a line of the example is even read. (Found by this job's first run.)
-          fetch v2.6.4 UnifiedModelHeader.xcframework.zip     eb5fde201bd122200332f656ba6049b494bbb6a2dc50ebd5906f11f2b4a01a41
-          # releaseTag in the v2.14.1 manifest — the umbrella ios-avatar imports
+          fetch v2.6.5 UnifiedModelHeader.xcframework.zip     5e3e56a0a1895cb8f9277aee921d7ac30b7318d0fe75e78688f5223507e70c03
+          # releaseTag in the v2.14.2 manifest — the umbrella ios-avatar imports
           fetch v2.4.0 bitHumanKit.xcframework.zip            5c536e37919b693591dff234db8627c01952ae24ae58651aeacbd875bd78e9db
 
       - name: Select a toolchain new enough to read the published module
         run: |
           set -euo pipefail
-          # The published Expression2 module was built with Swift 6.3.1. A compiler
-          # older than that REFUSES it outright ("this SDK is not supported by the
+          # The published Expression2 module (v2.6.5) was built with Swift 6.2.4 (Xcode 26.3); a
+          # compiler older than the producer REFUSES it outright ("this SDK is not supported by the
           # compiler"), so pick the newest Xcode the image has and say what we got —
           # that version IS the floor a developer needs, and it belongs in the log.
           ls -d /Applications/Xcode*.app 2>/dev/null || true
