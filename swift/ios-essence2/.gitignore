@@ -1,0 +1,7 @@
+# The payload is yours, not ours: setup.sh fetches it.
+Sources/Model/
+Sources/EngineResources/
+libessence2-resources.zip*
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+build/

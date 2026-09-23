@@ -1,0 +1,57 @@
+# project.yml — `xcodegen generate` writes IOSEssence2.xcodeproj from this.
+name: IOSEssence2
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "26.0"
+packages:
+  bithuman:
+    url: https://github.com/bithuman-product/homebrew-bithuman.git
+    # 2.14.2 or newer: older tags pin engines that stay idle-only on some iPhones.
+    from: 2.14.2
+targets:
+  IOSEssence2:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+        excludes: ["Info.plist", "Model", "EngineResources"]
+      # The identity rides as ONE folder reference the app opens by name.
+      - path: Sources/Model
+        type: folder
+        buildPhase: resources
+      # The engine resources ride as individual files, so they land at the
+      # bundle ROOT — which is the only place the engine looks for them.
+      - path: Sources/EngineResources
+        type: group
+        buildPhase: resources
+    dependencies:
+      - package: bithuman
+        product: Essence2
+    preBuildScripts:
+      - name: "Sources/Model and Sources/EngineResources must hold real files"
+        basedOnDependencyAnalysis: false
+        script: |
+          # A resource folder copies whatever is there, so without this the app
+          # builds, installs, launches and fails on the phone instead of here.
+          fail() { echo "error: $1"; exit 1; }
+          M="$SRCROOT/Sources/Model"; R="$SRCROOT/Sources/EngineResources"
+          [ -f "$M/agent.imx" ] || fail "Sources/Model/agent.imx is missing — run ./setup.sh"
+          SZ=$(stat -f%z "$M/agent.imx")
+          [ "$SZ" -gt 50000000 ] || fail "Sources/Model/agent.imx is only ${SZ} B — that is an error page or a truncated download. Re-run ./setup.sh"
+          [ -f "$M/speech16k.wav" ] || fail "Sources/Model/speech16k.wav is missing — run ./setup.sh"
+          [ -f "$R/w2v_ess_fp16_v1.onnx" ] || fail "the shared audio front end is missing — the .imx does not carry it. Re-run ./setup.sh"
+          echo "payload OK: agent.imx ${SZ} B, front end present"
+    info:
+      path: Sources/Info.plist
+      properties:
+        CFBundleDisplayName: Essence2
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.ios-essence2
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_STYLE: Automatic
+        SWIFT_VERSION: "6.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
