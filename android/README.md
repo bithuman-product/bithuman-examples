@@ -6,8 +6,8 @@ fetched at runtime.
 
 | model | coordinate | latest |
 |---|---|---|
-| essence-2 | `ai.bithuman:essence2-android` | **0.5.15** |
-| expression-2 | `ai.bithuman:expression2-android` | **0.4.10** |
+| essence-2 | `ai.bithuman:essence2-android` | **0.6.0** |
+| expression-2 | `ai.bithuman:expression2-android` | **0.5.0** |
 | essence-1 | `ai.bithuman:sdk` | 2.3.6 |
 
 `expression-1` is GPU-only and has no Android coordinate.
@@ -67,9 +67,9 @@ android {
     packaging { jniLibs { useLegacyPackaging = true } }   // required — see below
 }
 dependencies {
-    implementation("ai.bithuman:essence2-android:0.5.15")
+    implementation("ai.bithuman:essence2-android:0.6.0")
     // and/or
-    implementation("ai.bithuman:expression2-android:0.4.10")
+    implementation("ai.bithuman:expression2-android:0.5.0")
 }
 ```
 

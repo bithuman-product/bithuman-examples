@@ -129,7 +129,7 @@ android {
 }
 
 dependencies {
-    implementation("ai.bithuman:essence2-android:0.5.15")
+    implementation("ai.bithuman:essence2-android:0.6.0")
 }
 ```
 
