@@ -46,7 +46,7 @@ NO_DISPLAY = """No display, so there is no window to draw the avatar in.
 This example plays an audio FILE through the avatar, and the SDK already does
 that to a file in one command:
 
-    python -m bithuman <avatar> <audio>        # writes <avatar>.mp4
+    python -m bithuman render <avatar> <audio>        # writes <avatar>.mp4
 
 Pass the same model and audio file you would have passed here. On a desktop
 with a display, this example opens a window as written."""

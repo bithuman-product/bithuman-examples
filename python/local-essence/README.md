@@ -68,7 +68,7 @@ cp .env.example .env
 > process dies on SIGABRT with no traceback and nothing to catch (measured on a
 > headless Linux box: exit 134, *after* the model had loaded). On a headless
 > machine use the Docker stack above and watch the avatar in a browser; for
-> `quickstart.py` specifically, `python -m bithuman <avatar> <audio>` writes an
+> `quickstart.py` specifically, `python -m bithuman render <avatar> <audio>` writes an
 > MP4 without needing a window at all.
 
 > **"This OpenCV cannot open a window"?** You have a display but the headless

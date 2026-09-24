@@ -47,8 +47,8 @@ including `login`, which is the command a first-run developer wants most.
 | `bithuman list` | Browse showcase avatars — manifest + local cache state. |
 | `bithuman pull <slug>` | Download a showcase avatar by slug into the local cache; prints the cached `.imx` path. |
 | `bithuman run [<model.imx>]` | Live avatar — self-contained LiveKit pool + embedded server. Prints a landing-page URL to open in a browser. |
-| `bithuman render <model.imx> --audio speech.wav --output demo.mp4` | Offline batch render an MP4 from a model + WAV, on macOS or Linux. |
-| `bithuman info <model.imx>` | Print metadata for an `.imx` model file. |
+| `bithuman render <avatar> speech.wav -o demo.mp4` | Offline render: audio in, MP4 out, on macOS or Linux. `<avatar>` is an agent code, a showcase name, or a file. |
+| `bithuman open <avatar>` | What the avatar is, and whether it runs on this machine. |
 | `bithuman whoami` / `bithuman account` | Identity, plan and credit balance. |
 | `bithuman mcp` | Built-in MCP server over stdio (JSON-RPC), for MCP clients. |
 | `bithuman completion bash\|zsh\|fish\|elvish\|powershell` | Shell completions. |
@@ -64,7 +64,7 @@ bithuman run model.imx
 ### Render a video offline — see [render-video.sh](render-video.sh)
 
 ```bash
-bithuman render model.imx --audio speech.wav --output demo.mp4
+bithuman render model.imx speech.wav -o demo.mp4
 ```
 
 `render` works on macOS (Apple silicon) and Linux. It needs `ffmpeg` on your `PATH`.
