@@ -17,6 +17,7 @@ import os
 import aiohttp
 from livekit.agents import Agent, AgentSession, JobContext, RoomOutputOptions, WorkerOptions, WorkerType, cli
 from livekit.plugins import bithuman, openai, silero
+from openai.types.realtime.realtime_audio_input_turn_detection import ServerVad
 
 async def livekit_cloud_token(agent_code: str, room_name: str) -> str:
     """A one-hour token that can only start this agent's avatar in this room.
@@ -47,7 +48,12 @@ async def entrypoint(ctx: JobContext):
     )
 
     session = AgentSession(
-        llm=openai.realtime.RealtimeModel(voice="coral", model="gpt-realtime-2.1-mini"),
+        llm=openai.realtime.RealtimeModel(
+            voice="coral",
+            model="gpt-realtime-2.1-mini",
+            # reply 0.5 s after you stop (the plugin's default semantic VAD can wait ~4 s)
+            turn_detection=ServerVad(type="server_vad", silence_duration_ms=500, create_response=True, interrupt_response=True),
+        ),
         vad=silero.VAD.load(),
     )
 
