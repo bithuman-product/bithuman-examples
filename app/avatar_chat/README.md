@@ -24,13 +24,12 @@ instead: it uses the **public** Swift package, which does ship both engines.
 ### Which engine the Android app actually runs
 
 The plugin is pinned by tag in `pubspec.yaml`, and that tag is what fixes the engine
-version. This app pins **`flutter-plugin-v2.6.12`**, which resolves
-**`ai.bithuman:essence2-android:0.5.14`** and **`ai.bithuman:expression2-android:0.4.9`** —
-Maven Central's current release of each (2026-09-23). 2.6.12 moves both Android engines: every
-session bills talking time only (idle is free), and Expression 2 now needs the API secret the app
-passes to `load` — the plugin hands it to the engine. Measured at the plugin commit before the
-tag: a clean clone of this app built a release APK (`flutter build apk --release
---target-platform android-arm64`, rc 0) that resolved 0.4.9 and 0.5.14 from Maven Central, with
+version. This app pins **`flutter-plugin-v2.6.16`**, which resolves
+**`ai.bithuman:essence2-android:0.6.0`** and **`ai.bithuman:expression2-android:0.5.0`** —
+Maven Central's current release of each (2026-09-24). 2.6.16 moves both Android engines: Expression 2's
+mouth no longer leads the voice, and Essence 2's first frame after a pause arrives about four times
+sooner. Measured on this commit: a clean clone of this app built a release APK (`flutter build apk
+--release --target-platform android-arm64`, rc 0) that resolved 0.6.0 and 0.5.0 from Maven Central, with
 both JNI bridges kept by R8 and each `.so` byte-identical to its published AAR's.
 
 Measured from a clean clone of this repository on 2026-09-23, empty Gradle and pub
