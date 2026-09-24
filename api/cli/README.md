@@ -12,6 +12,7 @@ avatar rendered locally — no GPU needed. The avatar name picks the model.
 ```bash
 # 1. Install (both bring livekit-server)
 brew install bithuman-product/bithuman/bithuman-cli      # macOS, Apple silicon
+sudo apt install -y ffmpeg python3-venv                   # Linux: Essence 2 and the voice agent need these
 curl -fsSL https://install.bithuman.ai | sh               # Linux x86_64 / aarch64
 
 # 2. Keys — never on the command line
@@ -49,10 +50,10 @@ Settings, all from the environment:
 | `OPENAI_API_KEY` | — | Your OpenAI key. Without it, signed in, the voice runs on your bitHuman account instead. |
 | `BITHUMAN_INSTRUCTIONS` | a short assistant prompt | The agent's system prompt |
 
-Before you start: the voice agent needs **Python 3.11 or newer** on the
-machine (macOS: `brew install python@3.13`; Ubuntu: `sudo apt install
-python3-venv`), and `run` needs **livekit-server 1.13 or newer**
-(`brew upgrade livekit` on macOS). `run` names whichever one is missing.
+Before you start: the voice agent needs **Python 3.11 or newer**, an
+Essence 2 avatar needs **ffmpeg** (Homebrew installs both with the CLI;
+on Linux run the `apt` line above), and `run` needs **livekit-server 1.13
+or newer** (`brew upgrade livekit` on macOS).
 
 Want your own agent code instead of the built-in voice agent? See
 [python/self-host](../../python/self-host/): the same conversation as a
