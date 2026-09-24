@@ -10,7 +10,7 @@
 #   expression-2 · Linux x86_64   ✓ verified (this script)
 #   expression-2 · macOS arm64    ✗ engine under-produces (53 of 60 frames),
 #                                   exits non-zero — and STILL leaves the
-#                                   truncated mp4 at --output. Do not trust
+#                                   truncated mp4 at -o. Do not trust
 #                                   "the file exists" as success.
 #   essence-1    · Linux x86_64   ✗ "audio_decode: avformat_open_input failed"
 #                                   for wav/mp3/m4a/flac alike.
@@ -59,7 +59,7 @@ if [ "$(wc -c < speech.wav)" -lt 1024 ]; then
   exit 1
 fi
 
-bithuman render "$MODEL" --audio speech.wav --output "$OUT"
+bithuman render "$MODEL" speech.wav -o "$OUT"
 
 # ★Verify the artifact rather than trusting the exit code alone — a truncated
 # render can leave a decodable file behind.

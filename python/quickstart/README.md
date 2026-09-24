@@ -41,7 +41,7 @@ A window will open showing the avatar lip-syncing to the audio. Press `q` to qui
 > **No display — ssh, Docker, CI? It says so and stops, before it costs you
 > anything.** This example is a window, and it now checks for one before it
 > downloads the model or starts a render. To get a file instead, the SDK ships
-> that as one command: `python -m bithuman <avatar> <audio>` writes
+> that as one command: `python -m bithuman render <avatar> <audio>` writes
 > `<avatar>.mp4`. Why the check is not a `try`/`except`: the GUI build of
 > OpenCV with no display does not raise — Qt fails to load its platform plugin
 > and calls `abort()`, so the process dies on SIGABRT with no traceback and
