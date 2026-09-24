@@ -23,6 +23,7 @@ from livekit.agents.voice import Agent, AgentSession
 from livekit.agents.voice.avatar import AudioSegmentEnd, QueueAudioOutput
 from livekit.plugins import openai
 from numpy.typing import NDArray
+from openai.types.realtime.realtime_audio_input_turn_detection import ServerVad
 
 from bithuman import AsyncBithuman
 from fastrtc import AsyncAudioVideoStreamHandler, AudioEmitType, Stream, VideoEmitType, wait_for_item
@@ -108,7 +109,11 @@ class BitHumanHandler(AsyncAudioVideoStreamHandler):
         session.output.audio = self.agent_audio_queue
         await session.start(agent=Agent(
             instructions="You are a friendly assistant.",
-            llm=openai.realtime.RealtimeModel(voice="alloy"),
+            llm=openai.realtime.RealtimeModel(
+                voice="alloy",
+                # reply 0.5 s after you stop (the plugin's default semantic VAD can wait ~4 s)
+                turn_detection=ServerVad(type="server_vad", silence_duration_ms=500, create_response=True, interrupt_response=True),
+            ),
         ))
 
         self.agent_audio_queue.on("clear_buffer", self._on_interrupt)

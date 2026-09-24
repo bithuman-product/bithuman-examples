@@ -20,6 +20,7 @@ from livekit.agents import (
     cli,
 )
 from livekit.plugins import bithuman, openai, silero
+from openai.types.realtime.realtime_audio_input_turn_detection import ServerVad
 
 logger = logging.getLogger("bithuman-agent")
 logger.setLevel(logging.INFO)
@@ -66,6 +67,8 @@ async def entrypoint(ctx: JobContext):
         llm=openai.realtime.RealtimeModel(
             voice=os.getenv("OPENAI_VOICE", "coral"),
             model="gpt-realtime-2.1-mini",
+            # reply 0.5 s after you stop (the plugin's default semantic VAD can wait ~4 s)
+            turn_detection=ServerVad(type="server_vad", silence_duration_ms=500, create_response=True, interrupt_response=True),
         ),
         vad=silero.VAD.load(),
     )
