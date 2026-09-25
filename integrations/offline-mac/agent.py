@@ -73,6 +73,9 @@ if __name__ == "__main__":
             worker_type=WorkerType.ROOM,
             job_memory_warn_mb=1500,
             num_idle_processes=1,
+            # Load = this worker's own sessions, not the whole machine's CPU: the
+            # avatar renders here, and above 0.7 livekit-server stops dispatching.
+            load_fnc=lambda s: min(len(s.active_jobs) / 4, 1.0),
             initialize_process_timeout=120,
         )
     )

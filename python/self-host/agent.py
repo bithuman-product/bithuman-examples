@@ -18,7 +18,11 @@ from openai.types.realtime.realtime_audio_input_turn_detection import ServerVad
 
 load_dotenv()
 API = "https://api.bithuman.ai"
-server = AgentServer()
+# ★ LOAD = THIS WORKER'S OWN SESSIONS, NOT THE WHOLE MACHINE'S CPU. The default
+# load is host CPU, and livekit-server stops handing a worker rooms once its load
+# passes 0.7 ("no servers available (received 1 responses)"): the avatar renders
+# on this machine's CPU, so a busy machine left the page with no agent at all.
+server = AgentServer(load_fnc=lambda s: min(len(s.active_jobs) / 4, 1.0))
 
 
 def avatar_file(name: str) -> str:
