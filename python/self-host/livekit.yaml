@@ -1,0 +1,8 @@
+# Used as: livekit-server --dev --config livekit.yaml
+# WebRTC UDP on IPv4 interfaces only. `--dev` alone opens UDP on EVERY interface
+# address, and a temporary IPv6 address that disappears at start-up stops the
+# server with "listen udp [2600:...]:7882: bind: cannot assign requested address".
+# The browser, the agent and the avatar reach a local room over IPv4.
+rtc:
+  ips:
+    includes: [0.0.0.0/0]
