@@ -130,7 +130,7 @@ android {
 }
 
 dependencies {
-    implementation("ai.bithuman:expression2-android:0.5.0")
+    implementation("ai.bithuman:expression2-android:0.5.1")
 }
 ```
 
