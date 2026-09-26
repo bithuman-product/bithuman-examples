@@ -1,7 +1,7 @@
 name: python examples
 
 # python/self-host installs from its own requirements.txt and imports on every
-# Python it claims (3.11 and 3.13); no file in the repo names an OpenAI Realtime
+# Python it claims (3.10, 3.11, 3.13 and 3.14); no file in the repo names an OpenAI Realtime
 # model that OpenAI has shut down; and every RealtimeModel an example builds
 # chooses its turn detection (the plugin default, semantic VAD, answers up to
 # ~4 s after you stop talking; server_vad at 500 ms answers in ~0.8 s).
@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.11", "3.13"]
+        python: ["3.10", "3.11", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

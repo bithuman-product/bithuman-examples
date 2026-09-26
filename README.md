@@ -12,7 +12,7 @@ Find the row that matches what you are building and open that directory. Each on
 | **Talk to an avatar on my machine** | [`api/cli/`](api/cli/) — one command, `bithuman run wise-pup` · [`python/self-host/`](python/self-host/) — your own agent code | your machine: your LiveKit server, OpenAI Realtime on your key, the avatar rendered locally |
 | A Python service or a LiveKit agent | [`python/`](python/) | your own CPU box, or the bitHuman cloud |
 | A Mac, iPhone or iPad app | [`swift/`](swift/) | on-device — no server, no cloud GPU |
-| An Android app | [`android/`](android/) | on-device, from Maven Central coordinates. Notes, not a project — the complete Kotlin app is printed in full at [Kotlin / Android — Hello, avatar](https://docs.bithuman.ai/examples/kotlin-android-hello). |
+| An Android app | [`android/essence2-hello/`](android/essence2-hello/) · [`android/expression2-hello/`](android/expression2-hello/) | on-device: two complete Gradle projects that build from a clone, from Maven Central coordinates ([Android: Essence 2](https://docs.bithuman.ai/examples/android-essence2) · [Android: Expression 2](https://docs.bithuman.ai/examples/android-expression2)) |
 | One Flutter app for all three | [`app/avatar_chat/`](app/avatar_chat/) | Android builds from a clone; **Apple does not** — see [Known gaps](#known-gaps) |
 | Something in another language | [`api/rest-api/`](api/rest-api/) | HTTP — curl scripts and Python, one per endpoint |
 | A demo with no code at all | [`api/cli/`](api/cli/) | the `bithuman` command |
