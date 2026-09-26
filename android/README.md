@@ -8,7 +8,7 @@ fetched at runtime.
 |---|---|---|
 | essence-2 | `ai.bithuman:essence2-android` | **0.7.0** |
 | expression-2 | `ai.bithuman:expression2-android` | **0.5.0** |
-| essence-1 | `ai.bithuman:sdk` | 2.3.6 |
+| essence-1 | `ai.bithuman:sdk` | 2.3.7 |
 
 `expression-1` is GPU-only and has no Android coordinate.
 
