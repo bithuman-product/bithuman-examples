@@ -7,7 +7,7 @@ All Python examples use `pip install bithuman`. Pick the one that matches where 
 | I want to... | Example | What I need |
 |---|---|---|
 | Fastest cloud demo (no GPU) | [cloud-essence/](cloud-essence/) | API secret + agent ID |
-| A voice agent on my own machine: my own LiveKit server, OpenAI Realtime, the avatar rendered here | [self-host/](self-host/) | API secret + OpenAI key; Python 3.11–3.13 |
+| A voice agent on my own machine: my own LiveKit server, OpenAI Realtime, the avatar rendered here | [self-host/](self-host/) | API secret + OpenAI key; Python 3.10–3.14 |
 | Talk to an avatar in a terminal window, no LiveKit | [quickstart/conversation.py](quickstart/) | API secret + OpenAI key |
 | Other self-hosting options (containers, GPU servers) | [Self-hosting guide ↗](https://docs.bithuman.ai/guides/self-hosting) | varies |
 | Run on Mac M3+ | [Swift SDK examples ↗](../swift/) | Apple Silicon M3+ |
@@ -25,7 +25,7 @@ If you're new to bitHuman, follow this order:
 ```bash
 pip install "bithuman[expression-2]" --upgrade   # the extra opens Expression 2 avatars
 
-# For the LiveKit agent examples (self-host/, cloud-essence/) — Python 3.11–3.13:
+# For the LiveKit agent examples (self-host/, cloud-essence/) — Python 3.10–3.14:
 pip install "livekit-agents[openai]>=1.8.2,<1.9" "livekit-plugins-bithuman>=1.8.2,<1.9" pillow
 ```
 

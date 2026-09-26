@@ -6,8 +6,8 @@ this process, on the CPU. Setup is in README.md. Run:  python agent.py dev
 import http.server, json, os, pathlib, secrets, sys, threading, urllib.parse, urllib.request, warnings
 from datetime import timedelta
 
-if not (3, 11) <= sys.version_info[:2] <= (3, 13):  # livekit-plugins-bithuman skips bithuman elsewhere
-    sys.exit("This example needs Python 3.11, 3.12 or 3.13 (you have %d.%d)." % sys.version_info[:2])
+if not (3, 10) <= sys.version_info[:2] <= (3, 14):  # the Python versions bithuman ships wheels for
+    sys.exit("This example needs Python 3.10 to 3.14 (you have %d.%d)." % sys.version_info[:2])
 
 from dotenv import load_dotenv
 from livekit import api

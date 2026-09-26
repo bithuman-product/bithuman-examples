@@ -13,7 +13,7 @@ Rather not write code? `bithuman run wise-pup` does the same in one command — 
 
 ## Run it
 
-Prerequisites: Python 3.11, 3.12 or 3.13, and `livekit-server` 1.9.12 or newer (`livekit-server --version`; on macOS `brew upgrade livekit`). Older servers make the browser drop and rejoin the room every 15 s.
+Prerequisites: Python 3.10–3.14, and `livekit-server` 1.9.12 or newer (`livekit-server --version`; on macOS `brew upgrade livekit`). Older servers make the browser drop and rejoin the room every 15 s.
 
 ```sh
 # 1. LiveKit server + Python
@@ -98,7 +98,7 @@ NVIDIA GPU, LiveKit's WebRTC library may use it to encode the video, which is ex
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `This example needs Python 3.11, 3.12 or 3.13` | `livekit-plugins-bithuman` installs without `bithuman` on 3.10 and 3.14 | Make the venv with Python 3.11–3.13 |
+| `This example needs Python 3.10 to 3.14` | a Python that `bithuman` ships no wheel for | Make the venv with Python 3.10–3.14 |
 | `No module named 'PIL'` | The plugin imports Pillow without declaring it | `pip install -r requirements.txt` (it lists `pillow`) |
 | `BITHUMAN_API_SECRET is not set` | `.env` missing or not filled | `cp .env.example .env` and fill both secrets |
 | The avatar never appears | No or invalid `BITHUMAN_API_SECRET` — both models refuse to render without it | Set a valid secret in `.env`, restart `agent.py` |
