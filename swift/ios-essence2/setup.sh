@@ -5,8 +5,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 CODE="${1:-A21SKT4314}"
-REL=https://github.com/bithuman-product/homebrew-bithuman/releases/download/essence2-v1.11.0
-ASSET=libessence2-resources.zip   # the release asset's frozen legacy name
+REL=https://github.com/bithuman-product/homebrew-bithuman/releases/download/essence2-v1.14.1
 mkdir -p Sources/Model Sources/EngineResources
 
 # 1 · the identity. One URL, no credential: the door answers 302 to a one-hour
@@ -40,13 +39,13 @@ PY
 
 # 3 · the shared engine resources, checksum-verified against the sidecar
 #     published beside them.
-echo "==> downloading the engine resources"
-curl -fL --progress-bar -o "$ASSET"        "$REL/$ASSET"
-curl -fL                -o "$ASSET.sha256" "$REL/$ASSET.sha256"
-shasum -a 256 -c "$ASSET.sha256"
-unzip -o -q "$ASSET" -d Sources/EngineResources
+echo "==> downloading the engine's three runtime files (the release Essence2Kit pins)"
+for f in w2v_ess_fp16_v1.onnx audio_encoder_fp16_window_trunk.onnx audio_encoder_fp16_window_head.onnx; do
+  curl -fL --progress-bar -o "Sources/EngineResources/$f"      "$REL/$f"
+  curl -fL                -o "Sources/EngineResources/$f.sha256" "$REL/$f.sha256"
+  (cd Sources/EngineResources && shasum -a 256 -c "$f.sha256" && rm -f "$f.sha256")
+done
 
-# 4 · something for it to say. `say` and `afconvert` ship with macOS.
 echo "==> making speech16k.wav"
 say -o /tmp/e2-speech.aiff \
   "Hello. Every frame you are watching was rendered on this phone."
