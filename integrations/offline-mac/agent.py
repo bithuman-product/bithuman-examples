@@ -5,6 +5,7 @@ See README.md for prerequisite setup (Apple voices, Ollama, bitHuman voice servi
 
 import logging
 import os
+import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -42,7 +43,7 @@ async def entrypoint(ctx: JobContext):
     logger.info("starting bitHuman avatar")
     avatar = bithuman.AvatarSession(
         model_path=str(models[0]),
-        api_secret=os.getenv("BITHUMAN_API_SECRET"),
+        api_secret=os.getenv("BITHUMAN_MASTER_SECRET"),  # your API secret, passed explicitly
     )
 
     session = AgentSession(
@@ -67,6 +68,10 @@ async def entrypoint(ctx: JobContext):
 
 
 if __name__ == "__main__":
+    # Never BITHUMAN_API_SECRET in a LiveKit worker: livekit-plugins-bithuman (1.8.4 and older) reads it
+    # by itself and, for a cloud avatar, copies it into participant attributes everyone in the room can read.
+    if os.getenv("BITHUMAN_API_SECRET"):
+        sys.exit("Rename BITHUMAN_API_SECRET to BITHUMAN_MASTER_SECRET in .env (a LiveKit worker never gets BITHUMAN_API_SECRET).")
     cli.run_app(
         WorkerOptions(
             entrypoint_fnc=entrypoint,

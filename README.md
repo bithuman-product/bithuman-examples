@@ -52,7 +52,7 @@ One API secret, from [www.bithuman.ai/developer/api-keys](https://www.bithuman.a
 export BITHUMAN_API_SECRET="<your API secret>"
 ```
 
-`BITHUMAN_API_SECRET` is the one name every example reads — Python, CLI, REST, Flutter and Swift. (`swift/ios-avatar/` hands it to `bitHumanKit` as `config.apiKey`, a field that keeps its published name.)
+`BITHUMAN_API_SECRET` is the one name every example reads — Python, CLI, REST, Flutter and Swift — except the LiveKit workers (`python/cloud-essence`, `python/quickstart/cloud-avatar.py`, `python/self-host`, `integrations/offline-mac`). They read `BITHUMAN_MASTER_SECRET` and refuse to start while `BITHUMAN_API_SECRET` is set, because `livekit-plugins-bithuman` 1.8.4 and older reads that name by itself and, for a cloud avatar, copies it into participant attributes that everyone in the room can read. (`swift/ios-avatar/` hands it to `bitHumanKit` as `config.apiKey`, a field that keeps its published name.)
 
 Your API secret belongs in the environment or an untracked `.env`, never in a commit or on a command line. Every example ships a `.env.example` to copy from, and `.env` is gitignored.
 

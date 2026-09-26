@@ -6,7 +6,7 @@ A voice agent with a face, where everything except the voice model runs on your 
 - **OpenAI Realtime** (your own `OPENAI_API_KEY`) listens, thinks and speaks.
 - **The bitHuman avatar is rendered inside `agent.py`**, on your CPU — no GPU needed.
 - **One switch picks the model:** `BITHUMAN_AVATAR=wise-pup` is Expression 2, `BITHUMAN_AVATAR=sofia-ramirez` is Essence 2.
-- **Two secrets, both in `.env`:** `BITHUMAN_API_SECRET` (both models refuse to render without it) and `OPENAI_API_KEY`.
+- **Two secrets, both in `.env`:** your API secret as `BITHUMAN_MASTER_SECRET` (both models refuse to render without it) and `OPENAI_API_KEY`. A LiveKit worker never gets `BITHUMAN_API_SECRET`: `livekit-plugins-bithuman` 1.8.4 and older reads that name by itself and, for a cloud avatar, copies it into the room. `agent.py` passes the secret to the plugin explicitly and refuses to start while `BITHUMAN_API_SECRET` is set.
 
 No Docker and no web app to build: `agent.py` serves a small page on `localhost` that joins your local room.
 Rather not write code? `bithuman run wise-pup` does the same in one command — see [api/cli/](../../api/cli/).
@@ -27,7 +27,7 @@ python3.13 -m venv .venv && . .venv/bin/activate          # Ubuntu 24.04: python
 pip install -r requirements.txt
 
 # 3. Keys — in .env, never on the command line
-cp .env.example .env                                      # then fill BITHUMAN_API_SECRET and OPENAI_API_KEY
+cp .env.example .env                                      # then fill BITHUMAN_MASTER_SECRET and OPENAI_API_KEY
 
 # 4. Run, in two terminals
 livekit-server --dev --config livekit.yaml                # terminal 1: ws://localhost:7880, keys devkey / secret

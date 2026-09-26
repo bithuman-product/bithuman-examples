@@ -32,7 +32,7 @@ services:
       - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:?set LIVEKIT_API_SECRET in .env}
       - IMX_MODEL_ROOT=/imx-models  # Path to mounted models
     env_file:
-      - ./.env  # BITHUMAN_API_SECRET (and BITHUMAN_LICENSE_FILE for an offline licence)
+      - ./.env  # BITHUMAN_MASTER_SECRET (and BITHUMAN_LICENSE_FILE for an offline licence)
     volumes:
       - ./models:/imx-models  # Mount .imx models directory
       - ./agent.py:/app/agent.py  # Mount for live editing
