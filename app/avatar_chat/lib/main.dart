@@ -46,7 +46,7 @@ const _keychain = FlutterSecureStorage(
   // `keychain-access-groups` entitlement — i.e. one signed by a team, with a
   // provisioning profile. A macOS app built from a clone is signed ad hoc: no team
   // prefix, so `$(AppIdentifierPrefix)` resolves to nothing and no such entitlement
-  // can be produced. Measured on echelon 2026-09-16, from the app's own breadcrumb:
+  // can be produced. Measured 2026-09-16 on an Apple silicon Mac, from the app's own breadcrumb:
   //
   //   keychain=fail=PlatformException(Unexpected security result code,
   //     Code: -34018, Message: A required entitlement isn't present.)
@@ -69,7 +69,7 @@ const _keychain = FlutterSecureStorage(
     // addressed the SAME item. The data-protection keychain isolates apps by access
     // group for free, which is why this never came up while macOS was on it.
     //
-    // Measured on echelon 2026-09-16: expression-2 created the shared item at
+    // Measured 2026-09-16 on an Apple silicon Mac: expression-2 created the shared item at
     // 22:24:51Z; essence-2 launched two minutes later, hit the item's ACL — which
     // names only the expression-2 binary — and macOS raised SecurityAgent. The app
     // stopped at `boot:start` and produced no further breadcrumb, because it was
@@ -232,7 +232,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   /// directory `devicectl` / `adb` can push a file into. On macOS, Documents is the
   /// PERSON's folder: iCloud-synced on most Macs and behind a consent the OS asks
   /// for on first touch — and an app that must open it to boot hangs when nobody is
-  /// there to answer (measured 2026-09-16 on echelon: launched by launchd, the
+  /// there to answer (measured 2026-09-16 on an Apple silicon Mac: launched by launchd, the
   /// open() of ~/Documents/boot_status.txt never returned, and the app showed
   /// nothing). An app's own files belong in Application Support; the identity is
   /// an absolute path on the desktop and never lived here.

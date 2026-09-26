@@ -126,7 +126,7 @@ jobs:
           swift --version
 
           # ★THIS LIST IS EMPTY AND THE GATE IS NOW HONEST. It used to carry seven
-          # entries. Re-measured on moraga (Apple M4 Max, macOS 26.5, Xcode 26.5,
+          # entries. Re-measured on an Apple M4 Max (macOS 26.5, Xcode 26.5,
           # Swift 6.3.2) on 2026-09-22, `swift build` against the published tap:
           # SEVEN of the ten packages failed and three built. Six of the seven were
           # dead — they called SDK surfaces that do not exist (`EssenceRuntime`,

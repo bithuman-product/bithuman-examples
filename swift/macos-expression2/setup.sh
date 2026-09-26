@@ -31,7 +31,7 @@ curl -fL --progress-bar "${AUTH[@]+"${AUTH[@]}"}" \
 #    one per identity. Anonymous, and the same file for every agent you open.
 echo "==> shared engine"
 curl -fL --progress-bar \
-  "https://tmoobjxlwcwvxvjeppzq.supabase.co/storage/v1/object/public/web/engines/expression-2/mac-arm64-1.0.0.engine" \
+  "https://github.com/bithuman-product/homebrew-bithuman/releases/download/expression2-engine-mac-arm64-1.0.0/mac-arm64-1.0.0.engine" \
   -o Model/shared-engine.imx
 
 # 3. something for it to say — 16 kHz mono, out of the identity's own bundle.
