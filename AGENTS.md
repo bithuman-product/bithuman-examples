@@ -78,7 +78,7 @@ If you are an AI agent wiring bitHuman into a user's codebase:
 
 ### Onboarding
 
-1. **Get an API secret**: [www.bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys) → API Secrets. Set **`BITHUMAN_API_SECRET`** — the one name every example reads. `bitHumanKit` 2.4.0 (`swift/ios-avatar/`) takes it through `config.apiKey`, a field that keeps its published name; the example reads `BITHUMAN_API_SECRET` into it.
+1. **Get an API secret**: [www.bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys) → API Secrets. Set **`BITHUMAN_API_SECRET`** — the one name every example reads, except a LiveKit worker, which reads **`BITHUMAN_MASTER_SECRET`** and refuses to start while `BITHUMAN_API_SECRET` is set (`livekit-plugins-bithuman` 1.8.4 and older reads that name by itself and, for a cloud avatar, copies it into room-readable participant attributes). `bitHumanKit` 2.4.0 (`swift/ios-avatar/`) takes it through `config.apiKey`, a field that keeps its published name; the example reads `BITHUMAN_API_SECRET` into it.
 2. **Pick the model**: Essence (`.imx`, CPU) or Expression (any face, GPU/M3+). See [docs.bithuman.ai/getting-started/models](https://docs.bithuman.ai/getting-started/models).
 3. **Copy the example folder**. Every folder ships a `.env.example` + one-command run path.
 4. **Pricing**: [docs.bithuman.ai/getting-started/pricing](https://docs.bithuman.ai/getting-started/pricing) — read the tier off that page rather than quoting a number here, which is how the Android version table went thirteen releases stale.
@@ -90,7 +90,7 @@ An example that calls the same thing three names is an example nobody can search
 | Thing | Write | Not |
 |---|---|---|
 | The models | `essence-2`, `expression-2`, `essence-1`, `expression-1` | `Essence`/`Expression` bare (ambiguous between generations), `essence2-light`, `light xxx`, `tessera` (retired) |
-| The credential | "API secret"; `BITHUMAN_API_SECRET`; header `api-secret` | "API secret"; BITHUMAN_API_KEY (a deprecated alias, still read — never write it); `BITHUMAN_API_TOKEN`, `BITHUMAN_RUNTIME_TOKEN` (short-lived tokens are passed per call, never through the environment) |
+| The credential | "API secret"; `BITHUMAN_API_SECRET`; header `api-secret`; in a LiveKit worker `BITHUMAN_MASTER_SECRET` | "API secret"; BITHUMAN_API_KEY (a deprecated alias, still read — never write it); `BITHUMAN_API_TOKEN`, `BITHUMAN_RUNTIME_TOKEN` (short-lived tokens are passed per call, never through the environment) |
 | Python entry | `bithuman.open(...)` → `Avatar.render(...)` — the taught surface of the published wheel. For LiveKit and other `bithuman<3` callers, `AsyncBithuman`. | `AsyncAvatar` — it exists and works, but the wheel's own source calls it an alias of the compatibility class, so it is the third-choice name for a teaching example |
 | The Python package | `bithuman` on PyPI | `bithuman-cli` — **retired on PyPI and it will not come back**; the CLI ships only via the tap formula, the tap's `install.sh`, or a release tarball |
 | The Swift package | `bitHumanKit`, from `homebrew-bithuman.git` | a local path, a vendored copy |

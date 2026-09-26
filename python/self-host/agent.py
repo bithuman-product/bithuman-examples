@@ -35,7 +35,7 @@ def avatar_file(name: str) -> str:
         url = next((m["url"] for m in showcase if name in (m["slug"], m["agent_code"])),
                    f"{API}/v1/agent/{name}/model/download")  # your own agent: needs your API secret
         ask = urllib.request.Request(url + ("&" if "?" in url else "?") + "redirect=false",
-                                     headers={"api-secret": os.environ.get("BITHUMAN_API_SECRET", "")})
+                                     headers={"api-secret": os.environ.get("BITHUMAN_MASTER_SECRET", "")})
         signed = json.load(urllib.request.urlopen(ask, timeout=30))["data"]["url"]
         print(f"Downloading avatar {name} (first run only) ...", flush=True)
         dest.parent.mkdir(parents=True, exist_ok=True)
@@ -54,7 +54,8 @@ async def entrypoint(ctx: JobContext):
         turn_detection=ServerVad(type="server_vad", silence_duration_ms=500, create_response=True,
                                  interrupt_response=True)))
     # Local mode: the avatar renders in this process and publishes the lip-synced video AND audio.
-    avatar = bithuman.AvatarSession(model_path=os.environ["BITHUMAN_MODEL_PATH"])
+    avatar = bithuman.AvatarSession(model_path=os.environ["BITHUMAN_MODEL_PATH"],
+                                    api_secret=os.environ["BITHUMAN_MASTER_SECRET"])
     await avatar.start(session, room=ctx.room)
     await session.start(
         agent=Agent(instructions=os.getenv("BITHUMAN_INSTRUCTIONS", "You are a friendly assistant. Keep answers short.")),
@@ -62,7 +63,12 @@ async def entrypoint(ctx: JobContext):
 
 
 if __name__ == "__main__":
-    for key in ("BITHUMAN_API_SECRET", "OPENAI_API_KEY", "LIVEKIT_URL", "LIVEKIT_API_KEY", "LIVEKIT_API_SECRET"):
+    # Your API secret is BITHUMAN_MASTER_SECRET here, passed to the plugin explicitly. Never
+    # BITHUMAN_API_SECRET in a LiveKit worker: livekit-plugins-bithuman (1.8.4 and older) reads it by
+    # itself and, for a cloud avatar, copies it into participant attributes everyone in the room can read.
+    if os.getenv("BITHUMAN_API_SECRET"):
+        sys.exit("Rename BITHUMAN_API_SECRET to BITHUMAN_MASTER_SECRET in .env (a LiveKit worker never gets BITHUMAN_API_SECRET).")
+    for key in ("BITHUMAN_MASTER_SECRET", "OPENAI_API_KEY", "LIVEKIT_URL", "LIVEKIT_API_KEY", "LIVEKIT_API_SECRET"):
         if not os.getenv(key):
             sys.exit(f"{key} is not set. Copy .env.example to .env and fill it in.")
     # Resolved once, here: the job processes inherit it (the plugin also reads this variable).

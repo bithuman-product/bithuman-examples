@@ -64,12 +64,15 @@ A window will open showing the avatar lip-syncing to the audio. Press `q` to qui
 
 ### Option B: Cloud avatar (more setup, but no model download needed)
 
-This requires a LiveKit server and OpenAI API key. See [.env.example](.env.example) for all required variables.
+This requires a LiveKit server and an OpenAI API key. It is a LiveKit worker, so it keeps your API secret as `BITHUMAN_MASTER_SECRET` and uses it only to mint a one-hour token. Never set `BITHUMAN_API_SECRET` in a LiveKit worker's environment: `livekit-plugins-bithuman` 1.8.4 and older reads it by itself and copies it into the room, where everyone can read it. `cloud-avatar.py` refuses to start while it is set.
 
 ```bash
 pip install -r requirements.txt
-cp .env.example .env
-# Edit .env with your actual keys
+unset BITHUMAN_API_SECRET                          # a LiveKit worker never gets this name
+export BITHUMAN_MASTER_SECRET="paste_your_key_here"
+export BITHUMAN_AGENT_ID=A78WKV4515                # your agent code, from www.bithuman.ai
+export LIVEKIT_URL=wss://your-project.livekit.cloud LIVEKIT_API_KEY=… LIVEKIT_API_SECRET=…
+export OPENAI_API_KEY=…
 python cloud-avatar.py dev
 ```
 

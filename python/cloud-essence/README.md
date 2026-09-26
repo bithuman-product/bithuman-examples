@@ -19,7 +19,7 @@ cd bithuman-examples/python/cloud-essence
 
 # 2. Create your .env file
 cp .env.example .env
-# Edit .env: set BITHUMAN_API_SECRET, BITHUMAN_AGENT_ID, OPENAI_API_KEY and LIVEKIT_API_SECRET (any long random string)
+# Edit .env: set BITHUMAN_MASTER_SECRET (your API secret), BITHUMAN_AGENT_ID, OPENAI_API_KEY and LIVEKIT_API_SECRET (any long random string)
 
 # 3. Start everything
 docker compose up
@@ -59,7 +59,7 @@ All configuration is via `.env`. See `.env.example` for all options.
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `BITHUMAN_API_SECRET` | Yes | API secret from bithuman.ai |
+| `BITHUMAN_MASTER_SECRET` | Yes | Your API secret from bithuman.ai. The worker uses it only to mint a one-hour token per room. Never set `BITHUMAN_API_SECRET` in a LiveKit worker's environment: plugin 1.8.4 and older reads it by itself and copies it into the room, where everyone can read it; `agent.py` refuses to start if it is set |
 | `BITHUMAN_AGENT_ID` | Yes | Agent code (e.g. `A78WKV4515`) |
 | `OPENAI_API_KEY` | Yes | For AI conversation |
 | `OPENAI_VOICE` | No | TTS voice, default `coral` |
@@ -164,7 +164,7 @@ Set `BITHUMAN_AGENT_ID` in `.env`. Get your agent ID from [www.bithuman.ai](http
 ```
 Error: 401 Unauthorized
 ```
-Check `BITHUMAN_API_SECRET` in `.env`. Copy the full secret from [Developer Dashboard](https://www.bithuman.ai/developer/api-keys).
+Check `BITHUMAN_MASTER_SECRET` in `.env`. Copy the full secret from [Developer Dashboard](https://www.bithuman.ai/developer/api-keys).
 
 **Port 4202 already in use?**
 ```bash

@@ -6,7 +6,7 @@ A local deployment of bitHuman's AI visual agent running on Apple M2+/M3/M4 devi
 
 **For M2+/M3/M4 macOS devices:**
 - Docker and Docker Compose (**We strongly recommend [OrbStack](https://orbstack.dev/) for better performance and easier management**)
-- `BITHUMAN_API_SECRET` — your API secret (requires periodic internet access), or an offline licence (`BITHUMAN_LICENSE_FILE`) for 100% internet-free operation — Business/Enterprise only, see [offline licensing](https://docs.bithuman.ai/guides/pricing#offline-licensing)
+- `BITHUMAN_MASTER_SECRET` — your API secret (requires periodic internet access), or an offline licence (`BITHUMAN_LICENSE_FILE`) for 100% internet-free operation — Business/Enterprise only, see [offline licensing](https://docs.bithuman.ai/guides/pricing#offline-licensing)
 - `.imx` model files (place in `./models/` directory)
 - Python 3.10+ for bitHuman's Apple plugin
 - [Ollama](https://ollama.com/) for local LLM
@@ -64,7 +64,9 @@ Ollama serves on port 11434 by default.
 Create a `.env` file:
 
 ```bash
-BITHUMAN_API_SECRET=<your API secret>
+# Your API secret. A LiveKit worker never gets BITHUMAN_API_SECRET: livekit-plugins-bithuman 1.8.4
+# and older reads that name by itself and, for a cloud avatar, copies it into the room.
+BITHUMAN_MASTER_SECRET=<your API secret>
 # The local LiveKit server's secret — any long random string, e.g. `openssl rand -hex 32`.
 # docker-compose.yml hands it to the server, the agent and the web UI.
 LIVEKIT_API_SECRET=<a long random string>
@@ -143,7 +145,7 @@ docker compose down
 ## Troubleshooting
 
 **Services won't start?**
-- Check `.env` file exists with valid `BITHUMAN_API_SECRET`
+- Check `.env` file exists with valid `BITHUMAN_MASTER_SECRET`
 - Ensure models/ directory contains `.imx` files
 - Verify bitHuman voice service is running on port 8000: `bithuman-voice serve --port 8000`
 - Check Ollama is running and model is downloaded: `ollama list`
