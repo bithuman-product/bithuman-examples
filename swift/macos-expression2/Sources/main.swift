@@ -1,5 +1,5 @@
-// Expression 2 on a Mac: a 16 kHz WAV in, lip-synced frames out, on this
-// machine. No server, no account, no credits.
+// Expression 2 on a Mac: a 16 kHz WAV in, lip-synced frames out, rendered on
+// this machine. Needs BITHUMAN_API_SECRET; the session is billed to it.
 //
 //   ./setup.sh && swift run -c release MacOSExpression2
 
