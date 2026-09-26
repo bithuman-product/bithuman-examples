@@ -3,7 +3,7 @@
 #
 # IMPORTANT: The agent must be in an active session for this to work.
 # An "active session" means someone is connected to the agent via:
-#   - The web viewer (https://agent.viewer.bithuman.ai/AGENT_CODE)
+#   - The web viewer (https://www.bithuman.ai/embed/AGENT_CODE)
 #   - A LiveKit room (from one of the Python/Docker examples)
 #   - The bitHuman dashboard (www.bithuman.ai)
 #
@@ -34,6 +34,6 @@ echo "$RESPONSE" | python3 -m json.tool
 # Check for common error
 if echo "$RESPONSE" | grep -qi "no active"; then
   echo ""
-  echo "Tip: Start a session first by opening https://agent.viewer.bithuman.ai/$AGENT_ID"
+  echo "Tip: Start a session first by opening https://www.bithuman.ai/embed/$AGENT_ID"
   echo "     or by running one of the Docker examples in python/cloud-essence/"
 fi

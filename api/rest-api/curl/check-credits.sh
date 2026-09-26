@@ -31,6 +31,6 @@ if minutes:
     for model, mins in minutes.items():
         print(f'  {model}: {mins:.0f} min')
 print()
-print('Pricing: 1 cr/min (Essence self-hosted), 2 cr/min (cloud or Expression), 4 cr/min (Expression cloud)')
-print('Top up:  https://www.bithuman.ai -> Settings -> Billing')
+print('Prices: https://docs.bithuman.ai/guides/pricing')
+print('Top up:  https://docs.bithuman.ai/guides/pricing#top-up-credits')
 "
