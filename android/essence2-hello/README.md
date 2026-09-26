@@ -168,8 +168,8 @@ import java.nio.ByteOrder
  * Reads speech.wav from the app's own external files dir, renders it through the
  * on-device avatar, then plays the audio back with the rendered frames.
  *
- * The ONE thing that differs from the expression-2 project on the same page: this
- * needs an API secret, and it needs it in two places. See the doc page.
+ * It needs an API secret: one Essence2Credential.set call covers the download and the
+ * session. See the doc page.
  */
 class MainActivity : Activity() {
 
@@ -225,7 +225,7 @@ class MainActivity : Activity() {
     private fun renderOnce() {
         val secret = BuildConfig.BITHUMAN_API_SECRET
         if (secret.isBlank()) {
-            say("No API secret. Put\n\nbithuman.apiSecret=<your API secret>\n\nin local.properties (or export BITHUMAN_API_SECRET) and rebuild. essence-2 needs one for the download AND for the meter.")
+            say("No API secret. Put\n\nbithuman.apiSecret=<your API secret>\n\nin local.properties (or export BITHUMAN_API_SECRET) and rebuild. Essence 2 needs it to download the avatar and run the session.")
             return
         }
 
