@@ -9,7 +9,7 @@ every platform (`package:bithuman/ui_kit.dart`).
 | platform | from a clone | why |
 |---|---|---|
 | **Android** | **builds** — `flutter build apk` | every engine it needs is a public Maven Central coordinate, resolved anonymously by Gradle: `ai.bithuman:expression2-android` and `ai.bithuman:essence2-android`, both pulled in by the plugin this app pins. |
-| **iOS / macOS** | **does not build** | the plugin's Apple half stages its engines from a **private** repository — `scripts/bootstrap.sh` clones `bithuman-product/bithuman-models`, which answers 404 to anyone without access — and the build then fails at `cannot find 'Expression2Engine' in scope`. There is **no published engine asset for Apple that a clone could use instead**: publishing one is a decision for the owner of that engine, so this cannot be fixed from inside this repository or the plugin. |
+| **iOS / macOS** | **does not build** | the plugin's Apple half stages its engines from a repository that is not public, so a clone cannot fetch them, and the build then fails at `cannot find 'Expression2Engine' in scope`. There is **no published engine asset for Apple that a clone could use instead**: publishing one is a decision for the owner of that engine, so this cannot be fixed from inside this repository or the plugin. |
 
 That table is the whole truth of this directory. Nothing here fails silently: the build
 stops at the dependency it cannot resolve, and the row above names it.
@@ -61,8 +61,7 @@ flutter build apk --debug --target-platform android-arm64 --dart-define=AGENT_CO
 flutter build macos --debug --dart-define=AGENT_DIR=/absolute/path/to/agent
 # iOS: AGENT_DIR is RELATIVE to the app's Documents dir, and it is REQUIRED — an iOS build made
 # without it starts, reads an empty AGENT_DIR, and refuses with "AGENT_DIR is not set" before it
-# looks at the model that is already in the container. (2026-09-16: a UI-fix build shipped to the
-# lab iPhone without it and the owner saw exactly that refusal.) The lab container carries `agent/`:
+# looks at the model that is already in the container. For a container that carries `agent/`:
 flutter build ios --release --dart-define=AGENT_DIR=agent
 ```
 
@@ -128,14 +127,8 @@ An existing stored key is never overwritten, so a person who typed their own kee
 `xcrun devicectl device process launch -e '{"BITHUMAN_API_SECRET":"…"}'` looks like the
 environment route, and it is not: the JSON is an **argument**, so the live secret sits in
 that process's `argv` and every process on the host can read it out of `ps` for as long as
-the app runs. This is not theoretical. On 2026-09-16 a lane used exactly this line, wrote
-down that it was an argv exposure — and then, minutes later, ran `ps | grep devicectl` to
-debug an unrelated hang and printed the owner's live API secret in cleartext into a
-transcript that cannot be scrubbed. The credential had to be rotated.
-
-The lesson is not "be careful with `ps`". It is that **a credential anywhere in a process
-tree contaminates that tree for every purpose**, including the diagnostic you reach for an
-hour later thinking about something else entirely. `devicectl` offers no stdin route for
+the app runs. **A credential anywhere in a process tree is exposed to everything that can
+read that tree**, including the diagnostic you run later for something else. `devicectl` offers no stdin route for
 the child environment, so on a phone use `.bootstrap_secret` instead: the value lands in
 the app's own container, the app moves it into the Keychain and **deletes the file**. That
 trades "readable by every process on the host" for "briefly on the device's own disk",
@@ -218,31 +211,14 @@ The default is unchanged in both id and behaviour, so the bare command above sti
 what it always built and still upgrades an existing install in place. An unrecognised
 `bhModel` fails the build rather than quietly producing a third package id.
 
-## ★ If you write a harness for this app, read this first
+## Testing the credential path
 
-Every harness on this estate launches the macOS app with `BITHUMAN_API_SECRET` already in
-its environment. That is convenient and it is also a blindfold: the environment is resolved
-**before** the Keychain, so a harness never touches the store, and a store that refuses
-every write looks exactly like a store that is working. On 2026-09-16 that hid a defect in
-which **no** macOS Keychain write had ever succeeded — `errSecMissingEntitlement` — for as
-long as the app had existed. Nobody met it, because nobody's harness ever asked the store a
-question.
-
-So: **a path that has never been exercised is not a path that works**, and the convenience
-that makes a harness easy is often the thing standing between you and the defect. Prove the
-credential the way a person meets it — launch **cold**, with nothing in the environment and
-nothing staged — and read the app's own breadcrumb rather than inferring from the absence
-of a prompt.
-
-On macOS the app now uses the **file-based login keychain**, which has a consequence worth
-knowing: `security add-generic-password` and the app address the **same store**. Staging a
-secret from the host and having the app find it is possible again. (It was not: while macOS
-used the data-protection keychain, a CLI-staged item landed in a different store, `security
-find-generic-password` showed it back to you, and the app still met the key screen — a
-false green that cost a lane an afternoon.) It is a trade, not a free win: the
-data-protection keychain is the stronger store, and a team-signed build should prefer it.
-An ad-hoc-signed app cannot use it at all, and a store that works beats a stronger store
-that silently refuses.
+Launch the app cold, with nothing in the environment and nothing staged, to test the
+credential the way a person meets it: the environment is read before the Keychain, so a
+test that always sets `BITHUMAN_API_SECRET` never exercises the Keychain at all. On macOS the
+app uses the file-based login keychain, so `security add-generic-password` and the app use the
+same store. (A team-signed build may prefer the data-protection keychain; an ad-hoc-signed app
+cannot use it.)
 
 ## Measurement levers (dart-defines, off by default)
 
