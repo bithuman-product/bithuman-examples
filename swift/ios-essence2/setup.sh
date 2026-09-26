@@ -1,18 +1,21 @@
 #!/bin/bash
-# setup.sh — fetch everything the app needs. No account, no key.
+# setup.sh — fetch everything the app needs. A sample avatar needs no account.
 #   ./setup.sh              # warm-clear-professional-presenter
 #   ./setup.sh A52DHS2219   # any code from the table in README.md
+#   BITHUMAN_API_SECRET=… ./setup.sh <AGENT_CODE>   # your own agent
 set -euo pipefail
 cd "$(dirname "$0")"
 CODE="${1:-A21SKT4314}"
-REL=https://github.com/bithuman-product/homebrew-bithuman/releases/download/essence2-v1.11.0
+REL=https://github.com/bithuman-product/homebrew-bithuman/releases/download/essence2-v1.14.0
 ASSET=libessence2-resources.zip   # the release asset's frozen legacy name
 mkdir -p Sources/Model Sources/EngineResources
+AUTH=()
+if [ -n "${BITHUMAN_API_SECRET:-}" ]; then AUTH=(-H "api-secret: $BITHUMAN_API_SECRET"); fi
 
-# 1 · the identity. One URL, no credential: the door answers 302 to a one-hour
-#     signed URL and curl -L follows it.
+# 1 · the identity. One URL; a sample needs no credential, your own agent sends
+#     BITHUMAN_API_SECRET. The door answers 302 to a one-hour signed URL.
 echo "==> downloading $CODE.imx"
-curl -fL --progress-bar \
+curl -fL --progress-bar "${AUTH[@]+"${AUTH[@]}"}" \
   "https://api.bithuman.ai/v1/agent/$CODE/model/download?model=essence-2" \
   -o Sources/Model/agent.imx
 
