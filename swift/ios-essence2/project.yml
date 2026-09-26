@@ -8,7 +8,7 @@ packages:
   bithuman:
     url: https://github.com/bithuman-product/homebrew-bithuman.git
     # 2.14.2 or newer: older tags pin engines that stay idle-only on some iPhones.
-    from: 2.14.2
+    from: 2.17.2
 targets:
   IOSEssence2:
     type: application
@@ -27,7 +27,7 @@ targets:
         buildPhase: resources
     dependencies:
       - package: bithuman
-        product: Essence2
+        product: Essence2Kit
     preBuildScripts:
       - name: "Sources/Model and Sources/EngineResources must hold real files"
         basedOnDependencyAnalysis: false
