@@ -12,7 +12,6 @@
 // in the next iteration; the dart-define stays as the headless/CI path.
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:bithuman/bithuman.dart';
@@ -129,16 +128,11 @@ const _outOfCredits = _Refusal(
   'metering_out_of_credits',
   'this account has no credits remaining',
   'Top up at https://bithuman.ai and the next beat will be accepted.');
-const _unreachable = _Refusal(
-  'metering_unreachable',
-  'the metering service could not be reached, so this session was not registered',
-  'Check this device\'s network. Nothing is wrong with your key — our service did not answer.');
 const _agentDir = String.fromEnvironment('AGENT_DIR');
 /// Android: the identity is fetched BY CODE through the metered door into the SDK's
 /// own store, with this app's credential — there is no container to push. The same
 /// dart-define names the identity on every platform once the Apple half fetches too.
 const _agentCode = String.fromEnvironment('AGENT_CODE', defaultValue: 'A02HCY0444');
-const _mintUrl = 'https://api.bithuman.ai/v1/realtime/ephemeral-token';
 
 /// Text-only mode: `--dart-define=BH_MIC=false` opens a speaker-only session, so
 /// the app never touches the microphone and the OS never asks for permission.
@@ -459,38 +453,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     await _boot();
   }
 
-  Future<String> _mint(String secret) async {
-    HttpClientResponse res;
-    String body;
-    try {
-      final c = HttpClient()..connectionTimeout = const Duration(seconds: 15);
-      final req = await c.postUrl(Uri.parse(_mintUrl));
-      req.headers.set('api-secret', secret);
-      req.headers.contentType = ContentType.json;
-      req.write('{}');
-      res = await req.close();
-      body = await res.transform(utf8.decoder).join();
-    } on SocketException {
-      // ★The service did not answer. This must NEVER read as a rejected key: the
-      // table's note is explicit that our outage must not read as the customer's
-      // revocation, and a published wheel shipped exactly that confusion.
-      throw _unreachable;
-    } on HttpException {
-      throw _unreachable;
-    }
-    if (res.statusCode == 200) {
-      return (jsonDecode(body)['data'] as Map)['value'] as String;
-    }
-    if (res.statusCode == 401 || res.statusCode == 403) throw _credentialRejected;
-    if (res.statusCode == 402) throw _outOfCredits;
-    if (res.statusCode == 429) {
-      throw const _Refusal('token_request_failed', 'a token could not be requested',
-          'Too many sessions were started in the last minute. Wait a moment and try again.');
-    }
-    throw _Refusal('token_request_failed', 'a token could not be requested',
-        'The service answered HTTP ${res.statusCode}.');
-  }
-
   String _describe(RealtimeStatus s) => switch (s) {
         RealtimeStatus.connecting => 'Connecting…',
         RealtimeStatus.open => 'Connected — say something, or type.',
@@ -501,12 +463,12 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         RealtimeStatus.error => 'Connection error.',
       };
 
-  /// One HTTP call with your bitHuman secret; the device only ever holds the one-minute
-  /// "ek_…" that comes back. Called at boot and again after a background stint.
+  /// The session dials bitHuman's realtime relay with your API secret (plugin 2.6.20):
+  /// the conversation is billed to your account, the avatar included, and there is no
+  /// token to mint. Called at boot and again after a background stint.
   Future<void> _openSession(BithumanAvatar avatar, String secret) async {
-    final ek = await _mint(secret);
     final session = BithumanRealtimeSession(
-      apiKey: ek,
+      apiKey: secret,
       model: 'gpt-realtime-mini',
       avatar: avatar,
       systemPrompt: 'You are a friendly bitHuman avatar. Keep every reply to one or two short sentences.',
@@ -514,6 +476,20 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       vadThreshold: 1500,
     );
     session.statusStream.listen((s) { if (mounted) setState(() => _status = _describe(s)); });
+    // The relay's answers a retry cannot fix end the session once, with a reason.
+    session.errorStream.listen((e) {
+      final r = switch (e.code) {
+        'UNAUTHORIZED' || 'FORBIDDEN' => _credentialRejected,
+        'INSUFFICIENT_BALANCE' => _outOfCredits,
+        'PLAN_REQUIRED' => const _Refusal('plan_required', 'this account\'s plan does not include realtime sessions',
+            'Upgrade the plan at https://bithuman.ai, then start again.'),
+        'SESSION_DURATION_LIMIT' => const _Refusal('session_duration_limit', 'the session reached its time limit',
+            'Start a new session.'),
+        _ => _Refusal(e.code.toLowerCase(), 'the realtime session stopped', e.message),
+      };
+      _mark('session:refuse=${e.code}');
+      if (mounted) setState(() { _refusal = r; _needsKey = r.code == _credentialRejected.code; });
+    });
     session.botTranscriptStream.listen((d) { if (mounted) setState(() => _caption = 'agent: $d'); });
     session.userTranscriptStream.listen((t) { if (mounted) setState(() => _caption = 'you: $t'); });
     await session.start(enableMic: _useMic);
