@@ -7,7 +7,7 @@ fetched at runtime.
 | model | coordinate | latest |
 |---|---|---|
 | essence-2 | `ai.bithuman:essence2-android` | **0.8.1** |
-| expression-2 | `ai.bithuman:expression2-android` | **0.5.1** |
+| expression-2 | `ai.bithuman:expression2-android` | **0.5.2** |
 | essence-1 | `ai.bithuman:sdk` | 2.3.7 |
 
 `expression-1` is GPU-only and has no Android coordinate.
@@ -69,7 +69,7 @@ android {
 dependencies {
     implementation("ai.bithuman:essence2-android:0.8.1")
     // and/or
-    implementation("ai.bithuman:expression2-android:0.5.1")
+    implementation("ai.bithuman:expression2-android:0.5.2")
 }
 ```
 
