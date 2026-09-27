@@ -9,28 +9,17 @@ every platform (`package:bithuman/ui_kit.dart`).
 | platform | from a clone | why |
 |---|---|---|
 | **Android** | **builds** — `flutter build apk` | every engine it needs is a public Maven Central coordinate, resolved anonymously by Gradle: `ai.bithuman:expression2-android` and `ai.bithuman:essence2-android`, both pulled in by the plugin this app pins. |
-| **iOS / macOS** | **does not build** | the plugin's Apple half stages its engines from a repository that is not public, so a clone cannot fetch them, and the build then fails at `cannot find 'Expression2Engine' in scope`. There is **no published engine asset for Apple that a clone could use instead**: publishing one is a decision for the owner of that engine, so this cannot be fixed from inside this repository or the plugin. |
+| **iOS / macOS** | **not yet verified for this app** | since plugin 2.6.20 the Apple half links the published engines (a new Flutter app builds for iOS 16+ and macOS 13+ after the plugin's `scripts/bootstrap.sh`), but this app's own iOS/macOS build has not been re-run; for Apple today, build `swift/` in this repository |
 
 That table is the whole truth of this directory. Nothing here fails silently: the build
 stops at the dependency it cannot resolve, and the row above names it.
 
-**So, plainly, today:** you can clone this repository and build and run the Android app on
-a phone, with Expression 2 or Essence 2 and no private access at all. You cannot build this
-Flutter app for iPhone, iPad or Mac from a clone — not because a step is missing from this
-README, but because the Apple engine it needs is not published anywhere you can fetch it.
-For a working on-device app on iPhone or Mac today, build `swift/` in this repository
-instead: it uses the **public** Swift package, which does ship both engines.
+**So, plainly, today:** you can clone this repository and build and run the Android app on a phone, with Expression 2 or Essence 2 and no private access at all. For iPhone, iPad or Mac, the plugin can now fetch its Apple engines from public releases (2.6.20), but this app's own Apple build has not been re-verified; for a working on-device app on iPhone or Mac today, build `swift/` in this repository, which uses the **public** Swift package.
 
 ### Which engine the Android app actually runs
 
 The plugin is pinned by tag in `pubspec.yaml`, and that tag is what fixes the engine
-version. This app pins **`flutter-plugin-v2.6.19`**, which resolves
-**`ai.bithuman:essence2-android:0.8.0`** and **`ai.bithuman:expression2-android:0.5.1`**, Maven
-Central's current release of each (2026-09-26). 2.6.19 moves both Android engines: billing is fixed in
-compiled code and each installation names itself on the meter, and Essence 2 frames reach the screen
-without a CPU copy (zero-copy delivery). Measured on this commit: this app built a release APK
-(`flutter build apk --release --target-platform android-arm64`, rc 0) that resolved 0.8.0 and 0.5.1
-from Maven Central, and each `.so` in it is byte-identical to its published AAR's.
+version. This app pins **`flutter-plugin-v2.6.20`**, which resolves **`ai.bithuman:essence2-android:0.8.1`** and **`ai.bithuman:expression2-android:0.5.2`**, Maven Central's current release of each (2026-09-27). 2.6.20 also moves the voice session to bitHuman's realtime relay: the app passes your API secret and mints no token. Measured on the plugin at this tag (2026-09-27): a release APK built from this app (`flutter build apk --release --target-platform android-arm64`, rc 0) carries `lible_jni.so` and `libexpr2jni.so` byte-identical to the published 0.8.1 and 0.5.2 AARs.
 
 Measured from a clean clone of this repository on 2026-09-23, empty Gradle and pub
 caches, `flutter build apk --release --target-platform android-arm64` against
