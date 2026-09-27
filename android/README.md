@@ -6,7 +6,7 @@ fetched at runtime.
 
 | model | coordinate | latest |
 |---|---|---|
-| essence-2 | `ai.bithuman:essence2-android` | **0.8.0** |
+| essence-2 | `ai.bithuman:essence2-android` | **0.8.1** |
 | expression-2 | `ai.bithuman:expression2-android` | **0.5.1** |
 | essence-1 | `ai.bithuman:sdk` | 2.3.7 |
 
@@ -67,7 +67,7 @@ android {
     packaging { jniLibs { useLegacyPackaging = true } }   // required — see below
 }
 dependencies {
-    implementation("ai.bithuman:essence2-android:0.8.0")
+    implementation("ai.bithuman:essence2-android:0.8.1")
     // and/or
     implementation("ai.bithuman:expression2-android:0.5.1")
 }
