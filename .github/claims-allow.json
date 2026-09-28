@@ -1,0 +1,64 @@
+{
+  "_why": [
+    "Lines scripts/check_claims.py would refuse, that are not claims. Each entry names one file,",
+    "one rule, a substring of the line and the reason. An entry that matches nothing fails the",
+    "check (STALE), and --prove-by-mutation removes each entry in turn and requires the check to",
+    "go RED, so every entry here is load-bearing. Prefer rewording the line over adding an entry."
+  ],
+  "allow": [
+    {
+      "file": "android/essence2-hello/app/src/main/java/com/example/e2hello/MainActivity.kt",
+      "rule": "C2",
+      "contains": "say(\"No API secret. Put",
+      "reason": "the app's own on-screen refusal when the build carries no API secret"
+    },
+    {
+      "file": "android/essence2-hello/README.md",
+      "rule": "C2",
+      "contains": "say(\"No API secret. Put",
+      "reason": "the README quotes MainActivity.kt, including its refusal message"
+    },
+    {
+      "file": "android/expression2-hello/app/src/main/java/com/example/x2hello/MainActivity.kt",
+      "rule": "C2",
+      "contains": "say(\"No API secret. Put",
+      "reason": "the app's own on-screen refusal when the build carries no API secret"
+    },
+    {
+      "file": "android/expression2-hello/app/src/main/java/com/example/x2hello/MainActivity.kt",
+      "rule": "C2",
+      "contains": "Expression2Exception when no API secret is set",
+      "reason": "a code comment describing the engine's refusal"
+    },
+    {
+      "file": "android/expression2-hello/README.md",
+      "rule": "C2",
+      "contains": "say(\"No API secret. Put",
+      "reason": "the README quotes MainActivity.kt, including its refusal message"
+    },
+    {
+      "file": "android/expression2-hello/README.md",
+      "rule": "C2",
+      "contains": "Expression2Exception when no API secret is set",
+      "reason": "the README quotes MainActivity.kt, including this comment"
+    },
+    {
+      "file": "app/avatar_chat/lib/main.dart",
+      "rule": "C2",
+      "contains": "'this account has no credits remaining'",
+      "reason": "the text the app shows when the service refuses a session for an empty balance"
+    },
+    {
+      "file": ".github/workflows/swift-examples.yml",
+      "rule": "C13",
+      "contains": "bitHumanKit.xcframework",
+      "reason": "CI fetches the legacy archive to typecheck the legacy ios-avatar example"
+    },
+    {
+      "file": ".github/workflows/swift-examples.yml",
+      "rule": "C13",
+      "contains": "bitHumanKit which requires macos 13.0",
+      "reason": "a CI comment quoting a SwiftPM error about the legacy ios-avatar package"
+    }
+  ]
+}

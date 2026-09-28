@@ -1,13 +1,13 @@
 #!/bin/bash
-# Fetch the three files the example needs into Model/. Nothing here needs an
-# account, a key or credits: the default identity is in the free showcase.
+# Fetch the three files the example needs into Model/. The default identity is in
+# the public showcase, so these downloads are anonymous; rendering needs your API secret.
 #
 #   ./setup.sh                                      # Wise Pup, the showcase identity
 #   BITHUMAN_API_SECRET=… ./setup.sh <AGENT_CODE>   # your own agent
 set -euo pipefail
 cd "$(dirname "$0")"
 
-SHOWCASE=A23WJF0199          # wise-pup, expression-2, free showcase
+SHOWCASE=A23WJF0199          # wise-pup, expression-2, public showcase
 CODE="${1:-$SHOWCASE}"
 mkdir -p Model
 

@@ -201,7 +201,7 @@ You should see the avatar with mouth movements matching the audio.
 
 ## Running Server and Client on Different Machines
 
-The server (with GPU/model) and client (Java app) can run on separate hosts:
+The server (with the SDK and the model) and client (Java app) can run on separate hosts:
 
 **Server machine** (with bitHuman SDK + model):
 ```bash
@@ -337,7 +337,6 @@ appropriate Java SPI library to the classpath, or pre-convert with `ffmpeg`.
 | Frame rate | the avatar's own: 25 FPS for Essence 2, 20 FPS for Expression 2 — the `connected` message's `video_format.fps` says which |
 | Resolution | Model-dependent (e.g. 1280x2270) |
 | Typical frame size | ~150-200 KB |
-| End-to-end latency | ~200-500 ms from audio input to video output |
 
 ---
 
@@ -446,7 +445,7 @@ ffmpeg -framerate 25 -i frames/frame_%06d.jpg   # 20 for an Expression 2 avatar 
 | No video frames received | No audio being sent | The avatar is idle until it receives audio. Check audio file path. |
 | `UnsupportedAudioFileException` | Unsupported WAV codec | Convert with: `ffmpeg -i input.mp3 -ar 16000 -ac 1 -sample_fmt s16 output.wav` |
 | Garbled/corrupted frames | Network packet loss (rare over TCP) | Check server logs for errors. Ensure WebSocket message size limit is sufficient. |
-| High latency | Network distance or slow model | Run server close to client. CPU-only mode is slower than GPU. |
+| High latency | Network distance, or a busy server | Run the server close to the client. How fast each model renders on each machine: [Performance](https://docs.bithuman.ai/performance). |
 | `Model path required` | Missing `--model` argument | Pass `--model /path/to/avatar.imx` or set `BITHUMAN_MODEL_PATH` env |
 | `API secret required: export BITHUMAN_API_SECRET …` | Missing credentials | Set `BITHUMAN_API_SECRET` in the environment |
 | Server exits immediately | Invalid model or credentials | Check the server logs for authentication or model loading errors |

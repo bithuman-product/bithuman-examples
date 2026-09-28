@@ -122,4 +122,4 @@ python upload.py --file ./local-image.png
 
 - **Base URL**: `https://api.bithuman.ai`
 - **Auth**: `api-secret` header on every request
-- **Full docs**: [docs.bithuman.ai/api-reference](https://docs.bithuman.ai/api-reference/overview)
+- **Full docs**: [docs.bithuman.ai/api](https://docs.bithuman.ai/api)

@@ -1,0 +1,57 @@
+# claims and links — what this public repository says about bitHuman stays true, and
+# every bitHuman link in it resolves.
+#
+# claims  scripts/check_claims.py refuses the sentences the product cannot back (a free-plan
+#         promise, idle billed as free, offline Macs, the legacy Swift umbrella shown as
+#         current, ...). Allowed exceptions live in .github/claims-allow.json, each with a
+#         reason; an entry that matches nothing fails.
+# links   scripts/check_links.py fetches every docs.bithuman.ai / www.bithuman.ai URL
+#         (redirects followed, final answer 200, #anchors checked on docs pages) and
+#         resolves every relative Markdown link.
+#
+# Both prove themselves first (--prove-by-mutation): each rule must turn RED on a planted
+# line, and every allow entry must be load-bearing. A check that has never been seen to
+# fail is not evidence.
+#
+# The daily run matters for links: the docs move without a commit here.
+name: claims and links
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '40 13 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  claims:
+    name: no refused claim in the tree
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: the check proves itself (every rule RED on a planted line)
+        run: python3 scripts/check_claims.py --prove-by-mutation
+      - name: grade the tracked tree
+        run: python3 scripts/check_claims.py
+
+  links:
+    name: every bitHuman link resolves
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: the check proves itself (a 404, a missing anchor, a broken relative link)
+        run: python3 scripts/check_links.py --prove-by-mutation
+      - name: grade the tracked tree
+        run: python3 scripts/check_links.py

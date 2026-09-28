@@ -7,8 +7,8 @@ options:
 packages:
   bithuman:
     url: https://github.com/bithuman-product/homebrew-bithuman.git
-    # 2.14.2 or newer: older tags pin engines that stay idle-only on some iPhones.
-    from: 2.17.2
+    # 2.18.0 or newer: the floor docs.bithuman.ai/versions.json names; older tags pin older engines.
+    from: 2.18.0
 targets:
   IOSEssence2:
     type: application

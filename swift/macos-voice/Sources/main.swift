@@ -1,8 +1,8 @@
 // MacOSVoice -- Minimal macOS voice-only agent (no avatar).
 //
 // Demonstrates VoiceChat + VoiceChatConfig for an audio-only
-// conversational agent. All inference runs on-device: speech
-// recognition, LLM, and text-to-speech. No API secret required.
+// conversational agent. Speech recognition, the LLM and text-to-speech
+// run on the Mac. Legacy: bitHumanKit 2.4.0 is frozen; see README.md.
 //
 // Run:  swift run MacOSVoice
 // Stop: Ctrl-C or close the window.

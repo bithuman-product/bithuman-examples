@@ -9,15 +9,15 @@ It uses the `Essence2Kit` product: `Essence2Engine.frames(following: player)` ha
 25 frames a second, idle motion between replies and a reply's frames as the audio player
 plays them, so the lips stay on the voice for the whole reply.
 
-The docs page is <https://docs.bithuman.ai/examples/swift-ios-essence2>.
+The docs page is <https://docs.bithuman.ai/examples/ios-essence-2>.
 
 ## What you need
 
 - A Mac with **Xcode 26 or newer**, and an Apple Developer team.
 - A **physical iPhone or iPad** with Apple silicon on **iOS 26**. The Simulator cannot
   run this engine. No Apple entitlement is needed.
-- A bitHuman **API secret** (free: [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys)).
-  The engine bills the session to it ([pricing](https://docs.bithuman.ai/guides/pricing)). The downloads need no key.
+- A bitHuman **API secret** from [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys) (Creator plan or higher from 12 October 2026).
+  The engine bills the session to it ([pricing](https://docs.bithuman.ai/pricing)). The downloads need no key.
 - About 430 MB free on the phone and 380 MB on the Mac.
 
 ## Run it

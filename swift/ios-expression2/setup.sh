@@ -1,13 +1,13 @@
 #!/bin/bash
 # Fetch the three things the app needs into Sources/Model/.
-# Usage:  ./setup.sh                                   # the free showcase identity, no account
+# Usage:  ./setup.sh                                   # the public showcase identity, anonymous download
 #         BITHUMAN_API_SECRET=… ./setup.sh <AGENT_CODE>  # your own agent
 set -euo pipefail
 cd "$(dirname "$0")"
 
-# The default is Wise Pup (A23WJF0199), an expression-2 identity in the free
+# The default is Wise Pup (A23WJF0199), an expression-2 identity in the public
 # gallery: `GET /v1/agent/<CODE>/model/download` serves a gallery identity to
-# anyone, so the no-argument path needs no account, no key and no credits.
+# anyone, so the no-argument download is anonymous. Rendering needs your API secret.
 # `bithuman list` shows the whole gallery if you want a different face.
 SHOWCASE_CODE="A23WJF0199"
 CODE="${1:-$SHOWCASE_CODE}"
@@ -34,7 +34,7 @@ AUTH=()
 if [ -n "${BITHUMAN_API_SECRET:-}" ]; then
   AUTH=(-H "api-secret: $BITHUMAN_API_SECRET")
 elif [ "$CODE" != "$SHOWCASE_CODE" ]; then
-  echo "set BITHUMAN_API_SECRET to fetch your own agent ($CODE), or run with no argument for the free showcase identity"
+  echo "set BITHUMAN_API_SECRET to fetch your own agent ($CODE), or run with no argument for the public showcase identity"
   exit 2
 fi
 echo "==> downloading $CODE.avatar"

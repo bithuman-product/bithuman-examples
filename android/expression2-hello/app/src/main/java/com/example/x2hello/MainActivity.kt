@@ -100,7 +100,7 @@ class MainActivity : Activity() {
     private fun renderOnce() {
         val secret = BuildConfig.BITHUMAN_API_SECRET
         if (secret.isBlank()) {
-            say("No API secret. Put\n\nbithuman.apiSecret=<your API secret>\n\nin local.properties (or export BITHUMAN_API_SECRET) and rebuild. From expression2-android 0.4.9 the engine meters the talking time it renders and create() refuses without a key.")
+            say("No API secret. Put\n\nbithuman.apiSecret=<your API secret>\n\nin local.properties (or export BITHUMAN_API_SECRET) and rebuild. From expression2-android 0.4.9 the engine meters each session it renders and create() refuses without a key.")
             return
         }
         // The METER, before anything opens an engine: from 0.4.9 create() throws

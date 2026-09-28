@@ -1,14 +1,18 @@
-# ios-avatar — the `bitHumanKit` voice agent on iPhone and iPad
+# ios-avatar — `bitHumanKit` on iPhone and iPad (legacy)
 
-A whole conversation on the device — speech recognition, a language model,
-speech synthesis and a lip-synced avatar — from one product, `bitHumanKit`.
+> **Legacy.** This example uses `bitHumanKit` 2.4.0, the frozen first-generation Apple
+> package, and is kept for existing apps. A new iPhone or iPad app renders the avatar
+> with [`ios-expression2`](../ios-expression2) or [`ios-essence2`](../ios-essence2) and
+> takes its conversation from your own speech, language-model and voice services.
+
+The source of a SwiftUI app built on the legacy `bitHumanKit` umbrella, kept for
+existing apps.
 
 **This directory is source to read and copy, not a project to run.** It is a
 SwiftPM package, and a SwiftPM `.executableTarget` builds no `.app`: there is no
 scheme to run on a phone and no *Signing & Capabilities* tab. To put this on a
 device, make an app project of your own, add the package to it and paste
-`Sources/IOSAvatarApp.swift` in. The whole path, step by step, is at
-[docs.bithuman.ai/examples/swift-ios-voice-agent](https://docs.bithuman.ai/examples/swift-ios-voice-agent).
+`Sources/IOSAvatarApp.swift` in.
 
 For an avatar you can build and run on a phone today, with no device floor and
 no entitlement, take [`ios-expression2`](../ios-expression2) instead — it ships
@@ -16,7 +20,7 @@ a real Xcode project.
 
 ## Before you clone this
 
-This is the most demanding Apple path bitHuman has. In order, because Apple's
+This is the most demanding Apple path, and it is legacy. In order, because Apple's
 reply is the long pole:
 
 1. **Request two Apple entitlements.** developer.apple.com → Account →
@@ -36,13 +40,13 @@ reply is the long pole:
    (16 GB), on iOS or iPadOS 26 or newer. `HardwareCheck.evaluate()` refuses
    anything else at launch: iPhone 15 Pro and earlier, iPhone 16 and 16 Plus,
    iPad Air M2 and M3, iPad Pro M1 and M2. The Simulator cannot stand in.
-3. **Get an API secret** — free at
-   [Developer → API Secrets](https://www.bithuman.ai/developer/api-keys). Set
+3. **Get an API secret** at
+   [Developer → API Secrets](https://www.bithuman.ai/developer/api-keys) (Creator plan
+   or higher from 12 October 2026). Set
    `BITHUMAN_API_SECRET` in your scheme under *Product → Scheme → Edit Scheme →
    Run → Arguments → Environment Variables*, never in source. The app reads it
    and hands it to `bitHumanKit` as `config.apiKey` (a field that keeps its
    published name).
-   Avatar mode is metered; the voice-only path is not.
 4. **Leave room.** The first launch downloads about 1.6 GB of weights.
 
 ## Files
@@ -55,5 +59,4 @@ reply is the long pole:
 
 ## Documentation
 
-- [Swift / iOS — Hello, avatar](https://docs.bithuman.ai/examples/swift-ios-voice-agent) — the whole path, every file
-- [Apple SDK](https://docs.bithuman.ai/sdk/apple) · [Apple API reference](https://docs.bithuman.ai/sdk/apple-api)
+- [Apple SDK](https://docs.bithuman.ai/platforms/ios) · [Apple API reference](https://docs.bithuman.ai/platforms/swift/reference)

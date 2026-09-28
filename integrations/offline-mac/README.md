@@ -1,12 +1,14 @@
-# bitHuman Visual Agent App - Local on macOS
+# bitHuman Visual Agent App - a local conversation brain on macOS
 
-A local deployment of bitHuman's AI visual agent running on Apple M2+/M3/M4 devices with real-time conversation capabilities. Everything runs locally: Apple Speech Recognition (STT), Ollama LLM, Apple Voices/Siri (TTS), LiveKit, and bitHuman SDK. Note: the bitHuman API secret requires periodic internet access for authentication.
+An avatar agent on Apple M2+/M3/M4 Macs whose conversation runs on the Mac: Apple Speech Recognition (STT), an Ollama language model, Apple Voices/Siri (TTS) and LiveKit all run locally, and the bitHuman SDK renders the avatar locally.
+
+**It needs the internet for bitHuman.** The avatar checks your API secret when a session starts and reports usage (never audio, video or conversation text). Offline licenses are for Linux PCs and terminals, Business and Enterprise only; a Mac stays online. See [Fully offline](https://docs.bithuman.ai/deploy/offline).
 
 ## What You Need
 
 **For M2+/M3/M4 macOS devices:**
 - Docker and Docker Compose (**We strongly recommend [OrbStack](https://orbstack.dev/) for better performance and easier management**)
-- `BITHUMAN_MASTER_SECRET` — your API secret (requires periodic internet access), or an offline licence (`BITHUMAN_LICENSE_FILE`) for 100% internet-free operation — Business/Enterprise only, see [offline licensing](https://docs.bithuman.ai/guides/pricing#offline-licensing)
+- `BITHUMAN_MASTER_SECRET` — your API secret (Creator plan or higher from 12 October 2026)
 - `.imx` model files (place in `./models/` directory)
 - Python 3.10+ for bitHuman's Apple plugin
 - [Ollama](https://ollama.com/) for local LLM
@@ -72,9 +74,6 @@ BITHUMAN_MASTER_SECRET=<your API secret>
 LIVEKIT_API_SECRET=<a long random string>
 ```
 
-For an offline licence instead of periodic internet access, mount the licence file
-into the `agent` container and add `BITHUMAN_LICENSE_FILE=/path/in/container/licence.bhl`.
-
 Optional environment variables for custom service URLs:
 
 ```bash
@@ -109,7 +108,7 @@ Open http://localhost:4202 in your browser.
 
 ## That's It!
 
-Now you have a **locally-running AI agent** on your Mac! The system includes:
+Now you have an avatar agent whose conversation runs on your Mac. The system includes:
 
 **Local Services:**
 - **Apple Speech Recognition**: Local STT via bitHuman's Apple plugin
@@ -120,9 +119,9 @@ Now you have a **locally-running AI agent** on your Mac! The system includes:
 - **Frontend**: Web interface
 - **Redis**: Message broker
 
-**100% Offline Mode:**
-- **API secret**: requires periodic internet access for authentication and metering.
-- **Offline licence** (`BITHUMAN_LICENSE_FILE`): for complete internet-free operation. Business and Enterprise only — see [offline licensing](https://docs.bithuman.ai/guides/pricing#offline-licensing).
+**What needs the internet:**
+- **The avatar**: your API secret is checked when a session starts, and usage is reported (no audio, video or conversation text). A session keeps rendering through a network drop of up to 5 minutes.
+- **Everything else** (speech recognition, the language model, the voice, LiveKit) runs on the Mac.
 
 ## Development
 

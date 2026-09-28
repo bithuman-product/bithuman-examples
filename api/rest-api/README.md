@@ -142,7 +142,7 @@ The full machine-readable API specification is available at:
 
 ## Documentation
 
-- [API reference](https://docs.bithuman.ai/api-reference/overview)
-- [Authentication](https://docs.bithuman.ai/getting-started/authentication)
-- [Pricing](https://docs.bithuman.ai/getting-started/pricing)
+- [API reference](https://docs.bithuman.ai/api)
+- [Authentication](https://docs.bithuman.ai/start/api-secret)
+- [Pricing](https://docs.bithuman.ai/pricing)
 - [llms.txt](https://docs.bithuman.ai/llms.txt) / [llms-full.txt](https://docs.bithuman.ai/llms-full.txt)

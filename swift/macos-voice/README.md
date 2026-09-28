@@ -1,8 +1,13 @@
-# macos-voice — a voice agent on your Mac
+# macos-voice — a voice agent on your Mac (legacy)
+
+> **Legacy.** This example uses `bitHumanKit` 2.4.0, the frozen first-generation Apple
+> package. It is kept for existing apps. For an avatar on a Mac, start from
+> [`macos-expression2`](../macos-expression2); for a desktop companion whose speech
+> recognition, language model and voice run on the Mac, see the CLI's
+> [local conversation brain](https://docs.bithuman.ai/platforms/cli/local-brain).
 
 A SwiftUI app that listens, thinks and answers out loud, with every step on the
-device: speech recognition, the language model and speech synthesis. No avatar,
-no account, no key, no credits.
+device: speech recognition, the language model and speech synthesis. No avatar.
 
 ## Run it
 
@@ -14,8 +19,7 @@ Or open this directory in Xcode (*File → Open*, select the folder holding
 `Package.swift`) and press Run. Grant the microphone when macOS asks.
 
 The first launch downloads the language-model and speech weights into
-`~/.cache/huggingface/hub/` — about 3 GB. Later launches start straight away,
-and nothing goes over the network once the weights are there.
+`~/.cache/huggingface/hub/` — about 3 GB. Later launches start straight away.
 
 ## What it does
 
@@ -35,5 +39,5 @@ For the same thing with no window at all, see
 
 ## Documentation
 
-- [Apple SDK](https://docs.bithuman.ai/sdk/apple)
-- [Apple API reference](https://docs.bithuman.ai/sdk/apple-api)
+- [Apple SDK](https://docs.bithuman.ai/platforms/ios)
+- [Apple API reference](https://docs.bithuman.ai/platforms/swift/reference)

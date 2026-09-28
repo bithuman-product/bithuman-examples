@@ -9,7 +9,7 @@
 //          native rate), drawn in SwiftUI, paced on the audio clock.
 //
 // Nothing here is bitHuman-internal: every call is public API of the shipped
-// binary. See https://docs.bithuman.ai/examples/swift-ios-expression2
+// binary. See https://docs.bithuman.ai/examples/ios-expression-2
 
 import SwiftUI
 import AVFoundation

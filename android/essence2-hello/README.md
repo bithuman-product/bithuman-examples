@@ -2,11 +2,11 @@
 
 A complete Android app that renders a talking Essence 2 avatar **on the phone**:
 it reads `speech.wav` from its own external files directory, downloads
-`A52DHS2219` (Sofia Ramirez, a free showcase identity) once through the SDK's model store, renders every frame of the clip on
+`A52DHS2219` (Sofia Ramirez, a public showcase identity) once through the SDK's model store, renders every frame of the clip on
 the device, then plays the audio and shows each frame on the audio clock.
 
 Its page on the docs site, with the app running on a Galaxy S25+, is
-[Android example: Essence 2](https://docs.bithuman.ai/examples/android-essence2). It resolves one coordinate, `ai.bithuman:essence2-android:0.5.14`, from
+[Android example: Essence 2](https://docs.bithuman.ai/examples/android-essence-2). It resolves one coordinate, `ai.bithuman:essence2-android:0.5.14`, from
 Maven Central, and nothing else from bitHuman.
 
 ## What you need
@@ -15,8 +15,8 @@ Maven Central, and nothing else from bitHuman.
   ships no x86_64 code, so an emulator installs and then fails.
 - **JDK 17**, and an Android SDK with platform 35 (`minSdk` here is 29).
 - `adb` on your `PATH` (it ships in `$ANDROID_HOME/platform-tools`).
-- A **bitHuman API secret**. A free one:
-  [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys).
+- A **bitHuman API secret** from
+  [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys) (Creator plan or higher from 12 October 2026).
   The app sets it once from `BuildConfig` with `Essence2Credential.set(secret)`, which covers the model download and the meter.
 
 ## Run it

@@ -9,8 +9,8 @@ All Python examples use `pip install bithuman`. Pick the one that matches where 
 | Fastest cloud demo (no GPU) | [cloud-essence/](cloud-essence/) | API secret + agent ID |
 | A voice agent on my own machine: my own LiveKit server, OpenAI Realtime, the avatar rendered here | [self-host/](self-host/) | API secret + OpenAI key; Python 3.10–3.14 |
 | Talk to an avatar in a terminal window, no LiveKit | [quickstart/conversation.py](quickstart/) | API secret + OpenAI key |
-| Other self-hosting options (containers, GPU servers) | [Self-hosting guide ↗](https://docs.bithuman.ai/guides/self-hosting) | varies |
-| Run on Mac M3+ | [Swift SDK examples ↗](../swift/) | Apple Silicon M3+ |
+| Other ways to run it on your own servers (Mac or Linux, no GPU needed) | [Your servers ↗](https://docs.bithuman.ai/deploy/self-hosted) | varies |
+| A Mac, iPhone or iPad app | [Swift examples ↗](../swift/) | Apple silicon; an API secret |
 
 ## Learning path
 
@@ -58,11 +58,11 @@ and this copy went stale.
 |---|---|---|
 | Avatar source | an avatar file from [bithuman.ai](https://www.bithuman.ai/#explore) | an avatar file, or any face image |
 | Showcase avatar to try | `sofia-ramirez` | `wise-pup` |
-| Pricing | [docs.bithuman.ai/guides/pricing ↗](https://docs.bithuman.ai/guides/pricing) | same page |
+| Pricing | [docs.bithuman.ai/pricing ↗](https://docs.bithuman.ai/pricing) | same page |
 
 ## Documentation
 
-- [Python quickstart](https://docs.bithuman.ai/getting-started/quickstart)
-- [Python SDK](https://docs.bithuman.ai/sdk/python)
-- [Self-hosting](https://docs.bithuman.ai/guides/self-hosting)
-- [LiveKit plugin](https://docs.bithuman.ai/sdk/livekit)
+- [Python quickstart](https://docs.bithuman.ai/platforms/python)
+- [Python SDK](https://docs.bithuman.ai/platforms/python)
+- [Self-hosting](https://docs.bithuman.ai/deploy/self-hosted)
+- [LiveKit plugin](https://docs.bithuman.ai/platforms/livekit)

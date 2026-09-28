@@ -2,11 +2,11 @@
 
 A complete Android app that renders a talking Expression 2 avatar **on the phone**:
 it reads `speech.wav` from its own external files directory, downloads
-`A23WJF0199` (Wise Pup, a free showcase identity) once through the SDK's model store, renders every frame of the clip on
+`A23WJF0199` (Wise Pup, a public showcase identity) once through the SDK's model store, renders every frame of the clip on
 the device, then plays the audio and shows each frame on the audio clock.
 
 Its page on the docs site, with the app running on a Galaxy S25+, is
-[Android example: Expression 2](https://docs.bithuman.ai/examples/android-expression2). It resolves one coordinate, `ai.bithuman:expression2-android:0.4.9`, from
+[Android example: Expression 2](https://docs.bithuman.ai/examples/android-expression-2). It resolves one coordinate, `ai.bithuman:expression2-android:0.4.9`, from
 Maven Central, and nothing else from bitHuman.
 
 ## What you need
@@ -15,9 +15,9 @@ Maven Central, and nothing else from bitHuman.
   ships no x86_64 code, so an emulator installs and then fails.
 - **JDK 17**, and an Android SDK with platform 35 (`minSdk` here is 26).
 - `adb` on your `PATH` (it ships in `$ANDROID_HOME/platform-tools`).
-- A **bitHuman API secret**. A free one:
-  [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys).
-  From `expression2-android` 0.4.9 the engine meters the talking time it renders, so `Expression2Avatar.create` throws `Expression2Exception` unless an API secret is set. The app sets it from `BuildConfig` with `Expression2Credential.set(secret)` before `create`. The model download itself stays anonymous.
+- A **bitHuman API secret** from
+  [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys) (Creator plan or higher from 12 October 2026).
+  From `expression2-android` 0.4.9 the engine meters each session it renders, so `Expression2Avatar.create` throws `Expression2Exception` unless an API secret is set. The app sets it from `BuildConfig` with `Expression2Credential.set(secret)` before `create`. The model download itself stays anonymous.
 
 ## Run it
 
@@ -241,7 +241,7 @@ class MainActivity : Activity() {
     private fun renderOnce() {
         val secret = BuildConfig.BITHUMAN_API_SECRET
         if (secret.isBlank()) {
-            say("No API secret. Put\n\nbithuman.apiSecret=<your API secret>\n\nin local.properties (or export BITHUMAN_API_SECRET) and rebuild. From expression2-android 0.4.9 the engine meters the talking time it renders and create() refuses without a key.")
+            say("No API secret. Put\n\nbithuman.apiSecret=<your API secret>\n\nin local.properties (or export BITHUMAN_API_SECRET) and rebuild. From expression2-android 0.4.9 the engine meters each session it renders and create() refuses without a key.")
             return
         }
         // The METER, before anything opens an engine: from 0.4.9 create() throws

@@ -1,4 +1,9 @@
-# hello-voice-chat — the smallest `bitHumanKit` program
+# hello-voice-chat — the smallest `bitHumanKit` program (legacy)
+
+> **Legacy.** This example uses `bitHumanKit` 2.4.0, the frozen first-generation Apple
+> package. It is kept for existing apps. A new app starts from
+> [`macos-expression2`](../macos-expression2), [`ios-expression2`](../ios-expression2) or
+> [`ios-essence2`](../ios-essence2).
 
 Twenty lines: a voice agent with no window, no avatar and no key. Speech
 recognition, the language model and speech synthesis all run on the device.
@@ -22,4 +27,3 @@ prompt — before you hand it to `VoiceChat`. For the same agent in a window, se
 - An Apple Silicon Mac, M3 or newer, on macOS 26 or newer.
 - Xcode 26 or newer, a microphone, and about 3 GB of disk.
 
-No account, no key, no credits: the voice-only path is unmetered.

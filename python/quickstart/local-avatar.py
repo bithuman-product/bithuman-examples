@@ -1,8 +1,9 @@
 """Play an audio file through an avatar running on this machine, in a window.
 
-Nothing is sent anywhere to make a frame: the model runs in this process.
+The avatar renders in this process. What reaches bitHuman is the credential check,
+the one-time model download and usage reports, never the audio or the frames.
 
-    export BITHUMAN_API_SECRET=...        # free at https://www.bithuman.ai
+    export BITHUMAN_API_SECRET=...        # from https://www.bithuman.ai/developer/api-keys
     pip install -r requirements.txt
 
     python local-avatar.py                                  # downloads a sample avatar
@@ -22,8 +23,8 @@ import cv2
 
 import bithuman
 
-# "Sofia Ramirez" — an Essence 2 avatar in the free gallery, so this download
-# needs no account. `bithuman list` shows the rest of the gallery.
+# "Sofia Ramirez" — an Essence 2 avatar in the public gallery, so this download
+# is anonymous. `bithuman list` shows the rest of the gallery.
 SAMPLE_CODE = "A52DHS2219"
 SAMPLE_URL = f"https://api.bithuman.ai/v1/agent/{SAMPLE_CODE}/model/download?model=essence-2"
 
@@ -104,7 +105,7 @@ def main() -> None:
 
     if not os.environ.get("BITHUMAN_API_SECRET"):
         sys.exit(
-            "Set BITHUMAN_API_SECRET first — it is free at\n"
+            "Set BITHUMAN_API_SECRET first — create one at\n"
             "https://www.bithuman.ai → Developer → API Secrets:\n\n"
             "    export BITHUMAN_API_SECRET='your_key'"
         )
