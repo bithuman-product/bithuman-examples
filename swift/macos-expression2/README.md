@@ -1,10 +1,11 @@
 # macos-expression2 — an Expression 2 avatar on your Mac
 
 A small command-line tool: a 16 kHz WAV goes in, lip-synced frames come out,
-all on this machine. No server. From package 2.14.2 it needs your API secret
-(`export BITHUMAN_API_SECRET=…`, a free key at
-[bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys)): the
-engine bills the talking time it renders, and idle is free.
+rendered on this machine. It needs your API secret
+(`export BITHUMAN_API_SECRET=…`; create one at
+[bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys), Creator plan
+or higher from 12 October 2026): the engine checks it when the session starts and bills
+active session time ([pricing](https://docs.bithuman.ai/pricing)).
 
 This is the shortest native Apple path there is. The same `Expression2` product
 and the same three calls — `create`, `feed`, `pull` — also run on an iPhone; see
@@ -30,7 +31,7 @@ None of them is committed.
 ## Measured
 
 On a MacBook Pro (Apple M4 Max, macOS 26.5, Xcode 26.5, Swift 6.3.2) on
-2026-09-22, against the free showcase identity `A23WJF0199`, with the machine
+2026-09-22, against the public showcase identity `A23WJF0199`, with the machine
 busy with other work:
 
 ```

@@ -6,11 +6,11 @@ audio clock, with no server in the loop.
 
 It is deliberately the cheap Apple path:
 
-| | this example | [`ios-avatar`](../ios-avatar) (the `bitHumanKit` umbrella) |
+| | this example | [`ios-avatar`](../ios-avatar) (the legacy `bitHumanKit` umbrella) |
 |---|---|---|
 | device floor | none — measured on an **iPhone 15** | iPhone 16 Pro or later |
 | Apple entitlements | none | two, 1–3 business days to approve |
-| account or key | none, for a showcase identity | yes |
+| API secret | yes | yes |
 | first-launch download | none — the model ships inside the app | ~1.6 GB |
 | what drives it | a bundled WAV, or your microphone | on-device speech, a language model and speech synthesis |
 
@@ -19,7 +19,7 @@ it** (microphone) path builds and installs with it but has never been driven by
 a human voice on a device — it is a fifteen-line starting point, not a result.
 
 The docs page, with the app running on an iPhone, is
-<https://docs.bithuman.ai/examples/swift-ios-expression2>.
+<https://docs.bithuman.ai/examples/ios-expression-2>.
 
 ## What you need
 
@@ -30,10 +30,11 @@ The docs page, with the app running on an iPhone, is
   graphs: `brew install bithuman-product/bithuman/bithuman-cli`. `setup.sh`
   checks for it before it downloads anything.
 
-- A bitHuman **API secret** to render (free: [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys)).
-  The engine bills talking time; idle is free. The download needs no key:
-  `setup.sh` defaults to `A23WJF0199` (*Wise Pup*), an identity in the free
-  showcase. Pass your own agent's code to render your own identity instead.
+- A bitHuman **API secret** to render, from [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys)
+  (Creator plan or higher from 12 October 2026). The engine bills active session time,
+  talking or idle. The download is anonymous: `setup.sh` defaults to `A23WJF0199`
+  (*Wise Pup*), an identity in the public showcase. Pass your own agent's code to
+  render your own identity instead.
 
 ## Run it
 
@@ -41,7 +42,7 @@ The docs page, with the app running on an iPhone, is
 git clone https://github.com/bithuman-product/bithuman-examples.git
 cd bithuman-examples/swift/ios-expression2
 
-# 1. fetch the payload into Sources/Model/  (anonymous — no account, no key)
+# 1. fetch the payload into Sources/Model/  (an anonymous download)
 ./setup.sh
 #    …or your own agent:
 #    BITHUMAN_API_SECRET=… ./setup.sh <YOUR_AGENT_CODE>
@@ -50,9 +51,9 @@ cd bithuman-examples/swift/ios-expression2
 open IOSExpression2.xcodeproj
 ```
 
-**Set your API secret before you Run.** From package 2.14.2 the engine bills the
-session it renders (talking time only) and `create` refuses without a key —
-*"refusing to serve: no API secret was found, …"*. In Xcode: *Product → Scheme →
+**Set your API secret before you Run.** The engine bills the session it renders and
+`create` refuses without a key —
+*"refusing to serve: no API secret was found, …"* <!-- claims-check-ignore: the engine's own refusal, quoted -->. In Xcode: *Product → Scheme →
 Edit Scheme → Run → Environment Variables*, add `BITHUMAN_API_SECRET`. The download
 above stays anonymous; only rendering needs the key. An app you ship calls
 `Expression2Credential.set(key)` with a key from your backend or the Keychain.

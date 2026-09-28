@@ -10,13 +10,13 @@ fetched at runtime.
 | expression-2 | `ai.bithuman:expression2-android` | **0.5.2** |
 | essence-1 | `ai.bithuman:sdk` | 2.3.7 |
 
-`expression-1` is GPU-only and has no Android coordinate.
+`expression-1` runs in the bitHuman cloud only and has no Android coordinate.
 
-**Both second-generation SDKs need a bitHuman API secret.** They meter the talking
-time they render, and from `expression2-android` 0.4.9 Expression 2 does too:
+**Both second-generation SDKs need a bitHuman API secret.** They meter each session's
+active time, talking or idle, and from `expression2-android` 0.4.9 Expression 2 does too:
 `Expression2Avatar.create` throws `Expression2Exception` unless
 an API secret is set: `Expression2Credential.set(secret)` (Essence 2: `Essence2Credential.set(secret)`).
-A free key: [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys).
+Create one at [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys); from 12 October 2026 API and SDK use requires the Creator plan or higher. For an app you distribute, read "What a shipped app holds" in the [top-level README](../README.md#your-api-secret).
 
 ## Two complete apps
 
@@ -35,7 +35,7 @@ frame with `be_auth_authenticate: status=11`, because its native library ships
 with no CA trust store and there is no app-side workaround on that version. It is
 also a different integration — a `.imx` you push to the device yourself plus an
 API secret, rather than the model store the two rows above use. Details on
-[Android SDK](https://docs.bithuman.ai/sdk/android#troubleshooting).
+[Android SDK](https://docs.bithuman.ai/platforms/android#troubleshooting).
 
 Verified against `repo1.maven.org` on 2026-09-22: each artifact's own
 `maven-metadata.xml` names exactly these as `<release>`. That file is the
@@ -126,7 +126,7 @@ That check is also how you catch an accidental downgrade. An older coordinate
 still resolves, still compiles and still renders — it renders *differently*, and
 almost none of the differences throws. The per-version table of what silently
 changes is on
-[Pin the version](https://docs.bithuman.ai/sdk/android#pin-the-version).
+[Pin the version](https://docs.bithuman.ai/platforms/android#install).
 
 ## Release builds — nothing to add, from `essence2-android` 0.5.13
 
@@ -161,12 +161,12 @@ file's native-methods rule into your own:
 ```
 
 Full detail on
-[Android SDK: platform notes](https://docs.bithuman.ai/sdk/android#platform-notes).
+[Android SDK: platform notes](https://docs.bithuman.ai/platforms/android#platform-notes).
 
 ## Where the docs pages point
 
-The docs pages [Android example: Expression 2](https://docs.bithuman.ai/examples/android-expression2)
-and [Android example: Essence 2](https://docs.bithuman.ai/examples/android-essence2)
+The docs pages [Android example: Expression 2](https://docs.bithuman.ai/examples/android-expression-2)
+and [Android example: Essence 2](https://docs.bithuman.ai/examples/android-essence-2)
 send readers to the two projects above, with the apps running on a Galaxy S25+.
 Both projects are built on every change by
 [`.github/workflows/android-examples.yml`](../.github/workflows/android-examples.yml),
@@ -175,8 +175,8 @@ repository's `main` every day.
 
 ## See also
 
-- [Android SDK](https://docs.bithuman.ai/sdk/android) — install, code, model, key
-- [Android API reference](https://docs.bithuman.ai/sdk/android-api) — every public
+- [Android SDK](https://docs.bithuman.ai/platforms/android) — install, code, model, key
+- [Android API reference](https://docs.bithuman.ai/platforms/android/reference) — every public
   class, regenerated daily from the AARs Maven Central serves
 - [`app/avatar_chat`](../app/avatar_chat/) — the one clonable app in this
   repository that runs on an Android handset

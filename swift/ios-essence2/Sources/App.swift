@@ -10,7 +10,7 @@
 // `Essence2Engine.frames(following: player)` hands out 25 frames a second: idle
 // motion between replies, and a reply's frames as the player plays their audio,
 // so the lips stay on the voice for the whole reply.
-// See https://docs.bithuman.ai/examples/swift-ios-essence2
+// See https://docs.bithuman.ai/examples/ios-essence-2
 
 import SwiftUI
 import AVFoundation

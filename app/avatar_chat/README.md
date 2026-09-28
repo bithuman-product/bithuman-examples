@@ -1,6 +1,6 @@
-# avatar_chat — the one Flutter app (macOS · iOS · Android)
+# avatar_chat — a Flutter avatar app (Android)
 
-Clone, add your API secret, run, talk to an avatar on a real device. The avatar is the
+Clone, add your API secret, run, talk to an avatar on a real device. The API secret needs the Creator plan or higher from 12 October 2026, and sessions bill active session time ([pricing](https://docs.bithuman.ai/pricing)). The avatar is the
 interface: full-screen picture, translucent glass chrome that hides itself, one layout on
 every platform (`package:bithuman/ui_kit.dart`).
 
@@ -16,24 +16,13 @@ stops at the dependency it cannot resolve, and the row above names it.
 
 **So, plainly, today:** you can clone this repository and build and run the Android app on a phone, with Expression 2 or Essence 2 and no private access at all. For iPhone, iPad or Mac, the plugin can now fetch its Apple engines from public releases (2.6.20), but this app's own Apple build has not been re-verified; for a working on-device app on iPhone or Mac today, build `swift/` in this repository, which uses the **public** Swift package.
 
-### Which engine the Android app actually runs
+### Which engine the Android app runs
 
-The plugin is pinned by tag in `pubspec.yaml`, and that tag is what fixes the engine
-version. This app pins **`flutter-plugin-v2.6.20`**, which resolves **`ai.bithuman:essence2-android:0.8.1`** and **`ai.bithuman:expression2-android:0.5.2`**, Maven Central's current release of each (2026-09-27). 2.6.20 also moves the voice session to bitHuman's realtime relay: the app passes your API secret and mints no token. Measured on the plugin at this tag (2026-09-27): a release APK built from this app (`flutter build apk --release --target-platform android-arm64`, rc 0) carries `lible_jni.so` and `libexpr2jni.so` byte-identical to the published 0.8.1 and 0.5.2 AARs.
-
-Measured from a clean clone of this repository on 2026-09-23, empty Gradle and pub
-caches, `flutter build apk --release --target-platform android-arm64` against
-`flutter-plugin-v2.6.10`:
-Gradle resolves both engines plus the Qualcomm accelerator runtime
-(`com.qualcomm.qti:qnn-litert-delegate` and `qnn-runtime` 2.49.0, which 0.4.8 declares
-itself) from Maven Central; R8 keeps both engines' JNI bridges by name; and the APK's
-`lib/arm64-v8a/lible_jni.so` (sha256 `b97e7ff0…`) and `libexpr2jni.so` (`e8dab183…`) are
-byte-identical to the ones inside Central's AARs.
-
-What the two moves give you: 0.5.12 (the previous pin, via `flutter-plugin-v2.6.8`) was the
-first engine that draws the Essence 2 mouth with the identity's own lip contour, and 0.5.13
-keeps that picture unchanged while shipping its own ProGuard rule for its native bridge. 0.4.8
-declares the Snapdragon accelerator runtime itself, so the plugin no longer lists it by hand.
+The plugin is pinned by tag in `pubspec.yaml`, and that tag fixes the engine versions.
+This app pins **`flutter-plugin-v2.6.20`**, which resolves **`ai.bithuman:essence2-android:0.8.1`**
+and **`ai.bithuman:expression2-android:0.5.2`** from Maven Central. 2.6.20 also moves the
+voice session to bitHuman's realtime relay: the app passes your API secret and mints no
+token.
 
 Both coordinates resolve anonymously from Maven Central; neither needs Google's
 Maven. `google()` is still in the repository list because the Android Gradle
@@ -43,8 +32,8 @@ Plugin fetches its own `aapt2` from there.
 
 ```bash
 flutter pub get
-# Android (Galaxy, arm64): the identity is fetched by CODE through the metered door with
-# your secret, into the SDK's own store on the device.
+# Android (arm64): the identity is fetched by its agent code with your API secret,
+# into the SDK's own store on the device.
 flutter build apk --debug --target-platform android-arm64 --dart-define=AGENT_CODE=A02HCY0444
 # macOS / iOS: the identity directory is pushed into the app's container (see the plugin's README).
 flutter build macos --debug --dart-define=AGENT_DIR=/absolute/path/to/agent
@@ -132,8 +121,6 @@ xcrun devicectl device copy to --device <udid> --domain-type appDataContainer \
 shred -u "$TMP/.bootstrap_secret" 2>/dev/null || rm -f "$TMP/.bootstrap_secret"
 ```
 
-Older scripts here pass the secret with `-e`. That is the pattern **not** to copy.
-
 Launched with no key at all, the app does not hang: it shows the refusal
 `metering_no_credential` and the credential screen, and waits for you to type one.
 
@@ -159,7 +146,7 @@ by the app, and lands as `-rw-rw----` — so the app cannot open its own provisi
 the boot reports
 `fail=PathAccessException … (OS Error: Permission denied, errno = 13)`. The seeding then looks
 done from the host: the file is sitting in the right directory with the right length, and only
-`bootstrap_result.txt` says it never got read. Verified on a Galaxy S25 (SM-S936U1).
+`bootstrap_result.txt` says it never got read.
 
 This repository is public, so a credential-reading path is a pattern people copy into
 production apps. Reading a secret out of external storage is a reasonable way to seed a
@@ -208,10 +195,3 @@ test that always sets `BITHUMAN_API_SECRET` never exercises the Keychain at all.
 app uses the file-based login keychain, so `security add-generic-password` and the app use the
 same store. (A team-signed build may prefer the data-protection keychain; an ad-hoc-signed app
 cannot use it.)
-
-## Measurement levers (dart-defines, off by default)
-
-`BH_MIC=false` opens a speaker-only session; `BH_SCRIPT='prompt|prompt|@collapse|@restore'`
-types prompts 25 s apart (macOS `@collapse`/`@restore` drive the floating-circle companion)
-and writes Flutter's frame timings to the breadcrumb file; `BH_ENGINE=essence2` selects the
-other engine. The native presenter's own levers are documented in the plugin.

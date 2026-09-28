@@ -5,7 +5,7 @@
 # dependency absent from the graph. So the build's exit code is not the evidence; the
 # coordinate appearing in `:app:dependencies` is.
 #
-# No API secret here. The apps read theirs from a git-ignored local.properties (or
+# CI holds no bitHuman secret. The apps read theirs from a git-ignored local.properties (or
 # BITHUMAN_API_SECRET) into BuildConfig; a build without one compiles and the app says
 # on screen that it has no key. CI therefore never holds a key, and the last step
 # refuses a committed local.properties.

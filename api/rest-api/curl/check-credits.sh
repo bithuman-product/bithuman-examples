@@ -31,6 +31,6 @@ if minutes:
     for model, mins in minutes.items():
         print(f'  {model}: {mins:.0f} min')
 print()
-print('Prices: https://docs.bithuman.ai/guides/pricing')
-print('Top up:  https://docs.bithuman.ai/guides/pricing#top-up-credits')
+print('Prices: https://docs.bithuman.ai/pricing')
+print('Top up:  https://docs.bithuman.ai/pricing#top-up-credits')
 "

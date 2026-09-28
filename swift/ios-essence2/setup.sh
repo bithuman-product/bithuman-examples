@@ -1,5 +1,5 @@
 #!/bin/bash
-# setup.sh — fetch everything the app needs. A sample avatar needs no account.
+# setup.sh — fetch everything the app needs. A sample avatar downloads anonymously.
 #   ./setup.sh              # warm-clear-professional-presenter
 #   ./setup.sh A52DHS2219   # any code from the table in README.md
 #   BITHUMAN_API_SECRET=… ./setup.sh <AGENT_CODE>   # your own agent

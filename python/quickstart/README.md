@@ -1,10 +1,10 @@
 # Quickstart — Your First bitHuman Avatar
 
-Get a talking avatar running in about 5 minutes. You'll need an API secret first.
+Get a talking avatar running in about 5 minutes. You'll need an API secret first. From 12 October 2026, API and SDK use requires the Creator plan or higher.
 
 ## Step 1: Get your API secret (30 seconds)
 
-1. Go to [www.bithuman.ai](https://www.bithuman.ai) and create a free account
+1. Go to [www.bithuman.ai](https://www.bithuman.ai) and sign in (Creator plan or higher from 12 October 2026)
 2. Click **Developer** → **API Secrets**
 3. Copy your API secret
 
@@ -32,7 +32,7 @@ export BITHUMAN_API_SECRET="paste_your_key_here"
 # Install the SDK
 pip install -r requirements.txt
 
-# Run it — auto-downloads the free-gallery sample avatar (Sofia Ramirez, ~148 MB, one-time) if you don't specify one
+# Run it — auto-downloads the public-gallery sample avatar (Sofia Ramirez, ~148 MB, one-time) if you don't specify one
 python local-avatar.py
 
 # Or use your own model:
@@ -52,7 +52,7 @@ A window will open showing the avatar lip-syncing to the audio. Press `q` to qui
 
 > **First run is slow (up to 60 seconds).** The first time: the sample model downloads (~148 MB), then the SDK may convert it from legacy format to v2. Both are one-time costs — subsequent runs start in under 2 seconds.
 
-> **The sample needs no account.** It is `A52DHS2219` ("Sofia Ramirez", Essence 2), one of the identities in the free gallery — `bithuman list` shows them all, and any of them can be fetched with `bithuman pull <SLUG>` or straight from `GET /v1/agent/<CODE>/model/download`, which needs no credential for a gallery identity. Your own agent's model does need `BITHUMAN_API_SECRET`, and so does running the avatar below.
+> **The sample downloads anonymously.** It is `A52DHS2219` ("Sofia Ramirez", Essence 2), one of the identities in the public gallery — `bithuman list` shows them all, and any of them can be fetched with `bithuman pull <SLUG>` or straight from `GET /v1/agent/<CODE>/model/download`, which needs no credential for a gallery identity. Running the avatar needs `BITHUMAN_API_SECRET` and bills active session time ([pricing](https://docs.bithuman.ai/pricing)); so does downloading your own agent's model.
 
 > **Want to use your own avatar?** Download a `.imx` file from [bithuman.ai → Explore](https://www.bithuman.ai/#explore) (click the **...** menu on any agent → **Download**) and pass it with `--model your-file.imx`.
 

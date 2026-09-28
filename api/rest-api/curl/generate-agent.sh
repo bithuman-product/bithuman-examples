@@ -2,7 +2,7 @@
 # Generate a new avatar agent and poll until it is ready.
 # Usage: ./generate-agent.sh ["Your system prompt here"]
 # Model: BITHUMAN_MODEL=essence-2 | expression-2 (default) | auto.
-# Creation is a one-time credit charge: https://docs.bithuman.ai/guides/pricing
+# Creation is a one-time credit charge: https://docs.bithuman.ai/pricing
 # A second-generation agent takes about 2 to 2.5 hours to create.
 set -euo pipefail
 

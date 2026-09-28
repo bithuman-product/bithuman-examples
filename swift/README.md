@@ -1,76 +1,80 @@
 # Swift examples — iOS, iPadOS and macOS
 
-One SwiftPM package vends both second-generation models and a whole on-device
-voice agent, for iPhone, iPad and Mac alike. Everything here renders on the
-device: no server, no cloud GPU, no Docker.
+One Swift package renders both second-generation models, Essence 2 (a photoreal person)
+and Expression 2 (any character), on iPhone, iPad and Mac. The avatar renders on the
+device; your app passes in 16 kHz mono speech and draws the frames. The engines check
+your API secret when a session starts and report usage to bitHuman.
 
 ```swift
-.package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.14.2")
+.package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.18.0")
 ```
 
-Write `2.14.2` and nothing lower — `from:` is a floor, and the tags below it
-pin engines that fail in ways nothing throws. See
-[Pin the version](https://docs.bithuman.ai/sdk/apple#install).
+Write `2.18.0` or newer: `from:` is a floor, and older tags pin engines that behave
+differently. The current version is on
+[docs.bithuman.ai/versions.json](https://docs.bithuman.ai/versions.json); see
+[Install](https://docs.bithuman.ai/platforms/ios#install).
 
-**From 2.14.2 Expression 2 needs your API secret too.** Both engines bill the
-session they serve — talking time only, idle is free — and refuse to start without
-a key: `Expression2Engine.create` throws `meteringRefused` (*"refusing to serve: no
-API secret was found, …"*). Export `BITHUMAN_API_SECRET` before running a Mac
-example; for an iOS example set it in the scheme (*Edit Scheme → Run → Environment
-Variables*). An app you ship calls `Expression2Credential.set(key)` with a key it
-fetched from your backend or the Keychain. A free key:
+**Both engines need your API secret.** From 12 October 2026, API and SDK use requires
+the Creator plan or higher. Sessions bill active session time, talking or idle, to the
+second ([pricing](https://docs.bithuman.ai/pricing)). Without a key the engines refuse
+to start: `Expression2Engine.create` throws `meteringRefused`. Export
+`BITHUMAN_API_SECRET` before running a Mac example; for an iOS example set it in the
+scheme (*Edit Scheme → Run → Environment Variables*). An app you ship calls
+`Expression2Credential.set(key)` or `Essence2Credential.set(key)` with a key it fetched
+from your backend — see "What a shipped app holds" in the
+[top-level README](../README.md#your-api-secret). Create a key at
 [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys).
 
 ## The examples
 
-Start with the first row that matches the machine on your desk. Nothing here is
-broken: on 2026-09-23, against 2.14.1, the three Mac packages were built and
-`macos-expression2` was run end to end, both iOS examples were typechecked
-against the published binaries, and `ios-expression2` was built for the
-Simulator and for a device. `ios-avatar` is source to paste into an app target rather
-than a project to open — its README says why.
+Start with the first row that matches the machine on your desk. CI builds the Mac
+packages and typechecks the iOS sources against the published package on every change
+([`swift-examples.yml`](../.github/workflows/swift-examples.yml)).
 
-| Example | Runs on | Needs an account? | What it shows |
-|---|---|---|---|
-| [macos-expression2/](macos-expression2/) | any Apple Silicon Mac | an API secret (free) | Expression 2 on your Mac: a WAV in, lip-synced frames out, in one file |
-| [ios-expression2/](ios-expression2/) | any Apple Silicon iPhone or iPad | an API secret (free) | the same engine as a whole SwiftUI app, measured rendering on an iPhone 15 |
-| [ios-essence2/](ios-essence2/) | any Apple Silicon iPhone or iPad on iOS 26 | an API secret (free) | a photoreal Essence 2 avatar at full resolution, as a whole SwiftUI app |
-| [macos-voice/](macos-voice/) | Mac, M3 or newer | no | a voice agent with no avatar — recognition, a language model and speech, all on device |
-| [hello-voice-chat/](hello-voice-chat/) | Mac, M3 or newer | no | the same thing in 20 lines, with no UI at all |
-| [ios-avatar/](ios-avatar/) | iPhone 16 Pro or newer | yes | the voice agent *with* a lip-synced avatar. Source to attach to your own app target — read its README before you clone it |
+| Example | Runs on | What it shows |
+|---|---|---|
+| [macos-expression2/](macos-expression2/) | any Apple silicon Mac | Expression 2 on your Mac: a WAV in, lip-synced frames out, in one file |
+| [ios-expression2/](ios-expression2/) | any Apple silicon iPhone or iPad | the same engine as a whole SwiftUI app |
+| [ios-essence2/](ios-essence2/) | an Apple silicon iPhone or iPad on iOS 26 | a photoreal Essence 2 avatar as a whole SwiftUI app (`Essence2Kit`) |
+
+Every one of them needs an API secret.
+
+### Legacy examples
+
+These three use `bitHumanKit` 2.4.0, the frozen first-generation package (legacy). They
+are kept for existing apps; a new app starts from the rows above.
+
+| Example | Runs on | What it shows |
+|---|---|---|
+| [macos-voice/](macos-voice/) | Mac, M3 or newer | legacy: a voice agent with no avatar |
+| [hello-voice-chat/](hello-voice-chat/) | Mac, M3 or newer | legacy: the same agent in 20 lines, with no UI |
+| [ios-avatar/](ios-avatar/) | iPhone 16 Pro or newer | legacy: source to attach to your own app target; read its README first |
 
 ## The products
 
-The published package vends **four** library products. Most apps want one of
-the first three; do not take `BithumanEngineProtocol` beside `Expression2`,
-which already carries a copy of it.
+| Product | You write | What it is | Deployment target |
+|---|---|---|---|
+| `Expression2` | `import Expression2` | the Expression 2 engine with a Swift API | iOS 16 · macOS 13 |
+| `Essence2Kit` | `import Essence2Kit` | the Essence 2 engine with a Swift API; it includes `Essence2` | iOS 26 · macOS 26 |
+| `Essence2` | `import Essence2` | the Essence 2 engine as a C library, for C, C++ and plugins | iOS 26 · macOS 26 |
 
-| Product | You write | What it is |
-|---|---|---|
-| `Expression2` | `import Expression2` | the Expression 2 engine, pre-compiled, with a Swift API. Any Apple Silicon device |
-| `Essence2` | `import Essence2` | the Essence 2 engine as a static C library. iOS 26 / macOS 26 — [install notes](https://docs.bithuman.ai/sdk/apple#install) |
-| `bitHumanKit` | `import bitHumanKit` | the voice-agent umbrella: recognition, a language model, speech, avatar, renderer views |
-| `BithumanEngineProtocol` | `import BithumanEngineProtocol` | the common engine interface, as source |
+Do not add `BithumanEngineProtocol` beside `Expression2`, which already carries a copy
+of it. The package also vends the legacy `bitHumanKit` 2.4.0 for existing apps.
 
-Every product ships `ios-arm64`, `ios-arm64-simulator` and `macos-arm64`, and
-every simulator slice is arm64 only.
+Every product ships `ios-arm64`, `ios-arm64-simulator` and `macos-arm64`, and every
+simulator slice is arm64 only. Essence 2 needs a physical device; Expression 2 also
+runs in the Simulator.
 
 ## Device floors
 
-The products do not share one, and only `bitHumanKit` carries the strict one.
-
 | You ship | Device | OS |
 |---|---|---|
-| `Expression2` | any Apple Silicon iPhone, iPad or Mac | iOS 16 / macOS 13 |
-| `Essence2` | any Apple Silicon iPhone; iPad with M-series; Mac with M3 or newer | iOS 26 / macOS 26 |
-| `bitHumanKit` | iPhone 16 Pro or newer; iPad Pro M4 or newer; Mac with M3 or newer | iOS 26 / macOS 26 |
-
-`bitHumanKit` on iOS also needs two Apple entitlements that take Apple 1–3
-business days to grant. Neither engine product needs any.
+| `Expression2` | any Apple silicon iPhone, iPad or Mac | iOS 16 / macOS 13 |
+| `Essence2Kit`, `Essence2` | any Apple silicon iPhone; iPad with M-series; Mac with M3 or newer | iOS 26 / macOS 26 |
 
 ## No code at all
 
-On a Mac you can reach the same engines without Xcode:
+On a Mac you can reach the same engines without Xcode, with the bitHuman CLI:
 
 ```bash
 brew install bithuman-product/bithuman/bithuman-cli
@@ -79,8 +83,8 @@ bithuman run
 
 ## Documentation
 
-- [Apple SDK — install, minimal code, device floors](https://docs.bithuman.ai/sdk/apple)
-- [Apple API reference](https://docs.bithuman.ai/sdk/apple-api)
-- [iOS example: Expression 2](https://docs.bithuman.ai/examples/swift-ios-expression2) · [macOS example](https://docs.bithuman.ai/examples/macos-expression2)
-- [iOS example: Essence 2](https://docs.bithuman.ai/examples/swift-ios-essence2)
-- [CLI](https://docs.bithuman.ai/sdk/cli) · [Models](https://docs.bithuman.ai/concepts/models)
+- [Apple SDK — install, minimal code, device floors](https://docs.bithuman.ai/platforms/ios) · [macOS](https://docs.bithuman.ai/platforms/macos)
+- [Apple API reference](https://docs.bithuman.ai/platforms/swift/reference)
+- [iOS example: Expression 2](https://docs.bithuman.ai/examples/ios-expression-2) · [macOS example](https://docs.bithuman.ai/examples/macos-expression-2)
+- [iOS example: Essence 2](https://docs.bithuman.ai/examples/ios-essence-2)
+- [CLI](https://docs.bithuman.ai/platforms/cli) · [Models](https://docs.bithuman.ai/models)

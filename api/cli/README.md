@@ -82,9 +82,9 @@ Run `bithuman <command> --help` for the flags. `<avatar>` is an agent code
 | Command | Description |
 |---------|-------------|
 | `bithuman run [<avatar>]` | Talk to an avatar live, in your browser (the voice agent is included). No avatar: `wise-pup`. |
-| `bithuman render <avatar> speech.wav -o demo.mp4` | Offline render: audio in, MP4 out, on macOS or Linux. |
+| `bithuman render <avatar> speech.wav -o demo.mp4` | Render a file: audio in, MP4 out, on macOS or Linux. |
 | `bithuman open <avatar>` | What the avatar is, and whether it runs on this machine. |
-| `bithuman pull <avatar>` | Download an avatar for offline use; prints the file. |
+| `bithuman pull <avatar>` | Download an avatar to the local cache; prints the file. |
 | `bithuman list` | Browse showcase avatars, or yours with `--mine`. |
 | `bithuman login` / `bithuman logout` | Sign in (opens your browser) / sign out. |
 | `bithuman account` | Plan, credits and spend. |
@@ -94,7 +94,7 @@ Run `bithuman <command> --help` for the flags. `<avatar>` is an agent code
 
 ### Run a live avatar — see [above](#talk-to-an-avatar-on-your-machine) and [mac-app.sh](mac-app.sh)
 
-### Render a video offline — see [render-video.sh](render-video.sh)
+### Render a video file — see [render-video.sh](render-video.sh)
 
 ```bash
 bithuman render model.imx speech.wav -o demo.mp4
@@ -110,11 +110,12 @@ bithuman account        # exit 0 when your API secret works; prints plan and bal
 
 ---
 
-## On-device voice (no cloud)
+## Local conversation brain
 
-`BITHUMAN_LOCAL=1 bithuman run <avatar>` swaps OpenAI for an on-device
-voice agent (whisper.cpp + llama.cpp + Supertonic). Its setup and hardware
-notes are on [docs.bithuman.ai/sdk/cli/local-mode](https://docs.bithuman.ai/sdk/cli/local-mode).
+`BITHUMAN_LOCAL=1 bithuman run <avatar>` swaps OpenAI for a conversation brain
+that runs on your Mac or Linux machine (whisper.cpp + llama.cpp + Supertonic): audio
+and transcripts stay on the machine, and the avatar still checks your API secret
+when a session starts. Setup and hardware notes are on [docs.bithuman.ai/platforms/cli/local-brain](https://docs.bithuman.ai/platforms/cli/local-brain).
 
 ---
 
@@ -145,7 +146,7 @@ For API calls from the terminal without Python, see
 
 ## Documentation
 
-- [CLI](https://docs.bithuman.ai/sdk/cli) and [CLI reference](https://docs.bithuman.ai/sdk/cli/reference)
-- [Talk to an avatar on your machine](https://docs.bithuman.ai/guides/local-voice-avatar)
+- [CLI](https://docs.bithuman.ai/platforms/cli) and [CLI reference](https://docs.bithuman.ai/platforms/cli/reference)
+- [Talk to an avatar on your machine](https://docs.bithuman.ai/build/voice-agent)
 - [REST API](https://docs.bithuman.ai/api)
 - [Full documentation](https://docs.bithuman.ai)
