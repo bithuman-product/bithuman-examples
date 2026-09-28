@@ -2,7 +2,7 @@
 
 An avatar agent on Apple M2+/M3/M4 Macs whose conversation runs on the Mac: Apple Speech Recognition (STT), an Ollama language model, Apple Voices/Siri (TTS) and LiveKit all run locally, and the bitHuman SDK renders the avatar locally.
 
-**It needs the internet for bitHuman.** The avatar checks your API secret when a session starts and reports usage (never audio, video or conversation text). Offline licenses are for Linux PCs and terminals, Business and Enterprise only; a Mac stays online. See [Fully offline](https://docs.bithuman.ai/deploy/offline).
+**It needs the internet for bitHuman.** The avatar checks your API secret when a session starts and reports usage (never audio, video or conversation text). This example checks in online as written. A fully offline Mac is a separate license for Business and Enterprise: Essence 1 through the Python package (bitHuman 2.11.17 or later) on Apple silicon, bought in the console or through sales. See [Fully offline](https://docs.bithuman.ai/deploy/offline).
 
 ## What You Need
 
