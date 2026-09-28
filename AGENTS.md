@@ -77,7 +77,7 @@ If you are an AI agent wiring bitHuman into a user's codebase:
 | "Mac, no code" | `brew install bithuman-product/bithuman/bithuman-cli` → see [api/cli/](api/cli/) | 30 seconds |
 | "REST API, any language" | [api/rest-api/curl/](api/rest-api/curl/) | Just curl |
 | "A local brain on a Mac" | [integrations/offline-mac/](integrations/offline-mac/) | Ollama + Apple Speech; the avatar still checks the API secret online |
-| "Offline, no internet" | [docs: fully offline](https://docs.bithuman.ai/deploy/offline) | Business and Enterprise, Linux PCs and terminals, arranged through sales |
+| "Offline, no internet" | [docs: fully offline](https://docs.bithuman.ai/deploy/offline) | Business and Enterprise, Linux and macOS computers (Apple silicon), bought in the console or through sales |
 
 ### Onboarding
 
