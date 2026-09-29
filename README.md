@@ -4,6 +4,14 @@ Working examples for bitHuman real-time avatars: speech in, a lip-synced face ou
 
 From 12 October 2026, API and SDK use requires the Creator plan or higher. Every example needs an [API secret](#your-api-secret).
 
+## What's new
+
+- **Any character, live, rendered on the user's device.** Expression 2 animates any character from one portrait and renders it live on iPhone, iPad, Android, Mac, Linux or in a browser tab with WebGPU. [Read the news](https://docs.bithuman.ai/news/2026-09-29-any-character-live-on-device)
+- **Faster than real time.** Every configuration we publish renders faster than real time, including 10-minute sustained runs on iPhone 15 and Samsung Galaxy S25+. [The numbers](https://docs.bithuman.ai/news/2026-09-29-faster-than-real-time)
+- **For AI agents.** The bitHuman CLI includes an MCP server: `claude mcp add bithuman -- bithuman mcp`. [Claude & Cursor setup](https://docs.bithuman.ai/build/mcp)
+
+Every announcement: [docs.bithuman.ai/news](https://docs.bithuman.ai/news) ([RSS](https://docs.bithuman.ai/news.xml)).
+
 ## Start here
 
 Find the row that matches what you are building and open that directory. Each one has its own README with a one-command run.
