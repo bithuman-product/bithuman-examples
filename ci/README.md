@@ -49,4 +49,6 @@ Windows hosts, GPUs, deploys, releases or live services are listed under
 
 ## Known reds
 
-See the PR that introduced this file for the first local run.
+None on the first local run (2026-09-29, Linux host): 6 PASS, 2 SKIP (flutter-test,
+android-examples: no Flutter / JDK 17 + Android SDK on that host). A SKIP is not a PASS:
+run those on a host that has the toolchain when you touch flutter/ or android/.
