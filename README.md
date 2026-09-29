@@ -73,13 +73,13 @@ Said plainly here so you do not find them halfway through a build:
 - **`app/avatar_chat/` is verified on Android only.** Android builds from a clone: every engine it needs is a public Maven Central coordinate. Its iOS and macOS builds have not been re-verified; for a working Apple app today use [`swift/`](swift/), which builds against the public Swift package.
 - **`swift/hello-voice-chat/`, `swift/macos-voice/` and `swift/ios-avatar/` are legacy.** They use `bitHumanKit` 2.4.0, the frozen first-generation Apple package. New apps start from `macos-expression2`, `ios-expression2` or `ios-essence2`.
 - **There is no `web/` directory.** The web surface is not in this repository.
-- **Every `swift/` example here builds.** The ones that had rotted against removed SDK APIs were deleted rather than left to mislead, and [`.github/workflows/swift-examples.yml`](.github/workflows/swift-examples.yml) now holds an empty exemption list — so a package that stops building fails the job instead of joining a list.
+- **Every `swift/` example here builds.** The ones that had rotted against removed SDK APIs were deleted rather than left to mislead, and the `swift-build-packages` step of [`ci/run-local.sh`](ci/run-local.sh) holds no exemption list — so a package that stops building fails the step instead of joining a list.
 
 ## Keeping this honest
 
-This file deliberately contains no version numbers — a number written down here is a number that goes stale in silence. Versions live in the directory that uses them, and [`scripts/check_published_versions.py`](scripts/check_published_versions.py) reads Maven Central, PyPI and the public tap on every pull request *and once a day*, and fails when a file advertises a version the registry does not serve. See [AGENTS.md](AGENTS.md).
+This file deliberately contains no version numbers — a number written down here is a number that goes stale in silence. Versions live in the directory that uses them, and [`scripts/check_published_versions.py`](scripts/check_published_versions.py) reads Maven Central, PyPI and the public tap before every merge ([`ci/run-local.sh`](ci/run-local.sh)), and fails when a file advertises a version the registry does not serve. See [AGENTS.md](AGENTS.md).
 
-[`scripts/check_claims.py`](scripts/check_claims.py) refuses claims the product cannot back (a free plan for building apps, idle time billed as free, offline Macs or phones, the legacy Swift package presented as current), and [`scripts/check_links.py`](scripts/check_links.py) checks that every bitHuman link here resolves, anchors included. Both run on every pull request and once a day ([`claims-and-links.yml`](.github/workflows/claims-and-links.yml)), and each proves it can fail before it grades anything.
+[`scripts/check_claims.py`](scripts/check_claims.py) refuses claims the product cannot back (a free plan for building apps, idle time billed as free, offline Macs or phones, the legacy Swift package presented as current), and [`scripts/check_links.py`](scripts/check_links.py) checks that every bitHuman link here resolves, anchors included. Both run before every merge ([`ci/run-local.sh`](ci/run-local.sh), see [`ci/README.md`](ci/README.md)), and each proves it can fail before it grades anything.
 
 ## Documentation
 

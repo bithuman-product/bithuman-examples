@@ -27,9 +27,9 @@ from your backend — see "What a shipped app holds" in the
 
 ## The examples
 
-Start with the first row that matches the machine on your desk. CI builds the Mac
-packages and typechecks the iOS sources against the published package on every change
-([`swift-examples.yml`](../.github/workflows/swift-examples.yml)).
+Start with the first row that matches the machine on your desk. [`ci/run-local.sh`](../ci/run-local.sh) builds the Mac
+packages and typechecks the iOS sources against the published package on a Mac before merging
+(steps `swift-build-packages`, `swift-typecheck-ios`).
 
 | Example | Runs on | What it shows |
 |---|---|---|

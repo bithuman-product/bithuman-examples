@@ -49,13 +49,13 @@
       "reason": "the text the app shows when the service refuses a session for an empty balance"
     },
     {
-      "file": ".github/workflows/swift-examples.yml",
+      "file": "ci/github-workflows-disabled/swift-examples.yml",
       "rule": "C13",
       "contains": "bitHumanKit.xcframework",
       "reason": "CI fetches the legacy archive to typecheck the legacy ios-avatar example"
     },
     {
-      "file": ".github/workflows/swift-examples.yml",
+      "file": "ci/github-workflows-disabled/swift-examples.yml",
       "rule": "C13",
       "contains": "bitHumanKit which requires macos 13.0",
       "reason": "a CI comment quoting a SwiftPM error about the legacy ios-avatar package"

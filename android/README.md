@@ -168,8 +168,8 @@ Full detail on
 The docs pages [Android example: Expression 2](https://docs.bithuman.ai/examples/android-expression-2)
 and [Android example: Essence 2](https://docs.bithuman.ai/examples/android-essence-2)
 send readers to the two projects above, with the apps running on a Galaxy S25+.
-Both projects are built on every change by
-[`.github/workflows/android-examples.yml`](../.github/workflows/android-examples.yml),
+Both projects are built before every merge by the `android-examples` step of
+[`ci/run-local.sh`](../ci/run-local.sh),
 and the docs site's scheduled gate builds `expression2-hello` from this
 repository's `main` every day.
 
