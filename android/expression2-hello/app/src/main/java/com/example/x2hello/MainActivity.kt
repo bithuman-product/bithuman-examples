@@ -20,15 +20,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 /**
  * Hello, avatar — Expression 2 on Android.
  *
- * Reads speech.wav from the app's own external files dir, renders it through the
- * on-device avatar, then plays the audio back with the rendered frames.
- * Nothing but the one-time model download leaves the phone.
+ * Renders the bundled speech clip (or a speech.wav you pushed) through the on-device
+ * avatar, then plays the audio back with the rendered frames. Only the one-time model
+ * download and the session's usage reports leave the phone.
  */
 class MainActivity : Activity() {
 
@@ -39,7 +37,7 @@ class MainActivity : Activity() {
      * How the engine is built.
      *
      * A bare Expression2Options() is the right start on every arm64 device. On a
-     * Snapdragon it runs the decoder on the Hexagon NPU — 0.4.8 brings the Qualcomm
+     * Snapdragon it runs the decoder on the Hexagon NPU — the SDK brings the Qualcomm
      * runtime with it, so there is nothing to add — and everywhere else it renders on
      * the CPU. The log line below prints which one you got, and why, in
      * avatar.acceleratorNote.
@@ -100,20 +98,16 @@ class MainActivity : Activity() {
     private fun renderOnce() {
         val secret = BuildConfig.BITHUMAN_API_SECRET
         if (secret.isBlank()) {
-            say("No API secret. Put\n\nbithuman.apiSecret=<your API secret>\n\nin local.properties (or export BITHUMAN_API_SECRET) and rebuild. From expression2-android 0.4.9 the engine meters each session it renders and create() refuses without a key.")
+            say("No API secret. Put\n\nbithumanApiSecret=<your API secret>\n\nin ~/.gradle/gradle.properties (or export BITHUMAN_API_SECRET) and rebuild. The engine meters each session it renders and create() refuses without a key.")
             return
         }
-        // The METER, before anything opens an engine: from 0.4.9 create() throws
-        // Expression2Exception when no API secret is set. The model download stays anonymous.
+        // The credential, before anything downloads or opens an engine: create()
+        // throws Expression2Exception when no API secret is set.
         Expression2Credential.set(secret)
 
-        val wav = File(getExternalFilesDir(null), "speech.wav")
-        if (!wav.isFile) {
-            say("No speech.wav yet. On your machine:\n\nadb push speech.wav ${wav.absolutePath}\n\nthen tap the screen.")
-            return
-        }
-        pcm = readWav16kMono(wav)
-        val seconds = pcm.size.toFloat() / Expression2Avatar.SAMPLE_RATE
+        val audio = loadSpeech()
+        pcm = audio.toFloats()
+        val seconds = audio.seconds
         val expected = Math.round(seconds * Expression2Avatar.FRAMES_PER_SECOND)
         say("audio: ${pcm.size} samples = %.2f s\nfetching model $agentCode — first run downloads ~158 MB…".format(seconds))
 
@@ -207,39 +201,18 @@ class MainActivity : Activity() {
     // ------------------------------------------------------------------ wav
 
     /**
-     * 16-bit PCM WAV -> the FloatArray feed() takes: 16 kHz mono float32 in [-1, 1].
-     * Walks the RIFF chunks — do not assume the data starts at byte 44, because real
-     * encoders (macOS afconvert, for one) insert padding chunks before it.
+     * Your own speech.wav if you pushed one (any 16-bit PCM WAV, any rate), else the
+     * 16 kHz clip bundled in app/src/main/assets — so the first launch just works:
+     *   adb push my.wav /storage/emulated/0/Android/data/com.example.x2hello/files/speech.wav
      */
-    private fun readWav16kMono(file: File): FloatArray {
-        val b = file.readBytes()
-        val bb = ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN)
-        require(b.size > 44 && tag4(b, 0) == "RIFF" && tag4(b, 8) == "WAVE") { "${file.name} is not a RIFF/WAVE file" }
-        var pos = 12
-        var channels = 0; var rate = 0; var bits = 0; var dataAt = -1; var dataLen = 0
-        while (pos + 8 <= b.size) {
-            val id = tag4(b, pos)
-            var size = bb.getInt(pos + 4)
-            if (size < 0 || pos + 8 + size > b.size) size = b.size - (pos + 8)
-            when (id) {
-                "fmt " -> {
-                    channels = bb.getShort(pos + 10).toInt()
-                    rate = bb.getInt(pos + 12)
-                    bits = bb.getShort(pos + 22).toInt()
-                }
-                "data" -> { dataAt = pos + 8; dataLen = size }
-            }
-            pos += 8 + size + (size and 1)
-        }
-        require(dataAt >= 0) { "${file.name} has no data chunk" }
-        require(channels == 1 && rate == Expression2Avatar.SAMPLE_RATE && bits == 16) {
-            "need 16 kHz mono 16-bit PCM; ${file.name} is $rate Hz, $channels ch, $bits-bit"
-        }
-        val n = dataLen / 2
-        return FloatArray(n) { bb.getShort(dataAt + it * 2) / 32768f }   // the normalisation feed() expects
+    private fun loadSpeech(): Wav.Pcm16k {
+        val pushed = File(getExternalFilesDir(null), "speech.wav")
+        val audio = if (pushed.isFile) Wav.read16kMono(pushed.readBytes(), pushed.absolutePath)
+                    else Wav.read16kMono(assets.open("speech.wav").use { it.readBytes() }, "assets/speech.wav")
+        Log.i(TAG, "speech: ${if (pushed.isFile) pushed.absolutePath else "assets/speech.wav (bundled)"}, " +
+            "${audio.sourceRate} Hz x ${audio.sourceChannels} ch -> 16 kHz mono, %.2f s".format(audio.seconds))
+        return audio
     }
-
-    private fun tag4(b: ByteArray, at: Int) = String(b, at, 4, Charsets.US_ASCII)
 
     private fun say(msg: String) {
         Log.i(TAG, msg.replace('\n', ' '))

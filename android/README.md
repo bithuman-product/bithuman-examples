@@ -1,22 +1,22 @@
 # Android — adding the bitHuman SDKs to a Gradle build
 
-Three coordinates are served by bitHuman's own Maven repository,
+Phones render the two second-generation models, Essence 2 and Expression 2. Each is
+one coordinate served by bitHuman's own Maven repository,
 **`https://maven.bithuman.ai`**. New versions are published there only; the versions
-published earlier stay on Maven Central as well. All three ship `arm64-v8a`
-only (no `armeabi-v7a`, no `x86_64`) and carry **no model weights** — models are
-fetched at runtime.
+published earlier stay on Maven Central as well. Each ships `arm64-v8a` only (no
+`armeabi-v7a`, no `x86_64`) and carries **no model weights**: models are fetched at
+runtime.
 
 | model | coordinate | latest |
 |---|---|---|
 | essence-2 | `ai.bithuman:essence2-android` | **0.8.1** |
 | expression-2 | `ai.bithuman:expression2-android` | **0.5.2** |
-| essence-1 | `ai.bithuman:sdk` | 2.3.7 |
 
-`expression-1` runs in the bitHuman cloud only and has no Android coordinate.
+The first-generation models are not available on phones: `essence-1` and
+`expression-1` run in the bitHuman cloud ([Models](https://docs.bithuman.ai/models)).
 
 **Both second-generation SDKs need a bitHuman API secret.** They meter each session's
-active time, talking or idle, and from `expression2-android` 0.4.9 Expression 2 does too:
-`Expression2Avatar.create` throws `Expression2Exception` unless
+active time, talking or idle: `Expression2Avatar.create` throws `Expression2Exception` unless
 an API secret is set: `Expression2Credential.set(secret)` (Essence 2: `Essence2Credential.set(secret)`).
 Create one at [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys); from 12 October 2026 API and SDK use requires the Creator plan or higher. For an app you distribute, read "What a shipped app holds" in the [top-level README](../README.md#your-api-secret).
 
@@ -28,17 +28,19 @@ Create one at [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer
 | [essence2-hello/](essence2-hello/) | essence-2 | Sofia Ramirez (`A52DHS2219`), full-resolution 1080x1920, same shape |
 
 Each is a whole Gradle project that resolves `ai.bithuman` from maven.bithuman.ai and
-everything else from Maven Central, and each README carries the five commands that build,
-install and run it.
+everything else from Maven Central. Each app
+bundles a 16 kHz speech clip, so it renders on its first launch: build, install,
+launch. Each README has the commands.
 
-**Start with a second-generation model.** `ai.bithuman:sdk` is the
-first-generation artifact and is listed for completeness, not as a
-recommendation: the published 2.3.6 installs and then throws before its first
-frame with `be_auth_authenticate: status=11`, because its native library ships
-with no CA trust store and there is no app-side workaround on that version. It is
-also a different integration — a `.imx` you push to the device yourself plus an
-API secret, rather than the model store the two rows above use. Details on
-[Android SDK](https://docs.bithuman.ai/platforms/android#troubleshooting).
+**The API secret, one name everywhere.** Put `bithumanApiSecret=<your API secret>` in
+`~/.gradle/gradle.properties` (outside your source tree), as the
+[Android page](https://docs.bithuman.ai/platforms/android#install) does. The example
+builds also read `BITHUMAN_API_SECRET` from the environment, and
+`bithuman.apiSecret` in `local.properties` for checkouts set up before 2026-09-30.
+
+**JDK.** The projects pin Gradle 8.11.1, which runs on JDK 17 to 23. On JDK 24 or
+newer, `./gradlew` stops with *this project needs JDK 17 to 23* and shows how to set
+`JAVA_HOME` (without that check, Gradle printed only `What went wrong: 25.0.4.1`).
 
 Each artifact's own `maven-metadata.xml` names its newest version as `<release>`.
 That file is the registry's own answer and is the thing to check — a web search
@@ -129,9 +131,8 @@ Assert what you actually got, rather than trusting the exit code:
 
 That check is also how you catch an accidental downgrade. An older coordinate
 still resolves, still compiles and still renders — it renders *differently*, and
-almost none of the differences throws. The per-version table of what silently
-changes is on
-[Pin the version](https://docs.bithuman.ai/platforms/android#install).
+almost none of the differences throws. What changed in each version is on the
+[changelog](https://docs.bithuman.ai/changelog).
 
 ## Release builds — nothing to add, from `essence2-android` 0.5.13
 
@@ -173,14 +174,36 @@ Full detail on
 The docs pages [Android example: Expression 2](https://docs.bithuman.ai/examples/android-expression-2)
 and [Android example: Essence 2](https://docs.bithuman.ai/examples/android-essence-2)
 send readers to the two projects above, with the apps running on a Galaxy S25+.
-Both projects are built before every merge by the `android-examples` step of
-[`ci/run-local.sh`](../ci/run-local.sh),
-and the docs site's scheduled gate builds `expression2-hello` from this
-repository's `main` every day.
+Both projects are built, and their JVM unit tests run, by hand before merging with
+the `android-examples` step of [`ci/run-local.sh`](../ci/run-local.sh) (GitHub
+Actions are off for this repository).
+
+## Live microphone input
+
+Neither SDK records audio, so neither needs more than `INTERNET` (merged from the
+AAR). When your app feeds the avatar from the microphone (`AudioRecord`), your app
+needs the microphone permission, in the manifest **and** at run time:
+
+```xml
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+```
+
+```kotlin
+// in an Activity (androidx.activity) — ask before you start AudioRecord
+val askMic = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+    if (granted) startMicrophone() else showWhyTheMicIsNeeded()
+}
+askMic.launch(Manifest.permission.RECORD_AUDIO)
+```
+
+Without it `AudioRecord` fails to initialise or delivers silence, and the avatar
+never moves. Record at 16 kHz mono (`AudioFormat.ENCODING_PCM_FLOAT` for Expression 2,
+`ENCODING_PCM_16BIT` for Essence 2) so there is nothing to resample.
 
 ## See also
 
 - [Android SDK](https://docs.bithuman.ai/platforms/android) — install, code, model, key
+- [Android troubleshooting](https://docs.bithuman.ai/platforms/android/troubleshooting)
 - [Android API reference](https://docs.bithuman.ai/platforms/android/reference) — every public
   class, regenerated daily from the AARs Maven Central serves
 - [`app/avatar_chat`](../app/avatar_chat/) — the one clonable app in this

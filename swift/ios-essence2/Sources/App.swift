@@ -68,7 +68,7 @@ func readPCM16MonoWAV(_ url: URL) throws -> [Int16] {
                              + "\(rate) Hz, \(channels) ch, \(bits)-bit")
     }
     var out = [Int16](repeating: 0, count: len / 2)
-    out.withUnsafeMutableBytes { dst in d.copyBytes(to: dst, from: off..<(off + (len / 2) * 2)) }
+    _ = out.withUnsafeMutableBytes { dst in d.copyBytes(to: dst, from: off..<(off + (len / 2) * 2)) }
     return out
 }
 
@@ -187,9 +187,7 @@ final class AvatarSession: ObservableObject {
             for await f in frames {
                 guard let self else { return }
                 if f.audioTime == 0, let r = self.reply {
-                    self.player.stop()
-                    self.player.scheduleBuffer(r)
-                    self.player.play()
+                    self.startAudio(r)
                 }
                 if let cg = makeCGImage(bgr: f.bgr, f.width, f.height) {
                     self.sink.show(cg)
@@ -207,6 +205,18 @@ final class AvatarSession: ObservableObject {
                 }
             }
         }
+    }
+
+    /// Start a reply's audio. A plain (non-async) function on purpose: Xcode 26's SDK
+    /// also imports an `async` overload of `scheduleBuffer(_:)`, and inside the
+    /// `for await` loop the bare `scheduleBuffer(r)` resolves to it and fails to compile
+    /// ("expression is 'async' but is not marked with 'await'"). Awaiting it is wrong
+    /// too: it returns only when the buffer has finished playing, which would stall the
+    /// frames. The completion-handler form schedules and returns at once.
+    private func startAudio(_ reply: AVAudioPCMBuffer) {
+        player.stop()
+        player.scheduleBuffer(reply, completionHandler: nil)
+        player.play()
     }
 
     /// 5b. Speak the bundled line: feed the whole reply, say that is all of it, and let

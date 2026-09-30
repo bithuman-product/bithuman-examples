@@ -1,62 +1,72 @@
 #!/bin/bash
-# Fetch the three things the app needs into Sources/Model/.
-# Usage:  ./setup.sh                                   # the public showcase identity, anonymous download
+# Fetch the three files the app needs into Sources/Model/. Nothing to install:
+# three downloads, the same ones docs.bithuman.ai/platforms/ios "First frame" uses.
+# Usage:  ./setup.sh                                     # the public showcase avatar, anonymous download
 #         BITHUMAN_API_SECRET=… ./setup.sh <AGENT_CODE>  # your own agent
 set -euo pipefail
 cd "$(dirname "$0")"
 
-# The default is Wise Pup (A23WJF0199), an expression-2 identity in the public
-# gallery: `GET /v1/agent/<CODE>/model/download` serves a gallery identity to
-# anyone, so the no-argument download is anonymous. Rendering needs your API secret.
-# `bithuman list` shows the whole gallery if you want a different face.
+# Never stop half-way in silence: say which step failed and what to do.
+trap 'echo >&2; echo "setup.sh stopped: \"$BASH_COMMAND\" failed (line $LINENO). Nothing after it ran — fix the error above and run ./setup.sh again." >&2' ERR
+
+# The default is Wise Pup (A23WJF0199), an expression-2 avatar in the public
+# gallery: the download door serves a gallery avatar to anyone, so the
+# no-argument download is anonymous. Rendering needs your API secret.
 SHOWCASE_CODE="A23WJF0199"
 CODE="${1:-$SHOWCASE_CODE}"
 mkdir -p Sources/Model
 
-# Step 2 below needs the bitHuman CLI, which is not a SwiftPM dependency and
-# cannot be one. Say so HERE rather than after a 188 MB download: the script
-# used to fail at `bithuman: command not found` with the identity already on
-# disk and no clue what to install.
-if ! command -v bithuman >/dev/null 2>&1; then
-  echo "the bithuman CLI is not on PATH. Install it, then run this again:" >&2
-  echo "    brew install bithuman-product/bithuman/bithuman-cli" >&2
-  exit 3
-fi
-
-# 1. the per-identity avatar.
-#
-# ★ONE URL FOR BOTH ROUTES, WHICH IS THE POINT. The showcase identity and your
-# own agent come through the SAME door; the only difference is whether a
-# credential rides along. That door 302s to a 1-hour signed URL, rate-limits,
-# and re-asks permission on every fetch. Do not replace it with a public bucket
-# path — those never expire, record nothing, and cannot be closed.
 AUTH=()
 if [ -n "${BITHUMAN_API_SECRET:-}" ]; then
   AUTH=(-H "api-secret: $BITHUMAN_API_SECRET")
 elif [ "$CODE" != "$SHOWCASE_CODE" ]; then
-  echo "set BITHUMAN_API_SECRET to fetch your own agent ($CODE), or run with no argument for the public showcase identity"
+  echo "set BITHUMAN_API_SECRET to fetch your own agent ($CODE), or run with no argument for the public showcase avatar" >&2
   exit 2
 fi
-echo "==> downloading $CODE.avatar"
-curl -fL --progress-bar "${AUTH[@]+"${AUTH[@]}"}" \
+
+# fetch <out> <url> [curl args…]: download, and on an HTTP error print what the
+# server said (plain `curl -f` hides it) instead of just exiting.
+fetch() {
+  local out=$1 url=$2; shift 2
+  if curl -L --fail-with-body --progress-bar "$@" -o "$out" "$url"; then return 0; fi
+  echo "error: download failed: $url" >&2
+  if [ -s "$out" ] && [ "$(wc -c <"$out")" -lt 4096 ]; then
+    echo "the server said: $(cat "$out")" >&2
+  fi
+  rm -f "$out"
+  case "$url" in *api.bithuman.ai*)
+    echo "hint: a 401/403 means this avatar is not public — set BITHUMAN_API_SECRET to a key of the account that owns it." >&2 ;;
+  esac
+  return 1
+}
+
+# 1. the avatar (about 188 MB). The showcase avatar and your own agent come
+#    through the SAME door; the only difference is whether a credential rides
+#    along. It answers 302 to a signed URL that expires in an hour.
+echo "==> downloading $CODE.imx"
+fetch Sources/Model/agent.imx \
   "https://api.bithuman.ai/v1/agent/$CODE/model/download?model=expression-2" \
-  -o Sources/Model/agent.avatar
-ls -l Sources/Model/agent.avatar
+  "${AUTH[@]+"${AUTH[@]}"}"
 
-# 2. the shared speech front-end the artifact does not carry
-echo "==> installing the shared engine graphs"
-bithuman engine install mac
-rm -rf Sources/Model/shared_engine
-cp -R "$HOME/.bithuman/engines/mac-1.0.0" Sources/Model/shared_engine
+# 2. the shared engine graphs (about 165 MB): one file for every avatar, not one
+#    per avatar, anonymous. The `mac` engine file is the right one for iPhone too.
+echo "==> downloading the shared engine"
+fetch Sources/Model/shared-engine.imx \
+  "https://github.com/bithuman-product/homebrew-bithuman/releases/download/expression2-engine-mac-arm64-1.0.0/mac-arm64-1.0.0.engine"
 
-# 3. something for it to say. The identity's own bundle already carries a
-#    16 kHz mono clip, so this needs no key and no TTS: `member=` asks the SAME
-#    door as step 1 for ONE file out of the bundle instead of the whole
-#    container, and takes the same credential (none, for a gallery identity).
+# 3. something for it to say: 16 kHz mono, one file out of the avatar's own
+#    bundle (`member=`), through the same door and with the same credential.
 echo "==> downloading speech16k.wav"
-curl -fL --progress-bar "${AUTH[@]+"${AUTH[@]}"}" \
-  "https://api.bithuman.ai/v1/agent/$CODE/model/download?member=demo_speech_16k.wav&model=expression-2" \
-  -o Sources/Model/speech16k.wav
+fetch Sources/Model/speech16k.wav \
+  "https://api.bithuman.ai/v1/agent/$CODE/model/download?model=expression-2&member=demo_speech_16k.wav" \
+  "${AUTH[@]+"${AUTH[@]}"}"
+
+# Both big downloads are IMX containers and the first four bytes say so. A file
+# that fails this is a truncated or redirected download, not a model.
+for f in Sources/Model/agent.imx Sources/Model/shared-engine.imx; do
+  head -c 4 "$f" | grep -q 'IMX' || { echo "$f is not an IMX container — re-run ./setup.sh" >&2; exit 1; }
+done
 
 echo "==> Sources/Model is ready:"
 du -sh Sources/Model/*
+echo "Next: open IOSExpression2.xcodeproj, set BITHUMAN_API_SECRET in the scheme, pick your team and device, Run."

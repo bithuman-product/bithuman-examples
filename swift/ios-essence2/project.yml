@@ -7,8 +7,9 @@ options:
 packages:
   bithuman:
     url: https://github.com/bithuman-product/homebrew-bithuman.git
-    # 2.18.0 or newer: the floor docs.bithuman.ai/versions.json names; older tags pin older engines.
-    from: 2.18.0
+    # 2.19.3 or newer: the version docs.bithuman.ai/versions.json names. setup.sh
+    # fetches the runtime files of the essence2 release this version pins.
+    from: 2.19.3
 targets:
   IOSEssence2:
     type: application
@@ -17,14 +18,25 @@ targets:
       - path: Sources
         excludes: ["Info.plist", "Model", "EngineResources"]
       # The identity rides as ONE folder reference the app opens by name.
+      # `optional`: setup.sh creates it, so a fresh clone can still generate.
       - path: Sources/Model
         type: folder
         buildPhase: resources
+        optional: true
       # The engine resources ride as individual files, so they land at the
-      # bundle ROOT — which is the only place the engine looks for them.
-      - path: Sources/EngineResources
-        type: group
+      # bundle ROOT — which is the only place the engine looks for them. They
+      # are named one by one (not a `group` of whatever the directory held when
+      # the project was generated — that is how a stale project once shipped
+      # references to two bundles that no longer exist).
+      - path: Sources/EngineResources/w2v_ess_fp16_v1.onnx
         buildPhase: resources
+        optional: true
+      - path: Sources/EngineResources/audio_encoder_fp16_window_trunk.onnx
+        buildPhase: resources
+        optional: true
+      - path: Sources/EngineResources/audio_encoder_fp16_window_head.onnx
+        buildPhase: resources
+        optional: true
     dependencies:
       - package: bithuman
         product: Essence2Kit
@@ -40,7 +52,9 @@ targets:
           SZ=$(stat -f%z "$M/agent.imx")
           [ "$SZ" -gt 50000000 ] || fail "Sources/Model/agent.imx is only ${SZ} B — that is an error page or a truncated download. Re-run ./setup.sh"
           [ -f "$M/speech16k.wav" ] || fail "Sources/Model/speech16k.wav is missing — run ./setup.sh"
-          [ -f "$R/w2v_ess_fp16_v1.onnx" ] || fail "the shared audio front end is missing — the .imx does not carry it. Re-run ./setup.sh"
+          for f in w2v_ess_fp16_v1.onnx audio_encoder_fp16_window_trunk.onnx audio_encoder_fp16_window_head.onnx; do
+            [ -f "$R/$f" ] || fail "Sources/EngineResources/$f is missing — the .imx does not carry the engine's runtime files. Re-run ./setup.sh"
+          done
           echo "payload OK: agent.imx ${SZ} B, front end present"
     info:
       path: Sources/Info.plist
@@ -55,3 +69,8 @@ targets:
         CODE_SIGN_STYLE: Automatic
         SWIFT_VERSION: "6.0"
         TARGETED_DEVICE_FAMILY: "1,2"
+        # The package's simulator slices are arm64 only. Without this, a build for
+        # "Any iOS Simulator Device" (or any xcodebuild -destination 'generic/…')
+        # also builds x86_64 and fails with "Unable to find module dependency".
+        # (Essence 2 itself runs on a physical device only; this keeps the build green.)
+        "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64

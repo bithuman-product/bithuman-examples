@@ -84,7 +84,7 @@ jobs:
             xcrun -sdk iphoneos swiftc -typecheck -target "$1" \
               -swift-version 6 -parse-as-library $2 "$3"
           }
-          tc arm64-apple-ios17.0 "$E2"  swift/ios-expression2/Sources/App.swift
+          tc arm64-apple-ios16.0 "$E2"  swift/ios-expression2/Sources/App.swift
           echo "PASS: ios-expression2 typechecks against the published binary"
           tc arm64-apple-ios26.0 "$KIT" swift/ios-avatar/Sources/IOSAvatarApp.swift
           echo "PASS: ios-avatar typechecks against the published binary"
@@ -111,7 +111,7 @@ jobs:
             fi
             echo "PASS: the gate rejects broken code in $3, so a pass means something"
           }
-          ctl arm64-apple-ios17.0 "$E2"  swift/ios-expression2/Sources/App.swift
+          ctl arm64-apple-ios16.0 "$E2"  swift/ios-expression2/Sources/App.swift
           ctl arm64-apple-ios26.0 "$KIT" swift/ios-avatar/Sources/IOSAvatarApp.swift
 
   build-packages:

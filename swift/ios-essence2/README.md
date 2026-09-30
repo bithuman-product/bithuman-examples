@@ -14,8 +14,10 @@ The docs page is <https://docs.bithuman.ai/examples/ios-essence-2>.
 ## What you need
 
 - A Mac with **Xcode 26 or newer**, and an Apple Developer team.
-- A **physical iPhone or iPad** with Apple silicon on **iOS 26**. The Simulator cannot
-  run this engine. No Apple entitlement is needed.
+- A **physical iPhone or iPad** with Apple silicon on **iOS 26** (iPad: M-series), the
+  floor `Essence2Kit` declares. The project also builds for the Simulator (so a
+  generic or CI build stays green), but the engine runs on a device only. No Apple
+  entitlement is needed.
 - A bitHuman **API secret** from [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys) (Creator plan or higher from 12 October 2026).
   The engine bills the session to it ([pricing](https://docs.bithuman.ai/pricing)). The downloads need no key.
 - About 430 MB free on the phone and 380 MB on the Mac.
@@ -34,8 +36,19 @@ Variables*, add `BITHUMAN_API_SECRET`. Pick your team under *Signing & Capabilit
 select your iPhone, and press **Run**. The console prints
 `[ios-essence2] engine ready: 1080x1920, ready in <n> s`.
 
+If `setup.sh` stops, it says which step failed and what the server answered (for
+example a 401 for an avatar that is not public); fix that and run it again. If Xcode
+stops with `Sources/Model/agent.imx is missing — run ./setup.sh`, that is the
+project's own check: run `./setup.sh` first.
+
 `project.yml` is the [XcodeGen](https://github.com/yonaskolb/XcodeGen) source of the
-project; `xcodegen generate` rewrites `IOSEssence2.xcodeproj` from it.
+project; `xcodegen generate` rewrites `IOSEssence2.xcodeproj` from it, and works from a
+fresh clone. The committed project is that output (links `Essence2Kit`, bundles the
+three runtime files by name), so you do not need XcodeGen to build.
+
+The package's simulator slices are arm64 only; the project sets
+`EXCLUDED_ARCHS[sdk=iphonesimulator*] = x86_64` so a Simulator build needs no
+`ARCHS=arm64` override. Copying the code into your own project? Add the same setting.
 
 ## Other avatars
 

@@ -19,14 +19,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 /**
  * Hello, avatar — essence-2 on Android.
  *
- * Reads speech.wav from the app's own external files dir, renders it through the
- * on-device avatar, then plays the audio back with the rendered frames.
+ * Renders the bundled speech clip (or a speech.wav you pushed) through the on-device
+ * avatar, then plays the audio back with the rendered frames.
  *
  * It needs an API secret: one Essence2Credential.set call covers the download and the
  * session. See the doc page.
@@ -85,7 +83,7 @@ class MainActivity : Activity() {
     private fun renderOnce() {
         val secret = BuildConfig.BITHUMAN_API_SECRET
         if (secret.isBlank()) {
-            say("No API secret. Put\n\nbithuman.apiSecret=<your API secret>\n\nin local.properties (or export BITHUMAN_API_SECRET) and rebuild. Essence 2 needs it to download the avatar and run the session.")
+            say("No API secret. Put\n\nbithumanApiSecret=<your API secret>\n\nin ~/.gradle/gradle.properties (or export BITHUMAN_API_SECRET) and rebuild. Essence 2 needs it to download the avatar and run the session.")
             return
         }
 
@@ -94,13 +92,9 @@ class MainActivity : Activity() {
         //    create() refuses without it.
         Essence2Credential.set(secret)
 
-        val wav = File(getExternalFilesDir(null), "speech.wav")
-        if (!wav.isFile) {
-            say("No speech.wav yet. On your machine:\n\nadb push speech.wav ${wav.absolutePath}\n\nthen tap the screen.")
-            return
-        }
-        pcm = readWav16kMonoPcm16(wav)
-        val seconds = pcm.size / 2f / SAMPLE_RATE
+        val audio = loadSpeech()
+        pcm = audio.toLittleEndianBytes()
+        val seconds = audio.seconds
         val expected = Math.round(seconds * FPS)
         say("audio: ${pcm.size / 2} samples = %.2f s\nfetching $agentCode — first run downloads about 238 MB…".format(seconds))
 
@@ -116,7 +110,7 @@ class MainActivity : Activity() {
         // On Android the shared audio front end rides INSIDE the bundle, so
         // create() needs nothing but the directory the store just filled.
         Essence2Avatar.create(identity.dir).use { avatar ->
-            Log.i(TAG, "engine: ${avatar.width}x${avatar.height} targetFrames=${avatar.targetFrames}")
+            Log.i(TAG, "engine: ${avatar.width}x${avatar.height}")
             val frame = avatar.newFrameBuffer()   // direct, width * height * 4, RGBA
             val bmp = Bitmap.createBitmap(avatar.width, avatar.height, Bitmap.Config.ARGB_8888)
             val out = ArrayList<ByteArray>(expected + 16)
@@ -125,10 +119,15 @@ class MainActivity : Activity() {
             avatar.feed(pcm)                      // 16-bit little-endian PCM bytes, as read
             avatar.endOfAudio()                   // "that is the whole utterance"
 
+            // pull() returns false until frames are ready, so poll. Stop after 5 s
+            // with no new frame — but give the FIRST frame longer (30 s): a cold
+            // first render on a slower phone can take more than a few seconds, and
+            // giving up before it arrives is a blank screen, not a result.
             var quietMs = 0
-            while (quietMs < 5_000) {             // 5 s with no frame at all = finished
+            while (quietMs < (if (out.isEmpty()) 30_000 else 5_000)) {
                 frame.clear()
                 if (avatar.pull(frame)) {         // true = a frame was written
+                    if (out.isEmpty()) Log.i(TAG, "FIRST_FRAME at ${System.currentTimeMillis() - t0} ms")
                     quietMs = 0
                     frame.rewind()
                     // Android's ARGB_8888 is R,G,B,A in memory, which is the
@@ -207,39 +206,18 @@ class MainActivity : Activity() {
     // ------------------------------------------------------------------ wav
 
     /**
-     * 16-bit PCM WAV -> the exact bytes feed(ByteArray) takes: 16 kHz mono,
-     * 16-bit little-endian, no conversion. Walks the RIFF chunks — do not assume
-     * the data starts at byte 44, because real encoders (macOS afconvert, for
-     * one) insert padding chunks before it.
+     * Your own speech.wav if you pushed one (any 16-bit PCM WAV, any rate), else the
+     * 16 kHz clip bundled in app/src/main/assets — so the first launch just works:
+     *   adb push my.wav /storage/emulated/0/Android/data/com.example.e2hello/files/speech.wav
      */
-    private fun readWav16kMonoPcm16(file: File): ByteArray {
-        val b = file.readBytes()
-        val bb = ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN)
-        require(b.size > 44 && tag4(b, 0) == "RIFF" && tag4(b, 8) == "WAVE") { "${file.name} is not a RIFF/WAVE file" }
-        var pos = 12
-        var channels = 0; var rate = 0; var bits = 0; var dataAt = -1; var dataLen = 0
-        while (pos + 8 <= b.size) {
-            val id = tag4(b, pos)
-            var size = bb.getInt(pos + 4)
-            if (size < 0 || pos + 8 + size > b.size) size = b.size - (pos + 8)
-            when (id) {
-                "fmt " -> {
-                    channels = bb.getShort(pos + 10).toInt()
-                    rate = bb.getInt(pos + 12)
-                    bits = bb.getShort(pos + 22).toInt()
-                }
-                "data" -> { dataAt = pos + 8; dataLen = size }
-            }
-            pos += 8 + size + (size and 1)
-        }
-        require(dataAt >= 0) { "${file.name} has no data chunk" }
-        require(channels == 1 && rate == SAMPLE_RATE && bits == 16) {
-            "need 16 kHz mono 16-bit PCM; ${file.name} is $rate Hz, $channels ch, $bits-bit"
-        }
-        return b.copyOfRange(dataAt, dataAt + (dataLen / 2) * 2)
+    private fun loadSpeech(): Wav.Pcm16k {
+        val pushed = File(getExternalFilesDir(null), "speech.wav")
+        val audio = if (pushed.isFile) Wav.read16kMono(pushed.readBytes(), pushed.absolutePath)
+                    else Wav.read16kMono(assets.open("speech.wav").use { it.readBytes() }, "assets/speech.wav")
+        Log.i(TAG, "speech: ${if (pushed.isFile) pushed.absolutePath else "assets/speech.wav (bundled)"}, " +
+            "${audio.sourceRate} Hz x ${audio.sourceChannels} ch -> 16 kHz mono, %.2f s".format(audio.seconds))
+        return audio
     }
-
-    private fun tag4(b: ByteArray, at: Int) = String(b, at, 4, Charsets.US_ASCII)
 
     private fun say(msg: String) {
         Log.i(TAG, msg.replace('\n', ' '))

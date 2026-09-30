@@ -143,6 +143,26 @@ location of your Java installation."
     fi
 fi
 
+# bitHuman example: say plainly when the JDK is outside what this project runs on.
+# Gradle 8.11.1 cannot run on JDK 24 or newer (it fails with only
+# "What went wrong: <version number>"), and the Android Gradle Plugin 8.7 needs 17+.
+# Set BITHUMAN_SKIP_JDK_CHECK=1 to bypass.
+if [ -z "${BITHUMAN_SKIP_JDK_CHECK:-}" ] ; then
+    jdk_major=$( "$JAVACMD" -version 2>&1 | sed -n 's/.*version "\([0-9][0-9]*\)\.\{0,1\}\([0-9]*\).*/\1 \2/p' | head -n 1 )
+    jdk_minor=${jdk_major#* }
+    jdk_major=${jdk_major%% *}
+    [ "$jdk_major" = 1 ] && jdk_major=$jdk_minor
+    if [ -n "$jdk_major" ] && { [ "$jdk_major" -lt 17 ] || [ "$jdk_major" -gt 23 ] ; } ; then
+        die "ERROR: this project needs JDK 17 to 23 to build; $JAVACMD is JDK $jdk_major.
+
+Point JAVA_HOME at JDK 17 or 21 and run again, for example:
+    export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64        # Linux
+    export JAVA_HOME=\$(/usr/libexec/java_home -v 17)           # macOS
+    export JAVA_HOME=\"/Applications/Android Studio.app/Contents/jbr/Contents/Home\"  # Android Studio's JDK
+(Gradle 8.11.1, which this project pins, cannot run on JDK 24 or newer.)"
+    fi
+fi
+
 # Increase the maximum file descriptors if we can.
 if ! "$cygwin" && ! "$darwin" && ! "$nonstop" ; then
     case $MAX_FD in #(
