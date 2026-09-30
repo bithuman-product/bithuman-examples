@@ -40,7 +40,7 @@ Windows hosts, GPUs, deploys, releases or live services are listed under
 
 ## This repo
 
-- Default: `claims`, `links`, `published-versions` (network: Maven Central, PyPI,
+- Default: `claims`, `links`, `published-versions` (network: maven.bithuman.ai, PyPI,
   the tap), `realtime-model-rules`, `python-self-host` (one Python), `dev-levers`,
   `flutter-test` and `android-examples` (SKIP without Flutter / JDK 17 + Android SDK).
 - `--full`: `python-matrix` (3.10/3.11/3.13/3.14), `release-ignores-dev-levers`;

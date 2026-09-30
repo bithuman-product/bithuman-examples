@@ -1,6 +1,8 @@
 # Android — adding the bitHuman SDKs to a Gradle build
 
-Three coordinates are published to **Maven Central**. All three ship `arm64-v8a`
+Three coordinates are served by bitHuman's own Maven repository,
+**`https://maven.bithuman.ai`**. New versions are published there only; the versions
+published earlier stay on Maven Central as well. All three ship `arm64-v8a`
 only (no `armeabi-v7a`, no `x86_64`) and carry **no model weights** — models are
 fetched at runtime.
 
@@ -25,8 +27,9 @@ Create one at [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer
 | [expression2-hello/](expression2-hello/) | expression-2 | Wise Pup (`A23WJF0199`) rendered on the phone from a WAV, played back on the audio clock |
 | [essence2-hello/](essence2-hello/) | essence-2 | Sofia Ramirez (`A52DHS2219`), full-resolution 1080x1920, same shape |
 
-Each is a whole Gradle project resolving only Maven Central coordinates, and each
-README carries the five commands that build, install and run it.
+Each is a whole Gradle project that resolves `ai.bithuman` from maven.bithuman.ai and
+everything else from Maven Central, and each README carries the five commands that build,
+install and run it.
 
 **Start with a second-generation model.** `ai.bithuman:sdk` is the
 first-generation artifact and is listed for completeness, not as a
@@ -37,24 +40,26 @@ also a different integration — a `.imx` you push to the device yourself plus a
 API secret, rather than the model store the two rows above use. Details on
 [Android SDK](https://docs.bithuman.ai/platforms/android#troubleshooting).
 
-Verified against `repo1.maven.org` on 2026-09-22: each artifact's own
-`maven-metadata.xml` names exactly these as `<release>`. That file is the
-registry's own answer and is the thing to check — `search.maven.org` returns no
-results for this group at all, so a web search saying "not found" is not evidence
-the artifact is missing.
+Each artifact's own `maven-metadata.xml` names its newest version as `<release>`.
+That file is the registry's own answer and is the thing to check — a web search
+saying "not found" is not evidence the artifact is missing.
 
 ```bash
-curl -s https://repo1.maven.org/maven2/ai/bithuman/essence2-android/maven-metadata.xml
+curl -s https://maven.bithuman.ai/ai/bithuman/essence2-android/maven-metadata.xml
 ```
 
-## `mavenCentral()` is enough to resolve the SDKs
+## Add maven.bithuman.ai for `ai.bithuman`
 
 ```kotlin
 // settings.gradle.kts
 dependencyResolutionManagement {
     repositories {
         google()         // AGP fetches its own aapt2 from here — not a bitHuman dependency
-        mavenCentral()   // every ai.bithuman artifact, and everything they depend on
+        mavenCentral()   // everything the SDKs depend on
+        exclusiveContent {   // every ai.bithuman artifact, from bitHuman's repository only
+            forRepository { maven { url = uri("https://maven.bithuman.ai") } }
+            filter { includeGroup("ai.bithuman") }
+        }
     }
 }
 

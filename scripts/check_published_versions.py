@@ -17,8 +17,9 @@ that still compiles, still renders, and renders differently.
 So the durable fix is not a correction, it is an INSTRUMENT, and it has to hold
 four properties or it will rot the same way:
 
-  1. IT READS THE PUBLISHED REGISTRY, NEVER A CHECKOUT.  Maven Central's
-     `maven-metadata.xml`, PyPI's JSON API, and the tag list of the public tap
+  1. IT READS THE PUBLISHED REGISTRY, NEVER A CHECKOUT.  bitHuman's Maven
+     repository's `maven-metadata.xml` (https://maven.bithuman.ai, which serves
+     ai.bithuman since 2026-09-30; Maven Central gets no new versions), PyPI's JSON API, and the tag list of the public tap
      (`git ls-remote`, one round trip, no auth, no rate limit).  A local clone
      can be behind; a registry cannot be behind itself.
 
@@ -94,7 +95,10 @@ from pathlib import Path
 # ── where the truth lives ────────────────────────────────────────────────────
 # Overridable ONLY so --selftest can aim the fetcher at a dead host and prove
 # that an unreachable registry fails instead of passing.
-MAVEN_BASE = os.environ.get("BH_VERSION_CHECK_MAVEN_BASE", "https://repo1.maven.org/maven2")
+# ai.bithuman is served by bitHuman's own repository since 2026-09-30 (owner decision): new
+# versions go there only, and the builds here resolve the group from there only
+# (exclusiveContent), so Central's <release> would read as stale.
+MAVEN_BASE = os.environ.get("BH_VERSION_CHECK_MAVEN_BASE", "https://maven.bithuman.ai")
 PYPI_BASE = os.environ.get("BH_VERSION_CHECK_PYPI_BASE", "https://pypi.org/pypi")
 TAP_URL = os.environ.get(
     "BH_VERSION_CHECK_TAP_URL", "https://github.com/bithuman-product/homebrew-bithuman.git"
