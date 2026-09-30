@@ -10,8 +10,8 @@ interface VideoSectionConfig {
 
 interface VideoSectionProps {
   roomState: ConnectionState;
-  agentVideoTrack: TrackReferenceOrPlaceholder;
-  localVideoTrack: TrackReferenceOrPlaceholder;
+  agentVideoTrack?: TrackReferenceOrPlaceholder;
+  localVideoTrack?: TrackReferenceOrPlaceholder;
   isCameraEnabled: boolean;
   showEmojiAnimation: boolean;
   activeEmoji: string | null;

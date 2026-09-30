@@ -29,22 +29,16 @@ SAMPLE_CODE = "A52DHS2219"
 SAMPLE_URL = f"https://api.bithuman.ai/v1/agent/{SAMPLE_CODE}/model/download?model=essence-2"
 
 WINDOW = "bitHuman avatar"
+MAX_WINDOW_HEIGHT = 900  # Essence 2 frames are 1080x1920; scale them to fit a laptop screen
 
-# This example is about the window. When there is no window, the SDK already
-# ships the one-liner that writes a file instead, so there is nothing for this
-# example to reimplement — and it cannot reimplement it honestly anyway: the
-# frame rate belongs to the avatar (essence-2 renders at 25 fps, expression-2
-# at 20), and `Avatar` deliberately publishes one method, so an example that
-# wrote its own MP4 would have to guess the rate or reach past the taught
-# surface to find it.
 NO_WINDOW = """No display, so there is no window to draw the avatar in.
 
-To render to a file instead, the SDK does it in one command:
+To render to an MP4 file instead, the SDK does it in one command:
 
-    python -m bithuman render <avatar> <audio>        # writes <avatar>.mp4
+    python -m bithuman render sofia-ramirez speech.wav     # writes sofia-ramirez.mp4
+    python -m bithuman render your-avatar.imx speech.wav   # or your own avatar file
 
-Pass the same avatar and audio you would have passed here. On a desktop with
-a display, this example opens a window as written."""
+On a desktop with a display, this example opens a window as written."""
 
 
 def sample_model() -> str:
@@ -60,32 +54,14 @@ def sample_model() -> str:
 
 
 def require_window() -> None:
-    """Refuse before the render if this machine cannot show one.
+    """Stop before downloading or rendering anything if there is no window to draw in.
 
-    ★THE ORDER OF THESE TWO GATES IS THE WHOLE POINT, because only the second
-    failure is catchable and the first one kills the process.
-
-      1. The GUI build of OpenCV on a box with no display does NOT raise. Qt
-         fails to load its xcb platform plugin and calls abort(): the process
-         dies on SIGABRT with no traceback and no except clause that can help.
-         Measured 2026-09-22 on a headless Linux box with this directory's own
-         requirements.txt — `cv2.imshow` exited 134. So the environment is
-         read FIRST, and cv2 is not asked to open anything until it passes.
-      2. Only then can `namedWindow` be called safely. It raises exactly where
-         `imshow` would if this OpenCV has no GUI compiled in
-         (`opencv-python-headless`, which `bithuman` itself depends on), and
-         raising here means the answer is known BEFORE a frame is rendered
-         rather than discovered mid-stream.
-
-    Both gates run before `bithuman.open()`, so a machine that cannot show the
-    avatar is told so without downloading 148 MB or billing a render.
-
-    The limit, stated rather than papered over: gate 1 reads whether a display
-    is NAMED, not whether it answers. `DISPLAY=:0` pointing at nothing still
-    reaches Qt and still aborts. Covering that honestly means probing the
-    display from a subprocess, which is more machinery than a quickstart should
-    carry — and the shapes this example actually lands in (ssh, Docker, CI)
-    name no display at all.
+    Two checks, in this order:
+      1. Is a display named at all? The GUI build of OpenCV does not raise when
+         there is none: Qt aborts the process (SIGABRT) with nothing to catch.
+         So the environment is checked before cv2 opens anything.
+      2. Can this OpenCV open a window? `opencv-python-headless` (which
+         `bithuman` depends on) raises here instead of later, mid-render.
     """
     if sys.platform not in ("darwin", "win32") and not (
         os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")
@@ -122,7 +98,12 @@ def main() -> None:
     # Leaving the `with` block frees the model.
     with bithuman.open(model) as avatar:
         for frame in avatar.render(args.audio):
-            cv2.imshow(WINDOW, frame[:, :, ::-1])
+            bgr = frame[:, :, ::-1]
+            if bgr.shape[0] > MAX_WINDOW_HEIGHT:
+                scale = MAX_WINDOW_HEIGHT / bgr.shape[0]
+                bgr = cv2.resize(bgr, (round(bgr.shape[1] * scale), MAX_WINDOW_HEIGHT),
+                                 interpolation=cv2.INTER_AREA)
+            cv2.imshow(WINDOW, bgr)
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
 

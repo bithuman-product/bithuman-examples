@@ -26,7 +26,8 @@ from openai.types.realtime.realtime_audio_input_turn_detection import ServerVad
 logger = logging.getLogger("bithuman-agent")
 logger.setLevel(logging.INFO)
 
-load_dotenv()
+# Only this folder's .env: a bare load_dotenv() also searches every parent folder.
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
 
 def check_secret_env() -> None:
@@ -46,9 +47,10 @@ def check_secret_env() -> None:
 async def livekit_cloud_token(agent_code: str, room_name: str) -> str:
     """A one-hour token that can only start this agent's avatar in this room.
 
-    Never pass your API secret to the plugin: it copies `api_secret` into the avatar
-    participant's attributes, which every participant in the room can read. The secret
-    stays in this process and is only sent to bitHuman, to mint this token.
+    Why: for a cloud avatar, the plugin copies whatever it gets as `api_secret` into the
+    avatar participant's attributes, which every participant in the room can read. So
+    the plugin gets this short-lived, single-room token, and your real secret stays in
+    this process; it is only ever sent to api.bithuman.ai, to mint the token.
     """
     async with aiohttp.ClientSession() as http:
         async with http.post(
@@ -57,25 +59,33 @@ async def livekit_cloud_token(agent_code: str, room_name: str) -> str:
             json={"agent_code": agent_code, "scope": "livekit-cloud",
                   "room_name": room_name, "livekit_url": os.environ["LIVEKIT_URL"]},
         ) as resp:
-            resp.raise_for_status()
+            if resp.status != 200:
+                # The body names the problem (a mistyped secret, an unknown agent code, ...).
+                raise RuntimeError(f"bitHuman refused to mint a room token ({resp.status}): "
+                                   f"{(await resp.text())[:300]}")
             return (await resp.json())["scoped_token"]
+
+
+def agent_code() -> str:
+    """Your agent code, e.g. A23WJF0199 (BITHUMAN_AGENT_ID; BITHUMAN_AGENT_CODE also works)."""
+    code = os.getenv("BITHUMAN_AGENT_ID") or os.getenv("BITHUMAN_AGENT_CODE")
+    if not code:
+        sys.exit("Set BITHUMAN_AGENT_ID to your agent code (the public sample is A23WJF0199; "
+                 "yours are on www.bithuman.ai).")
+    return code
 
 
 async def entrypoint(ctx: JobContext):
     await ctx.connect()
     await ctx.wait_for_participant()
 
-    avatar_id = os.getenv("BITHUMAN_AGENT_ID")
-    if not avatar_id:
-        raise ValueError(
-            "Set BITHUMAN_AGENT_ID in your .env file. "
-            "Create an agent at https://www.bithuman.ai or via api/generation.py"
-        )
-
-    logger.info(f"Cloud Essence mode -- avatar_id: {avatar_id}")
+    avatar_id = agent_code()
+    logger.info(f"Cloud avatar -- agent code: {avatar_id}")
 
     avatar = bithuman.AvatarSession(
         avatar_id=avatar_id,
+        # The plugin's parameter is named api_secret, but it receives the minted
+        # room token here, never your API secret (cloud mode takes no api_token=).
         api_secret=await livekit_cloud_token(avatar_id, ctx.room.name),
     )
 
@@ -102,6 +112,7 @@ async def entrypoint(ctx: JobContext):
 
 if __name__ == "__main__":
     check_secret_env()
+    agent_code()
     cli.run_app(
         WorkerOptions(
             entrypoint_fnc=entrypoint,

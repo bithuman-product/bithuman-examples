@@ -18,12 +18,13 @@ Prerequisites: Python 3.10–3.14, and `livekit-server` 1.9.12 or newer (`liveki
 ```sh
 # 1. LiveKit server + Python
 brew install livekit python@3.13                          # macOS
-curl -sSL https://get.livekit.io | bash                   # Linux; on Ubuntu 24.04 also: sudo apt install python3.12-venv
+curl -sSL https://get.livekit.io | bash                   # Linux; on Debian/Ubuntu also: sudo apt install python3-venv
 
 # 2. The example
 git clone https://github.com/bithuman-product/bithuman-examples
 cd bithuman-examples/python/self-host
-python3.13 -m venv .venv && . .venv/bin/activate          # Ubuntu 24.04: python3.12
+python3 --version                                         # needs 3.10–3.14; otherwise use e.g. python3.13 below
+python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
 
 # 3. Keys — in .env, never on the command line
@@ -63,7 +64,7 @@ Everything is read from `.env` ([.env.example](.env.example)):
 
 | Variable | Default | What it does |
 |---|---|---|
-| `BITHUMAN_API_SECRET` | — (required) | Your bitHuman API secret. Rendering is metered on it. |
+| `BITHUMAN_MASTER_SECRET` | — (required) | Your bitHuman API secret (under this name, never `BITHUMAN_API_SECRET`, in a LiveKit worker). Rendering is metered on it. |
 | `OPENAI_API_KEY` | — (required) | Your OpenAI key, for OpenAI Realtime. |
 | `BITHUMAN_AVATAR` | `wise-pup` | Which avatar (table above). |
 | `BITHUMAN_REALTIME_MODEL` | `gpt-realtime-2.1-mini` | The OpenAI Realtime model. |
@@ -77,8 +78,9 @@ Want a different speech-to-text, LLM or text-to-speech? `agent.py` is a plain
 
 ## What you pay
 
-bitHuman credits for the seconds the avatar is talking — an idle avatar is not billed. OpenAI bills your
-OpenAI key directly for the Realtime session.
+bitHuman credits for active session time, to the second, at the self-hosted rate: from the moment the
+avatar joins the room until it leaves, whether it is talking or idle ([pricing](https://docs.bithuman.ai/pricing)).
+OpenAI bills your OpenAI key directly for the Realtime session.
 
 ## How it works
 
@@ -100,8 +102,9 @@ NVIDIA GPU, LiveKit's WebRTC library may use it to encode the video, which is ex
 |---|---|---|
 | `This example needs Python 3.10 to 3.14` | a Python that `bithuman` ships no wheel for | Make the venv with Python 3.10–3.14 |
 | `No module named 'PIL'` | The plugin imports Pillow without declaring it | `pip install -r requirements.txt` (it lists `pillow`) |
-| `BITHUMAN_API_SECRET is not set` | `.env` missing or not filled | `cp .env.example .env` and fill both secrets |
-| The avatar never appears | No or invalid `BITHUMAN_API_SECRET` — both models refuse to render without it | Set a valid secret in `.env`, restart `agent.py` |
+| `BITHUMAN_MASTER_SECRET is not set` | `.env` missing or not filled | `cp .env.example .env` and fill both secrets |
+| `Rename BITHUMAN_API_SECRET to BITHUMAN_MASTER_SECRET` | the secret is under the name the plugin would read by itself | rename it in `.env` (or `unset BITHUMAN_API_SECRET` in your shell) |
+| The avatar never appears | No or invalid `BITHUMAN_MASTER_SECRET`: both models refuse to render without it | Set a valid secret in `.env`, restart `agent.py` |
 | `Address already in use` for port 8089 | another `agent.py` is still running | stop it, then start again |
 | The page says it could not connect | `livekit-server --dev` is not running | start it (terminal 1), then click Start again |
 | Nothing happens after joining | `livekit-server --dev` is not running, or `agent.py` is not | Start both, terminal 1 first |
