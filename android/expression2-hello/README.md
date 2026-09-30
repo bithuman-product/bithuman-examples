@@ -7,7 +7,7 @@ the device, then plays the audio and shows each frame on the audio clock.
 
 Its page on the docs site, with the app running on a Galaxy S25+, is
 [Android example: Expression 2](https://docs.bithuman.ai/examples/android-expression-2). It resolves one coordinate, `ai.bithuman:expression2-android:0.4.9`, from
-Maven Central, and nothing else from bitHuman.
+bitHuman's Maven repository (`https://maven.bithuman.ai`), and nothing else from bitHuman.
 
 ## What you need
 

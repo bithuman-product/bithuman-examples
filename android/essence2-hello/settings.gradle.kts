@@ -5,7 +5,11 @@ pluginManagement {
 dependencyResolutionManagement {
     repositories {
         google()         // AGP resolves its own aapt2 from here
-        mavenCentral()   // ai.bithuman:essence2-android
+        mavenCentral()   // what the SDK itself depends on (kotlin-stdlib)
+        exclusiveContent {   // ai.bithuman:essence2-android, from bitHuman's repository only
+            forRepository { maven { url = uri("https://maven.bithuman.ai") } }
+            filter { includeGroup("ai.bithuman") }
+        }
     }
 }
 rootProject.name = "e2hello"

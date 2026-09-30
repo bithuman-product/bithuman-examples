@@ -42,7 +42,7 @@ first_python() { local v; for v in "$@"; do have "python$v" && { echo "python$v"
 STEPS=(
   "claims|default|0|claims-and-links.yml job claims: check_claims.py --prove-by-mutation, then grade the tree"
   "links|default|0|claims-and-links.yml job links: check_links.py --prove-by-mutation, then grade (network)"
-  "published-versions|default|0|published-versions.yml: check_published_versions.py --selftest + grade vs Maven Central/PyPI/tap (network)"
+  "published-versions|default|0|published-versions.yml: check_published_versions.py --selftest + grade vs maven.bithuman.ai/PyPI/tap (network)"
   "realtime-model-rules|default|0|python-examples.yml job realtime-model-rules: no gpt-4o realtime preview + turn_detection controls"
   "python-self-host|default|1|python-examples.yml job self-host-imports on ONE python (first of 3.13/3.11/3.10/3.14): venv + requirements + import agent + compileall"
   "dev-levers|default|0|flutter-tests.yml job dev-levers: check_dev_levers.sh + two negative controls"
