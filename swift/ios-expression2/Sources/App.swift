@@ -2,8 +2,8 @@
 //
 // Engine:  expression-2, via the `Expression2` product of the SwiftPM package
 //          https://github.com/bithuman-product/homebrew-bithuman.git
-// Inputs:  Sources/Model/agent.avatar        your agent's <CODE>.avatar
-//          Sources/Model/shared_engine/      from `bithuman engine install mac`
+// Inputs:  Sources/Model/agent.imx           the avatar (setup.sh downloads it)
+//          Sources/Model/shared-engine.imx   the shared engine file, one for every avatar
 //          Sources/Model/speech16k.wav       16 kHz mono PCM speech
 // Output:  20 FPS lip-synced frames (one per 50 ms of audio, expression-2's
 //          native rate), drawn in SwiftUI, paced on the audio clock.
@@ -41,8 +41,8 @@ func log(_ line: String) {
 
 enum Payload {
     static var root: URL? { Bundle.main.url(forResource: "Model", withExtension: nil) }
-    static var avatarContainer: URL? { root?.appendingPathComponent("agent.avatar") }
-    static var sharedEngineDir: URL? { root?.appendingPathComponent("shared_engine") }
+    static var avatarContainer: URL? { root?.appendingPathComponent("agent.imx") }
+    static var sharedEngineContainer: URL? { root?.appendingPathComponent("shared-engine.imx") }
     static var speechWAV: URL? { root?.appendingPathComponent("speech16k.wav") }
 }
 
@@ -85,39 +85,18 @@ actor Renderer {
     private(set) var width = 0
     private(set) var height = 0
 
-    /// Stage the container's members to disk, then start the engine.
-    ///
-    /// Why by hand and not `create(avatarContainer:…:stagingDir:)`: through
-    /// Expression2 2.11.2 the shipped unpacker refuses a published `.avatar` on
-    /// iOS by member name. `Expression2Container.read` does not. See the doc page.
+    /// Open both downloads as they are and start the engine — the same call as
+    /// docs.bithuman.ai/platforms/ios "First frame" and macos-expression2.
+    /// `stagingDir` is any writable directory the engine unpacks the containers
+    /// into once; keep it between launches and the next start is much faster.
     func load(avatar: URL, sharedEngine: URL, staging: URL) throws -> String {
-        let fm = FileManager.default
-        let dir = staging.appendingPathComponent("avatar", isDirectory: true)
-        try? fm.removeItem(at: dir)
-        try fm.createDirectory(at: dir, withIntermediateDirectories: true)
-
-        let members = try Expression2Container.members(of: avatar)
-        for m in members {
-            let dst = dir.appendingPathComponent(m.name)
-            try fm.createDirectory(at: dst.deletingLastPathComponent(),
-                                   withIntermediateDirectories: true)
-            try Expression2Container.read(m.name, from: avatar).write(to: dst)
-        }
-
-        // Ask before you start, rather than catching a throw.
-        let missing = Expression2Engine.missingMembers(avatarDir: dir,
-                                                       sharedEngineDir: sharedEngine)
-        guard missing.isEmpty else {
-            throw NSError(domain: "IOSExpression2", code: 1, userInfo: [
-                NSLocalizedDescriptionKey:
-                    "missing member(s): \(missing.joined(separator: ", "))"])
-        }
-
-        let e = try Expression2Engine.create(modelPath: dir, sharedEngineDir: sharedEngine)
+        let e = try Expression2Engine.create(avatarContainer: avatar,
+                                             sharedEngineContainer: sharedEngine,
+                                             stagingDir: staging)
         engine = e
         width = e.width
         height = e.height
-        return "\(members.count) members staged · \(e.width)x\(e.height) · isReady=\(e.isReady)"
+        return "\(e.width)x\(e.height) · isReady=\(e.isReady)"
     }
 
     func idleFrame() -> [UInt8]? { engine?.idle }
@@ -132,6 +111,15 @@ actor Renderer {
     /// see how far ahead it is.
     func pullOne() -> [UInt8]? { engine?.pull()?.frame }
     func queued() -> Int { engine?.queuedFrames ?? 0 }
+}
+
+/// Hands the converter one tap buffer, once. `AVAudioConverter` calls its input
+/// block synchronously inside `convert`, so nothing here is shared across threads;
+/// the box keeps Swift 6 from reading a captured `var` as a data race.
+final class OneShotInput: @unchecked Sendable {
+    private var buffer: AVAudioPCMBuffer?
+    init(_ buffer: AVAudioPCMBuffer) { self.buffer = buffer }
+    func take() -> AVAudioPCMBuffer? { defer { buffer = nil }; return buffer }
 }
 
 // MARK: - 4. BGR888 → CGImage. Two vImage passes and no intermediate copy, so
@@ -218,14 +206,17 @@ final class AvatarSession: ObservableObject {
     // 5a. Boot: stage the members and start the engine.
     func boot() async {
         guard let avatar = Payload.avatarContainer,
-              let shared = Payload.sharedEngineDir,
-              FileManager.default.fileExists(atPath: avatar.path) else {
+              let shared = Payload.sharedEngineContainer,
+              FileManager.default.fileExists(atPath: avatar.path),
+              FileManager.default.fileExists(atPath: shared.path) else {
             status = "No model in the bundle."
             detail = "Run ./setup.sh — see README.md."
-            log("no Model/agent.avatar in the bundle — run ./setup.sh")
+            log("no Model/agent.imx or Model/shared-engine.imx in the bundle — run ./setup.sh")
             return
         }
-        let staging = FileManager.default.temporaryDirectory
+        // Caches, not tmp: the unpacked engine survives relaunches (and the system
+        // may still reclaim it; the engine then unpacks again).
+        let staging = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("expression2-stage", isDirectory: true)
         let t0 = Date()
         do {
@@ -312,14 +303,20 @@ final class AvatarSession: ObservableObject {
             await renderer.flushTail()
 
             // Now wait out the tail. `pull()` still returns nil between chunks, so poll
-            // until the engine has been quiet for a moment rather than stopping at the
-            // first nil.
+            // until the engine has been quiet for a while rather than stopping at the
+            // first nil. The engine renders 1.6 s of audio at a time, and on a slower
+            // device (or the Simulator) one chunk can take more than 1.5 s — a shorter
+            // quiet window stops half-way through a reply. Measured in the iOS 26.3
+            // Simulator: a 1.5 s window kept 214 of ~406 frames for a 20.3 s clip.
+            let entitledFrames = Int(seconds * Self.framesPerSecond)
             var quiet = 0
-            while quiet < 30 {                     // 30 x 50 ms of silence = done
+            while quiet < 100 {                    // 100 x 50 ms with no new frame = done
                 if let f = await renderer.pullOne() {
                     quiet = 0
                     if let cg = makeCGImage(f, w, h) { frames.append(cg) }
                 } else {
+                    // Every frame this audio is entitled to is here and nothing is queued.
+                    if frames.count >= entitledFrames, await renderer.queued() == 0 { break }
                     quiet += 1
                     try? await Task.sleep(nanoseconds: 50_000_000)
                 }
@@ -332,7 +329,7 @@ final class AvatarSession: ObservableObject {
             // trailing silence so a few short is normal — but a reply that is missing a
             // large share of its frames otherwise looks like a short reply rather than a
             // lost one, and that is how a silent drop stays invisible.
-            let entitled = Int(seconds * Self.framesPerSecond)
+            let entitled = entitledFrames
             if frames.count < entitled * 9 / 10 {
                 log(String(format: "⚠︎ only %d of the ~%d frames this %.1f s of audio should produce — "
                                  + "the picture will be shorter than the sound",
@@ -384,15 +381,22 @@ final class AvatarSession: ObservableObject {
         // below, so the avatar drives its mouth from its own voice. .videoChat is the
         // speaker-routed sibling of .voiceChat (which is earpiece-tuned and quiet).
         // Same choice, same reason, as the Flutter plugin's RealtimeAudioIO.
+        // `.allowBluetoothHFP` is the iOS 26 SDK's name for what `.allowBluetooth` did
+        // (the same option); the old name is deprecated there.
         try? session.setCategory(.playAndRecord, mode: .videoChat,
-                                 options: [.defaultToSpeaker, .allowBluetooth])
+                                 options: [.defaultToSpeaker, .allowBluetoothHFP])
         try? session.setActive(true)
-        AVAudioApplication.requestRecordPermission { [weak self] granted in
+        let onAnswer: @Sendable (Bool) -> Void = { [weak self] granted in
             Task { @MainActor in
                 guard let self else { return }
                 guard granted else { self.status = "Microphone permission denied."; return }
                 self.startMic()
             }
+        }
+        if #available(iOS 17.0, *) {
+            AVAudioApplication.requestRecordPermission(completionHandler: onAnswer)
+        } else {
+            session.requestRecordPermission(onAnswer)   // iOS 16
         }
     }
 
@@ -425,10 +429,12 @@ final class AvatarSession: ObservableObject {
             guard let out = AVAudioPCMBuffer(pcmFormat: target, frameCapacity: capacity)
             else { return }
             var err: NSError?
-            var fed = false
+            // convert(to:error:withInputFrom:) calls this block synchronously, on this
+            // thread, before it returns; the one-shot box just says so to Swift 6.
+            let input = OneShotInput(buffer)
             converter.convert(to: out, error: &err) { _, status in
-                if fed { status.pointee = .noDataNow; return nil }
-                fed = true; status.pointee = .haveData; return buffer
+                guard let b = input.take() else { status.pointee = .noDataNow; return nil }
+                status.pointee = .haveData; return b
             }
             guard err == nil, out.frameLength > 0, let ch = out.floatChannelData?[0] else { return }
             let samples = Array(UnsafeBufferPointer(start: ch, count: Int(out.frameLength)))

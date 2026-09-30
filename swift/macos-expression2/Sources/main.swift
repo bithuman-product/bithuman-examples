@@ -30,59 +30,82 @@ func writePNG(_ bgr: [UInt8], width: Int, height: Int, to url: URL) {
     CGImageDestinationFinalize(dest)
 }
 
+struct ExampleError: Error, CustomStringConvertible {
+    let description: String
+}
+
 /// Read a 16 kHz mono WAV into the `[Float]` the engine feeds on.
 func readPCM(_ url: URL) throws -> [Float] {
     let file = try AVAudioFile(forReading: url)
-    guard let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat,
-                                        frameCapacity: AVAudioFrameCount(file.length)),
-          file.processingFormat.channelCount == 1
-    else { fatalError("expected a mono WAV") }
+    let format = file.processingFormat
+    guard format.channelCount == 1, format.sampleRate == 16_000,
+          let buffer = AVAudioPCMBuffer(pcmFormat: format,
+                                        frameCapacity: AVAudioFrameCount(file.length))
+    else {
+        throw ExampleError(description: "\(url.lastPathComponent) must be 16 kHz mono; it is "
+            + "\(Int(format.sampleRate)) Hz, \(format.channelCount) channel(s)")
+    }
     try file.read(into: buffer)
     return Array(UnsafeBufferPointer(start: buffer.floatChannelData![0],
                                      count: Int(buffer.frameLength)))
 }
 
-let model = URL(fileURLWithPath: "Model", isDirectory: true)
-let out = URL(fileURLWithPath: "out", isDirectory: true)
-try FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
-
-// 1. Open the identity. Both downloads are containers, opened as they are;
-//    `stagingDir` is a writable directory the engine unpacks them into once.
-//    Keep it between runs and the next start is much faster.
-let engine = try Expression2Engine.create(
-    avatarContainer: model.appendingPathComponent("agent.imx"),
-    sharedEngineContainer: model.appendingPathComponent("shared-engine.imx"),
-    stagingDir: model.appendingPathComponent("staged"))
-print("engine ready: \(engine.width)x\(engine.height), isReady=\(engine.isReady)")
-
-let samples = try readPCM(model.appendingPathComponent("speech16k.wav"))
-print("audio: \(samples.count) samples, "
-    + String(format: "%.2f s", Double(samples.count) / 16_000))
-
-// 2. Feed the whole utterance, then drain. Generation is asynchronous:
-//    `pull()` returns nil until a chunk of frames lands, so a drain on the
-//    line after `feed()` gets nothing at all. Poll — 100 idle ticks is done.
-let started = Date()
-engine.feed(samples)
-engine.flushTail()
-
-var frames = 0, idleTicks = 0
-while idleTicks < 100 {
-    var got = false
-    while let (frame, _) = engine.pull() {
-        if frames == 0 {
-            writePNG(frame, width: engine.width, height: engine.height,
-                     to: out.appendingPathComponent("first-frame.png"))
-        }
-        frames += 1
-        got = true
+func run() throws {
+    let model = URL(fileURLWithPath: "Model", isDirectory: true)
+    let out = URL(fileURLWithPath: "out", isDirectory: true)
+    for f in ["agent.imx", "shared-engine.imx", "speech16k.wav"]
+    where !FileManager.default.fileExists(atPath: model.appendingPathComponent(f).path) {
+        throw ExampleError(description: "Model/\(f) is missing — run ./setup.sh first")
     }
-    if got { idleTicks = 0 } else { idleTicks += 1; usleep(50_000) }
+    try FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
+
+    // 1. Open the identity. Both downloads are containers, opened as they are;
+    //    `stagingDir` is a writable directory the engine unpacks them into once.
+    //    Keep it between runs and the next start is much faster.
+    let engine = try Expression2Engine.create(
+        avatarContainer: model.appendingPathComponent("agent.imx"),
+        sharedEngineContainer: model.appendingPathComponent("shared-engine.imx"),
+        stagingDir: model.appendingPathComponent("staged"))
+    print("engine ready: \(engine.width)x\(engine.height), isReady=\(engine.isReady)")
+
+    let samples = try readPCM(model.appendingPathComponent("speech16k.wav"))
+    print("audio: \(samples.count) samples, "
+        + String(format: "%.2f s", Double(samples.count) / 16_000))
+
+    // 2. Feed the whole utterance, then drain. Generation is asynchronous:
+    //    `pull()` returns nil until a chunk of frames lands, so a drain on the
+    //    line after `feed()` gets nothing at all. Poll — 100 idle ticks is done.
+    let started = Date()
+    engine.feed(samples)
+    engine.flushTail()
+
+    var frames = 0, idleTicks = 0
+    while idleTicks < 100 {
+        var got = false
+        while let (frame, _) = engine.pull() {
+            if frames == 0 {
+                writePNG(frame, width: engine.width, height: engine.height,
+                         to: out.appendingPathComponent("first-frame.png"))
+            }
+            frames += 1
+            got = true
+        }
+        if got { idleTicks = 0 } else { idleTicks += 1; usleep(50_000) }
+    }
+
+    let elapsed = Date().timeIntervalSince(started)
+    print("generated \(frames) frames in " + String(format: "%.2f s", elapsed)
+        + String(format: " (%.1f FPS, %.2fx real time)",
+                 Double(frames) / elapsed,
+                 Double(frames) / 20 / elapsed)
+        + " -> out/first-frame.png")
 }
 
-let elapsed = Date().timeIntervalSince(started)
-print("generated \(frames) frames in " + String(format: "%.2f s", elapsed)
-    + String(format: " (%.1f FPS, %.2fx real time)",
-             Double(frames) / elapsed,
-             Double(frames) / 20 / elapsed)
-    + " -> out/first-frame.png")
+// A refusal (a missing or rejected key, a plan that does not cover it, no network) or a
+// missing file ends the program with its reason and exit code 1, not a crash.
+do {
+    try run()
+} catch {
+    FileHandle.standardError.write(Data("error: \(error)\n".utf8))
+    exit(1)
+}

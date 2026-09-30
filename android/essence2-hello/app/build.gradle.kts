@@ -6,17 +6,24 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-// Your bitHuman API secret: `bithuman.apiSecret=…` in local.properties (git-ignored,
-// next to settings.gradle.kts), or BITHUMAN_API_SECRET in the environment.
+// Your bitHuman API secret, read the way docs.bithuman.ai/platforms/android#install
+// reads it: `bithumanApiSecret=…` in ~/.gradle/gradle.properties, outside your source
+// tree. Also accepted, in this order: BITHUMAN_API_SECRET in the environment (the name
+// every bitHuman SDK and CLI reads), then `bithuman.apiSecret=…` in local.properties
+// (what this project used before 2026-09-30).
 // ★It becomes a BuildConfig string constant, so it is readable out of the APK —
 // fine for this local hello-world, wrong for anything you ship: a real app fetches
 // the secret from YOUR backend at startup.
-val bithumanApiSecret: String = run {
-    val props = Properties()
-    val f = rootProject.file("local.properties")
-    if (f.isFile) f.inputStream().use { props.load(it) }
-    props.getProperty("bithuman.apiSecret") ?: System.getenv("BITHUMAN_API_SECRET") ?: ""
-}
+val bithumanApiSecret: String =
+    providers.gradleProperty("bithumanApiSecret").orNull?.takeIf { it.isNotBlank() }
+        ?: providers.environmentVariable("BITHUMAN_API_SECRET").orNull?.takeIf { it.isNotBlank() }
+        ?: run {
+            val props = Properties()
+            val f = rootProject.file("local.properties")
+            if (f.isFile) f.inputStream().use { props.load(it) }
+            props.getProperty("bithuman.apiSecret")
+        }
+        ?: ""
 
 android {
     namespace  = "com.example.e2hello"
@@ -30,8 +37,8 @@ android {
         versionName   = "1.0"
         ndk { abiFilters += "arm64-v8a" }       // the only ABI published
 
-        // Read from local.properties (git-ignored) or the environment — never
-        // from a literal in a file you commit, and never on a command line.
+        // Read from ~/.gradle/gradle.properties or the environment (see the top of
+        // this file) — never from a literal in a file you commit, never on a command line.
         buildConfigField("String", "BITHUMAN_API_SECRET", "\"$bithumanApiSecret\"")
     }
 
@@ -51,4 +58,5 @@ android {
 
 dependencies {
     implementation("ai.bithuman:essence2-android:0.8.1")
+    testImplementation("junit:junit:4.13.2")   // app/src/test: the WAV reader, on the JVM
 }

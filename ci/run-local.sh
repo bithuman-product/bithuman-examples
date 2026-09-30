@@ -52,9 +52,10 @@ STEPS=(
   "release-ignores-dev-levers|full|1|flutter-tests.yml job release-ignores-dev-levers: scripts/prove_release_ignores_dev_levers.sh (flutter + JDK17 + Android SDK)"
   "swift-typecheck-ios|mac|1|swift-examples.yml job typecheck-ios (macOS + Xcode): pinned xcframeworks + swiftc -typecheck + negative control"
   "swift-build-packages|mac|1|swift-examples.yml job build-packages (macOS + Xcode): swift build every swift/*/Package.swift"
+  "swift-xcodebuild-ios|mac|1|the COMMITTED ios-essence2 + ios-expression2 Xcode projects from a clean copy: setup.sh + xcodebuild for the generic Simulator and a device, unsigned (network, ~700 MB)"
 )
 MANUAL=(
-  "swift-typecheck-ios / swift-build-packages (macOS host + Xcode): on a Mac run ci/run-local.sh --only swift-typecheck-ios and --only swift-build-packages (recipe: ci/github-workflows-disabled/swift-examples.yml)"
+  "swift-typecheck-ios / swift-build-packages / swift-xcodebuild-ios (macOS host + Xcode): on a Mac run ci/run-local.sh --full, or --only each of them (recipe: ci/github-workflows-disabled/swift-examples.yml)"
   "android-examples / release-ignores-dev-levers need JDK 17 + an Android SDK (ANDROID_HOME); on such a host ci/run-local.sh runs them, else they SKIP"
   "schedule: claims-and-links.yml and published-versions.yml also ran once a day (registry drift takes no commit): run ci/run-local.sh --only published-versions and --only links periodically"
 )
@@ -161,6 +162,30 @@ step_swift_build_packages() {
     if (cd "$d" && swift build 2>&1 | tail -30); then echo "OK $d"; else echo "FAIL $d"; failed="$failed $d"; fi
   done
   [ -z "$failed" ] || { echo "packages failed to build:$failed"; return 1; }
+}
+step_swift_xcodebuild_ios() {
+  need_mac
+  # ★Builds what a newcomer opens, not a typecheck of the sources: on 2026-09-30 the
+  # committed IOSEssence2.xcodeproj linked the wrong product and referenced two
+  # bundles that no longer existed, while the typecheck step stayed green.
+  local tmp p n dest failed=""
+  tmp=$(mktemp -d "${TMPDIR:-/tmp}/xcodebuild-ios.XXXXXX")
+  git -C "$ROOT" archive HEAD swift/ios-essence2 swift/ios-expression2 | tar -x -C "$tmp"
+  for p in ios-essence2:IOSEssence2 ios-expression2:IOSExpression2; do
+    n=${p##*:}; p=${p%%:*}
+    echo "== swift/$p: setup.sh"
+    (cd "$tmp/swift/$p" && ./setup.sh >/dev/null) || { failed="$failed $p(setup)"; continue; }
+    for dest in 'generic/platform=iOS Simulator' 'generic/platform=iOS'; do
+      echo "== swift/$p: xcodebuild [$dest]"
+      if (cd "$tmp/swift/$p" && xcodebuild -project "$n.xcodeproj" -scheme "$n" -destination "$dest" \
+            -derivedDataPath "$tmp/dd" -clonedSourcePackagesDirPath "$tmp/spm" -packageCachePath "$tmp/spmcache" \
+            CODE_SIGNING_ALLOWED=NO build 2>&1 | grep -E 'error:|BUILD (SUCCEEDED|FAILED)' | tail -5 | tee /dev/stderr | grep -q 'BUILD SUCCEEDED'); then
+        echo "OK $p [$dest]"
+      else failed="$failed $p[$dest]"; fi
+    done
+  done
+  rm -rf "$tmp"
+  [ -z "$failed" ] || { echo "failed:$failed"; return 1; }
 }
 
 # ---------------------------------------------------------------- runner

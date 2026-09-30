@@ -30,6 +30,9 @@ None of them is committed.
 
 ## Measured
 
+Re-checked 2026-09-30 on an Apple M4 (macOS 26.6.2, Xcode 26.3, Swift package
+2.19.3): 407 frames for 20.34 s, `out/first-frame.png` 416x720.
+
 On a MacBook Pro (Apple M4 Max, macOS 26.5, Xcode 26.5, Swift 6.3.2) on
 2026-09-22, against the public showcase identity `A23WJF0199`, with the machine
 busy with other work:
@@ -46,20 +49,19 @@ for this machine; keep `Model/staged/` and the next start is much faster.
 
 ## Requirements
 
-- An Apple Silicon Mac, macOS 13 or newer, and Xcode 26 or newer.
+- An Apple Silicon Mac, **macOS 14 or newer**, and Xcode 26 or newer. `Package.swift`
+  targets macOS 14: the Mac engine core the `Expression2` product links is built for
+  macOS 14 (a macOS 13 target links with a "built for newer 'macOS' version (14.0)"
+  warning and is not verified to run on 13).
 - About 800 MB of disk: 365 MB of downloads and the directory the engine
   unpacks them into.
 
-## What the build prints
+## What the build and the run print
 
-The shipped `Expression2` framework carries debug paths from the machine that
-built it, so every link emits ten warnings naming a directory that does not
-exist on your Mac:
+With Swift package 2.19.3 and Xcode 26.3 the release build prints no warnings
+(checked 2026-09-30). The run also prints the engine's own `[embody…]` log lines
+between the three lines above; they are informational.
 
-```text
-warning: (arm64) /Users/…/Build/Intermediates.noindex/… unable to open object
-file: No such file or directory
-```
-
-They are harmless — the build completes and the binary runs — and there is
-nothing to do about them on this side.
+Without an API secret the tool stops before it renders: it prints `error:` followed
+by the engine's reason (which names `BITHUMAN_API_SECRET` and where to get a key) and
+exits with code 1, rather than crashing.

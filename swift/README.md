@@ -6,10 +6,10 @@ device; your app passes in 16 kHz mono speech and draws the frames. The engines 
 your API secret when a session starts and report usage to bitHuman.
 
 ```swift
-.package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.18.0")
+.package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.19.3")
 ```
 
-Write `2.18.0` or newer: `from:` is a floor, and older tags pin engines that behave
+Write `2.19.3` (the current version) or at least `2.18.0`: `from:` is a floor, and older tags pin engines that behave
 differently. The current version is on
 [docs.bithuman.ai/versions.json](https://docs.bithuman.ai/versions.json); see
 [Install](https://docs.bithuman.ai/platforms/ios#install).
@@ -27,14 +27,18 @@ from your backend — see "What a shipped app holds" in the
 
 ## The examples
 
-Start with the first row that matches the machine on your desk. [`ci/run-local.sh`](../ci/run-local.sh) builds the Mac
-packages and typechecks the iOS sources against the published package on a Mac before merging
-(steps `swift-build-packages`, `swift-typecheck-ios`).
+Start with the first row that matches the machine on your desk. Each example's
+`setup.sh` fetches what it needs and, if a download fails, says which one and what the
+server answered. [`ci/run-local.sh`](../ci/run-local.sh) is run by hand on a Mac before
+merging (GitHub Actions are off for this repository): it builds the Mac packages,
+typechecks the iOS sources, and builds the two committed Xcode projects from a clean
+copy for the Simulator and a device (steps `swift-build-packages`,
+`swift-typecheck-ios`, `swift-xcodebuild-ios`).
 
 | Example | Runs on | What it shows |
 |---|---|---|
-| [macos-expression2/](macos-expression2/) | any Apple silicon Mac | Expression 2 on your Mac: a WAV in, lip-synced frames out, in one file |
-| [ios-expression2/](ios-expression2/) | any Apple silicon iPhone or iPad | the same engine as a whole SwiftUI app |
+| [macos-expression2/](macos-expression2/) | any Apple silicon Mac on macOS 14+ | Expression 2 on your Mac: a WAV in, lip-synced frames out, in one file |
+| [ios-expression2/](ios-expression2/) | any Apple silicon iPhone or iPad on iOS 16+, or the Simulator | the same engine as a whole SwiftUI app |
 | [ios-essence2/](ios-essence2/) | an Apple silicon iPhone or iPad on iOS 26 | a photoreal Essence 2 avatar as a whole SwiftUI app (`Essence2Kit`) |
 
 Every one of them needs an API secret.
@@ -63,13 +67,15 @@ of it. The package also vends the legacy `bitHumanKit` 2.4.0 for existing apps.
 
 Every product ships `ios-arm64`, `ios-arm64-simulator` and `macos-arm64`, and every
 simulator slice is arm64 only. Essence 2 needs a physical device; Expression 2 also
-runs in the Simulator.
+runs in the Simulator. Both iOS projects here set
+`EXCLUDED_ARCHS[sdk=iphonesimulator*] = x86_64`, so a generic Simulator build needs no
+`ARCHS=arm64`; in your own project add that setting or pass `ARCHS=arm64`.
 
 ## Device floors
 
 | You ship | Device | OS |
 |---|---|---|
-| `Expression2` | any Apple silicon iPhone, iPad or Mac | iOS 16 / macOS 13 |
+| `Expression2` | any Apple silicon iPhone, iPad or Mac | iOS 16 / macOS 13 declared; the Mac engine core is built for macOS 14, so the Mac example targets 14 |
 | `Essence2Kit`, `Essence2` | any Apple silicon iPhone; iPad with M-series; Mac with M3 or newer | iOS 26 / macOS 26 |
 
 ## No code at all
@@ -77,7 +83,7 @@ runs in the Simulator.
 On a Mac you can reach the same engines without Xcode, with the bitHuman CLI:
 
 ```bash
-brew install bithuman-product/bithuman/bithuman-cli
+curl -fsSL https://install.bithuman.ai | sh    # or: brew install bithuman-product/bithuman/bithuman-cli
 bithuman run
 ```
 

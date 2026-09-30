@@ -10,19 +10,15 @@
 		41AFA7D75C91CF89CFEC18F2 /* w2v_ess_fp16_v1.onnx in Resources */ = {isa = PBXBuildFile; fileRef = E9A4DB063CC0D6B0EFB0A9A0 /* w2v_ess_fp16_v1.onnx */; };
 		4BF34BD7527AD7FC3100B21A /* Model in Resources */ = {isa = PBXBuildFile; fileRef = BCA3DDE129E872E24A4527C1 /* Model */; };
 		4D59B24CC619FB4C6D37E5A8 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = E831E1EEA8E05DAF3C79F9BE /* App.swift */; };
-		4DBC78B3A6FF195415ECBBF9 /* bithuman-expression-engine_Expression.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 0DD6C4D2F7F9C38848D3B4D9 /* bithuman-expression-engine_Expression.bundle */; };
 		7058FEF44141A715F596B716 /* audio_encoder_fp16_window_head.onnx in Resources */ = {isa = PBXBuildFile; fileRef = 8E055C7A9D68E4D3C9EEBDD3 /* audio_encoder_fp16_window_head.onnx */; };
-		B1A2AAE895A1D6C35D80F21B /* Essence2 in Frameworks */ = {isa = PBXBuildFile; productRef = D8C5B2C30635345A3F9AC2AD /* Essence2 */; };
+		B1A2AAE895A1D6C35D80F21B /* Essence2Kit in Frameworks */ = {isa = PBXBuildFile; productRef = D5835358C8226BFC5F8F8C34 /* Essence2Kit */; };
 		D731B8A77CF39790CBD59286 /* audio_encoder_fp16_window_trunk.onnx in Resources */ = {isa = PBXBuildFile; fileRef = 6A2777014407559F7F987A88 /* audio_encoder_fp16_window_trunk.onnx */; };
-		FF66460BA19C7254AB74D3A8 /* mlx-swift_Cmlx.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 9961EB50C65490B7CE2091E5 /* mlx-swift_Cmlx.bundle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0DD6C4D2F7F9C38848D3B4D9 /* bithuman-expression-engine_Expression.bundle */ = {isa = PBXFileReference; lastKnownFileType = wrapper.cfbundle; path = "bithuman-expression-engine_Expression.bundle"; sourceTree = "<group>"; };
 		1ADEE7C81C16B91521896D32 /* IOSEssence2.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = IOSEssence2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6A2777014407559F7F987A88 /* audio_encoder_fp16_window_trunk.onnx */ = {isa = PBXFileReference; path = audio_encoder_fp16_window_trunk.onnx; sourceTree = "<group>"; };
 		8E055C7A9D68E4D3C9EEBDD3 /* audio_encoder_fp16_window_head.onnx */ = {isa = PBXFileReference; path = audio_encoder_fp16_window_head.onnx; sourceTree = "<group>"; };
-		9961EB50C65490B7CE2091E5 /* mlx-swift_Cmlx.bundle */ = {isa = PBXFileReference; lastKnownFileType = wrapper.cfbundle; path = "mlx-swift_Cmlx.bundle"; sourceTree = "<group>"; };
 		BCA3DDE129E872E24A4527C1 /* Model */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Model; path = Sources/Model; sourceTree = SOURCE_ROOT; };
 		E831E1EEA8E05DAF3C79F9BE /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		E9A4DB063CC0D6B0EFB0A9A0 /* w2v_ess_fp16_v1.onnx */ = {isa = PBXFileReference; path = w2v_ess_fp16_v1.onnx; sourceTree = "<group>"; };
@@ -33,7 +29,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B1A2AAE895A1D6C35D80F21B /* Essence2 in Frameworks */,
+				B1A2AAE895A1D6C35D80F21B /* Essence2Kit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,8 +49,6 @@
 			children = (
 				8E055C7A9D68E4D3C9EEBDD3 /* audio_encoder_fp16_window_head.onnx */,
 				6A2777014407559F7F987A88 /* audio_encoder_fp16_window_trunk.onnx */,
-				0DD6C4D2F7F9C38848D3B4D9 /* bithuman-expression-engine_Expression.bundle */,
-				9961EB50C65490B7CE2091E5 /* mlx-swift_Cmlx.bundle */,
 				E9A4DB063CC0D6B0EFB0A9A0 /* w2v_ess_fp16_v1.onnx */,
 			);
 			name = EngineResources;
@@ -97,7 +91,7 @@
 			);
 			name = IOSEssence2;
 			packageProductDependencies = (
-				D8C5B2C30635345A3F9AC2AD /* Essence2 */,
+				D5835358C8226BFC5F8F8C34 /* Essence2Kit */,
 			);
 			productName = IOSEssence2;
 			productReference = 1ADEE7C81C16B91521896D32 /* IOSEssence2.app */;
@@ -148,8 +142,6 @@
 				4BF34BD7527AD7FC3100B21A /* Model in Resources */,
 				7058FEF44141A715F596B716 /* audio_encoder_fp16_window_head.onnx in Resources */,
 				D731B8A77CF39790CBD59286 /* audio_encoder_fp16_window_trunk.onnx in Resources */,
-				4DBC78B3A6FF195415ECBBF9 /* bithuman-expression-engine_Expression.bundle in Resources */,
-				FF66460BA19C7254AB74D3A8 /* mlx-swift_Cmlx.bundle in Resources */,
 				41AFA7D75C91CF89CFEC18F2 /* w2v_ess_fp16_v1.onnx in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -174,7 +166,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# A resource folder copies whatever is there, so without this the app\n# builds, installs, launches and fails on the phone instead of here.\nfail() { echo \"error: $1\"; exit 1; }\nM=\"$SRCROOT/Sources/Model\"; R=\"$SRCROOT/Sources/EngineResources\"\n[ -f \"$M/agent.imx\" ] || fail \"Sources/Model/agent.imx is missing — run ./setup.sh\"\nSZ=$(stat -f%z \"$M/agent.imx\")\n[ \"$SZ\" -gt 50000000 ] || fail \"Sources/Model/agent.imx is only ${SZ} B — that is an error page or a truncated download. Re-run ./setup.sh\"\n[ -f \"$M/speech16k.wav\" ] || fail \"Sources/Model/speech16k.wav is missing — run ./setup.sh\"\n[ -f \"$R/w2v_ess_fp16_v1.onnx\" ] || fail \"the shared audio front end is missing — the .imx does not carry it. Re-run ./setup.sh\"\necho \"payload OK: agent.imx ${SZ} B, front end present\"\n";
+			shellScript = "# A resource folder copies whatever is there, so without this the app\n# builds, installs, launches and fails on the phone instead of here.\nfail() { echo \"error: $1\"; exit 1; }\nM=\"$SRCROOT/Sources/Model\"; R=\"$SRCROOT/Sources/EngineResources\"\n[ -f \"$M/agent.imx\" ] || fail \"Sources/Model/agent.imx is missing — run ./setup.sh\"\nSZ=$(stat -f%z \"$M/agent.imx\")\n[ \"$SZ\" -gt 50000000 ] || fail \"Sources/Model/agent.imx is only ${SZ} B — that is an error page or a truncated download. Re-run ./setup.sh\"\n[ -f \"$M/speech16k.wav\" ] || fail \"Sources/Model/speech16k.wav is missing — run ./setup.sh\"\nfor f in w2v_ess_fp16_v1.onnx audio_encoder_fp16_window_trunk.onnx audio_encoder_fp16_window_head.onnx; do\n  [ -f \"$R/$f\" ] || fail \"Sources/EngineResources/$f is missing — the .imx does not carry the engine's runtime files. Re-run ./setup.sh\"\ndone\necho \"payload OK: agent.imx ${SZ} B, front end present\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -253,6 +245,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -335,6 +328,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -376,16 +370,16 @@
 			repositoryURL = "https://github.com/bithuman-product/homebrew-bithuman.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.18.0;
+				minimumVersion = 2.19.3;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		D8C5B2C30635345A3F9AC2AD /* Essence2 */ = {
+		D5835358C8226BFC5F8F8C34 /* Essence2Kit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2A9AF8BB2DE1F86E39C0A886 /* XCRemoteSwiftPackageReference "homebrew-bithuman" */;
-			productName = Essence2;
+			productName = Essence2Kit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

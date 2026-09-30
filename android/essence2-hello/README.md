@@ -1,78 +1,102 @@
 # essence2-hello — Essence 2 on an Android phone
 
 A complete Android app that renders a talking Essence 2 avatar **on the phone**:
-it reads `speech.wav` from its own external files directory, downloads
-`A52DHS2219` (Sofia Ramirez, a public showcase identity) once through the SDK's model store, renders every frame of the clip on
-the device, then plays the audio and shows each frame on the audio clock.
+it downloads `A52DHS2219` (Sofia Ramirez, a public showcase avatar) once through the SDK's model store, renders
+every frame of a speech clip on the device, then plays the audio and shows each frame
+on the audio clock. The clip is bundled in the app, so the first launch renders.
 
 Its page on the docs site, with the app running on a Galaxy S25+, is
-[Android example: Essence 2](https://docs.bithuman.ai/examples/android-essence-2). It resolves one coordinate, `ai.bithuman:essence2-android:0.5.14`, from
-bitHuman's Maven repository (`https://maven.bithuman.ai`), and nothing else from bitHuman.
+[Android example: Essence 2](https://docs.bithuman.ai/examples/android-essence-2). It resolves one coordinate, `ai.bithuman:essence2-android:0.8.1`, from bitHuman's Maven
+repository (`https://maven.bithuman.ai`, declared in `settings.gradle.kts` for the
+`ai.bithuman` group only), and nothing else from bitHuman; what the SDK depends on
+comes from Maven Central.
 
 ## What you need
 
 - A physical **arm64-v8a** Android phone with USB debugging on, unlocked. The AAR
   ships no x86_64 code, so an emulator installs and then fails.
-- **JDK 17**, and an Android SDK with platform 35 (`minSdk` here is 29).
+- **JDK 17 to 23** (17 or 21 recommended; Android Studio's bundled JDK works), and an
+  Android SDK with platform 35 (`minSdk` here is 29).
 - `adb` on your `PATH` (it ships in `$ANDROID_HOME/platform-tools`).
 - A **bitHuman API secret** from
   [bithuman.ai/developer/api-keys](https://www.bithuman.ai/developer/api-keys) (Creator plan or higher from 12 October 2026).
-  The app sets it once from `BuildConfig` with `Essence2Credential.set(secret)`, which covers the model download and the meter.
+  The app sets it once from `BuildConfig` with `Essence2Credential.set(secret)`, which covers the model download and the session.
 
 ## Run it
 
-Write `local.properties` next to `settings.gradle.kts`. It is git-ignored; keep it
-out of source control:
+Put your API secret in `~/.gradle/gradle.properties`, outside your source tree, the
+same name the [Android page](https://docs.bithuman.ai/platforms/android#install) uses:
 
 ```properties
-sdk.dir=/path/to/your/Android/sdk
-bithuman.apiSecret=<your API secret>
+bithumanApiSecret=<your API secret>
 ```
 
-(`BITHUMAN_API_SECRET` in the environment works instead of the second line.)
+(Also read: `BITHUMAN_API_SECRET` in the environment, or `bithuman.apiSecret=` in
+`local.properties` for checkouts set up before 2026-09-30.) Tell Gradle where your
+Android SDK is with `ANDROID_HOME` or `sdk.dir=` in `local.properties` (git-ignored).
 Then, from this directory:
 
 ```bash
 ./gradlew :app:assembleDebug
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb shell am start -n com.example.e2hello/.MainActivity
-adb push ../../python/quickstart/speech.wav /storage/emulated/0/Android/data/com.example.e2hello/files/speech.wav
+```
+
+The app renders the bundled 13.87 s clip (16 kHz mono) and plays it. Follow the run
+with `adb logcat -s E2HELLO`. Tap the screen to replay.
+
+**Your own audio:** push any 16-bit PCM WAV, mono or stereo, at any sample rate (the
+docs' [24 kHz sample](https://docs.bithuman.ai/samples/speech.wav) works); the app
+mixes it down and resamples it to the 16 kHz mono the engine takes, then restart:
+
+```bash
+adb push my.wav /storage/emulated/0/Android/data/com.example.e2hello/files/speech.wav
 adb shell am start -S -n com.example.e2hello/.MainActivity
 ```
 
-The first launch creates the app's files directory and says on screen that
-`speech.wav` is missing. The push fills it, and `am start -S` restarts the app so
-it renders. Any 16 kHz mono 16-bit WAV works; the one above is the sample from
-[`python/quickstart`](../../python/quickstart). Follow the run with
-`adb logcat -s E2HELLO`. Tap the screen to replay.
+**Tests without a phone:** `./gradlew :app:testDebugUnitTest` runs the WAV reader's
+tests (16 kHz pass-through, 24 kHz and 48 kHz stereo to 16 kHz mono) on the JVM.
 
 ★ **The API secret becomes a `BuildConfig` string constant, so anyone can read it
 back out of the APK.** That is fine for a local hello-world and wrong for anything
 you ship. A real app fetches the secret from **your** backend at startup and
 passes it to the same call.
 
+**Live microphone:** this app plays a file, so it needs only `INTERNET` (merged from
+the AAR). To feed the avatar from `AudioRecord`, add `RECORD_AUDIO` to the manifest and
+ask for it at run time; see [Live microphone input](../README.md#live-microphone-input).
+
+## Troubleshooting
+
+| You see | Do this |
+|---|---|
+| `./gradlew` says *this project needs JDK 17 to 23* (or, without that check, only `What went wrong: 25.0.4.1`) | Gradle 8.11.1 cannot run on JDK 24+: `export JAVA_HOME=` a JDK 17 or 21 and run again |
+| The screen asks you to set an API secret | add `bithumanApiSecret=` to `~/.gradle/gradle.properties` (or export `BITHUMAN_API_SECRET`) and rebuild; the secret is baked in at build time |
+| `need a 16-bit PCM WAV` | your pushed `speech.wav` is not 16-bit PCM (for example 32-bit float or MP3); convert it, e.g. `ffmpeg -i in.wav -ac 1 -ar 16000 -sample_fmt s16 speech.wav` |
+| `Unable to strip the following libraries … libLiteRt.so, libQnn*.so` during the build | expected without an NDK installed; the libraries are packaged as they are |
+
 ## Measured
 
 On a Galaxy S25+ (SM-S936U1, Android 16), 2026-09-23, with `essence2-android`
-0.5.14 resolved from Maven Central and the 13.87 s `speech.wav` above — `adb logcat -s E2HELLO`:
+**0.5.14** and the 13.87 s clip the app now bundles, pushed as `speech.wav` (the app
+then read only a pushed file). Not re-measured on 0.8.1 yet. `adb logcat -s E2HELLO`:
 
 ```text
 audio: 221904 samples = 13.87 s fetching A52DHS2219 — first run downloads about 238 MB…
 fetched manifest.json (237679631 B)
 identity ready — starting the engine…
-engine: 1080x1920 targetFrames=251
 DONE_FRAMES 347 in 13595 ms
 rendered 347 frames in 13 s — playing…
 347 frames, 13.87 s — tap to replay
 ```
 
-347 full-resolution 1080x1920 frames for 13.87 s of speech (25 fps), rendered in
-13.6 s including `create()`: faster than the audio plays. The first run's download
-(about 238 MB) is the slow part; later runs start at the engine.
+347 full-resolution 1080x1920 frames for 13.87 s of speech (25 fps, 13.87 x 25 = 347),
+rendered in 13.6 s including `create()`: faster than the audio plays. The first run's
+download (about 238 MB) is the slow part; later runs start at the engine.
 
 ## The files
 
-Every file is complete: the Kotlin below is exactly what ran on the phone above.
+Every file below is complete and is the one in this directory.
 
 <details><summary><code>app/build.gradle.kts</code></summary>
 
@@ -85,17 +109,24 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-// Your bitHuman API secret: `bithuman.apiSecret=…` in local.properties (git-ignored,
-// next to settings.gradle.kts), or BITHUMAN_API_SECRET in the environment.
+// Your bitHuman API secret, read the way docs.bithuman.ai/platforms/android#install
+// reads it: `bithumanApiSecret=…` in ~/.gradle/gradle.properties, outside your source
+// tree. Also accepted, in this order: BITHUMAN_API_SECRET in the environment (the name
+// every bitHuman SDK and CLI reads), then `bithuman.apiSecret=…` in local.properties
+// (what this project used before 2026-09-30).
 // ★It becomes a BuildConfig string constant, so it is readable out of the APK —
 // fine for this local hello-world, wrong for anything you ship: a real app fetches
 // the secret from YOUR backend at startup.
-val bithumanApiSecret: String = run {
-    val props = Properties()
-    val f = rootProject.file("local.properties")
-    if (f.isFile) f.inputStream().use { props.load(it) }
-    props.getProperty("bithuman.apiSecret") ?: System.getenv("BITHUMAN_API_SECRET") ?: ""
-}
+val bithumanApiSecret: String =
+    providers.gradleProperty("bithumanApiSecret").orNull?.takeIf { it.isNotBlank() }
+        ?: providers.environmentVariable("BITHUMAN_API_SECRET").orNull?.takeIf { it.isNotBlank() }
+        ?: run {
+            val props = Properties()
+            val f = rootProject.file("local.properties")
+            if (f.isFile) f.inputStream().use { props.load(it) }
+            props.getProperty("bithuman.apiSecret")
+        }
+        ?: ""
 
 android {
     namespace  = "com.example.e2hello"
@@ -109,8 +140,8 @@ android {
         versionName   = "1.0"
         ndk { abiFilters += "arm64-v8a" }       // the only ABI published
 
-        // Read from local.properties (git-ignored) or the environment — never
-        // from a literal in a file you commit, and never on a command line.
+        // Read from ~/.gradle/gradle.properties or the environment (see the top of
+        // this file) — never from a literal in a file you commit, never on a command line.
         buildConfigField("String", "BITHUMAN_API_SECRET", "\"$bithumanApiSecret\"")
     }
 
@@ -130,6 +161,7 @@ android {
 
 dependencies {
     implementation("ai.bithuman:essence2-android:0.8.1")
+    testImplementation("junit:junit:4.13.2")   // app/src/test: the WAV reader, on the JVM
 }
 ```
 
@@ -159,14 +191,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 /**
  * Hello, avatar — essence-2 on Android.
  *
- * Reads speech.wav from the app's own external files dir, renders it through the
- * on-device avatar, then plays the audio back with the rendered frames.
+ * Renders the bundled speech clip (or a speech.wav you pushed) through the on-device
+ * avatar, then plays the audio back with the rendered frames.
  *
  * It needs an API secret: one Essence2Credential.set call covers the download and the
  * session. See the doc page.
@@ -225,7 +255,7 @@ class MainActivity : Activity() {
     private fun renderOnce() {
         val secret = BuildConfig.BITHUMAN_API_SECRET
         if (secret.isBlank()) {
-            say("No API secret. Put\n\nbithuman.apiSecret=<your API secret>\n\nin local.properties (or export BITHUMAN_API_SECRET) and rebuild. Essence 2 needs it to download the avatar and run the session.")
+            say("No API secret. Put\n\nbithumanApiSecret=<your API secret>\n\nin ~/.gradle/gradle.properties (or export BITHUMAN_API_SECRET) and rebuild. Essence 2 needs it to download the avatar and run the session.")
             return
         }
 
@@ -234,13 +264,9 @@ class MainActivity : Activity() {
         //    create() refuses without it.
         Essence2Credential.set(secret)
 
-        val wav = File(getExternalFilesDir(null), "speech.wav")
-        if (!wav.isFile) {
-            say("No speech.wav yet. On your machine:\n\nadb push speech.wav ${wav.absolutePath}\n\nthen tap the screen.")
-            return
-        }
-        pcm = readWav16kMonoPcm16(wav)
-        val seconds = pcm.size / 2f / SAMPLE_RATE
+        val audio = loadSpeech()
+        pcm = audio.toLittleEndianBytes()
+        val seconds = audio.seconds
         val expected = Math.round(seconds * FPS)
         say("audio: ${pcm.size / 2} samples = %.2f s\nfetching $agentCode — first run downloads about 238 MB…".format(seconds))
 
@@ -256,7 +282,7 @@ class MainActivity : Activity() {
         // On Android the shared audio front end rides INSIDE the bundle, so
         // create() needs nothing but the directory the store just filled.
         Essence2Avatar.create(identity.dir).use { avatar ->
-            Log.i(TAG, "engine: ${avatar.width}x${avatar.height} targetFrames=${avatar.targetFrames}")
+            Log.i(TAG, "engine: ${avatar.width}x${avatar.height}")
             val frame = avatar.newFrameBuffer()   // direct, width * height * 4, RGBA
             val bmp = Bitmap.createBitmap(avatar.width, avatar.height, Bitmap.Config.ARGB_8888)
             val out = ArrayList<ByteArray>(expected + 16)
@@ -265,10 +291,15 @@ class MainActivity : Activity() {
             avatar.feed(pcm)                      // 16-bit little-endian PCM bytes, as read
             avatar.endOfAudio()                   // "that is the whole utterance"
 
+            // pull() returns false until frames are ready, so poll. Stop after 5 s
+            // with no new frame — but give the FIRST frame longer (30 s): a cold
+            // first render on a slower phone can take more than a few seconds, and
+            // giving up before it arrives is a blank screen, not a result.
             var quietMs = 0
-            while (quietMs < 5_000) {             // 5 s with no frame at all = finished
+            while (quietMs < (if (out.isEmpty()) 30_000 else 5_000)) {
                 frame.clear()
                 if (avatar.pull(frame)) {         // true = a frame was written
+                    if (out.isEmpty()) Log.i(TAG, "FIRST_FRAME at ${System.currentTimeMillis() - t0} ms")
                     quietMs = 0
                     frame.rewind()
                     // Android's ARGB_8888 is R,G,B,A in memory, which is the
@@ -347,39 +378,18 @@ class MainActivity : Activity() {
     // ------------------------------------------------------------------ wav
 
     /**
-     * 16-bit PCM WAV -> the exact bytes feed(ByteArray) takes: 16 kHz mono,
-     * 16-bit little-endian, no conversion. Walks the RIFF chunks — do not assume
-     * the data starts at byte 44, because real encoders (macOS afconvert, for
-     * one) insert padding chunks before it.
+     * Your own speech.wav if you pushed one (any 16-bit PCM WAV, any rate), else the
+     * 16 kHz clip bundled in app/src/main/assets — so the first launch just works:
+     *   adb push my.wav /storage/emulated/0/Android/data/com.example.e2hello/files/speech.wav
      */
-    private fun readWav16kMonoPcm16(file: File): ByteArray {
-        val b = file.readBytes()
-        val bb = ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN)
-        require(b.size > 44 && tag4(b, 0) == "RIFF" && tag4(b, 8) == "WAVE") { "${file.name} is not a RIFF/WAVE file" }
-        var pos = 12
-        var channels = 0; var rate = 0; var bits = 0; var dataAt = -1; var dataLen = 0
-        while (pos + 8 <= b.size) {
-            val id = tag4(b, pos)
-            var size = bb.getInt(pos + 4)
-            if (size < 0 || pos + 8 + size > b.size) size = b.size - (pos + 8)
-            when (id) {
-                "fmt " -> {
-                    channels = bb.getShort(pos + 10).toInt()
-                    rate = bb.getInt(pos + 12)
-                    bits = bb.getShort(pos + 22).toInt()
-                }
-                "data" -> { dataAt = pos + 8; dataLen = size }
-            }
-            pos += 8 + size + (size and 1)
-        }
-        require(dataAt >= 0) { "${file.name} has no data chunk" }
-        require(channels == 1 && rate == SAMPLE_RATE && bits == 16) {
-            "need 16 kHz mono 16-bit PCM; ${file.name} is $rate Hz, $channels ch, $bits-bit"
-        }
-        return b.copyOfRange(dataAt, dataAt + (dataLen / 2) * 2)
+    private fun loadSpeech(): Wav.Pcm16k {
+        val pushed = File(getExternalFilesDir(null), "speech.wav")
+        val audio = if (pushed.isFile) Wav.read16kMono(pushed.readBytes(), pushed.absolutePath)
+                    else Wav.read16kMono(assets.open("speech.wav").use { it.readBytes() }, "assets/speech.wav")
+        Log.i(TAG, "speech: ${if (pushed.isFile) pushed.absolutePath else "assets/speech.wav (bundled)"}, " +
+            "${audio.sourceRate} Hz x ${audio.sourceChannels} ch -> 16 kHz mono, %.2f s".format(audio.seconds))
+        return audio
     }
-
-    private fun tag4(b: ByteArray, at: Int) = String(b, at, 4, Charsets.US_ASCII)
 
     private fun say(msg: String) {
         Log.i(TAG, msg.replace('\n', ' '))
@@ -398,6 +408,99 @@ class MainActivity : Activity() {
 
 </details>
 
+<details><summary><code>app/src/main/java/com/example/e2hello/Wav.kt</code></summary>
+
+```kotlin
+// essence2-hello/app/src/main/java/com/example/e2hello/Wav.kt
+package com.example.e2hello
+
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+
+/**
+ * Any 16-bit PCM WAV -> 16 kHz mono 16-bit samples, the audio the engine takes.
+ *
+ * Walks the RIFF chunks — do not assume the data starts at byte 44, because real
+ * encoders (macOS afconvert, for one) insert padding chunks before it. Stereo is
+ * mixed down and any other sample rate (the docs' 24 kHz sample, OpenAI Realtime's
+ * 24 kHz voice) is resampled to 16 kHz, so any 16-bit PCM WAV works.
+ *
+ * The resampler is linear interpolation: plenty for speech in an example. For
+ * live audio in your app, resample where you capture it (AudioRecord at 16 kHz,
+ * or your voice service's 16 kHz output) instead.
+ */
+object Wav {
+    const val TARGET_RATE = 16_000
+
+    class Pcm16k(val samples: ShortArray, val sourceRate: Int, val sourceChannels: Int) {
+        val seconds: Float get() = samples.size.toFloat() / TARGET_RATE
+        /** The samples as floats in [-1, 1) (what Expression 2 takes; unused here). */
+        fun toFloats(): FloatArray = FloatArray(samples.size) { samples[it] / 32768f }
+        /** 16-bit little-endian bytes, what Essence2Avatar.feed(ByteArray) takes, as a 16 kHz mono WAV stores them. */
+        fun toLittleEndianBytes(): ByteArray {
+            val bb = ByteBuffer.allocate(samples.size * 2).order(ByteOrder.LITTLE_ENDIAN)
+            bb.asShortBuffer().put(samples)
+            return bb.array()
+        }
+    }
+
+    fun read16kMono(b: ByteArray, name: String = "speech.wav"): Pcm16k {
+        val bb = ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN)
+        require(b.size > 12 && tag4(b, 0) == "RIFF" && tag4(b, 8) == "WAVE") { "$name is not a RIFF/WAVE file" }
+        var pos = 12
+        var format = 0; var channels = 0; var rate = 0; var bits = 0; var dataAt = -1; var dataLen = 0
+        while (pos + 8 <= b.size) {
+            val id = tag4(b, pos)
+            var size = bb.getInt(pos + 4)
+            if (size < 0 || pos + 8 + size > b.size) size = b.size - (pos + 8)
+            when (id) {
+                "fmt " -> {
+                    format = bb.getShort(pos + 8).toInt() and 0xFFFF
+                    channels = bb.getShort(pos + 10).toInt()
+                    rate = bb.getInt(pos + 12)
+                    bits = bb.getShort(pos + 22).toInt()
+                }
+                "data" -> { dataAt = pos + 8; dataLen = size }
+            }
+            pos += 8 + size + (size and 1)
+        }
+        require(dataAt >= 0) { "$name has no data chunk" }
+        // 1 = PCM, 0xFFFE = WAVE_FORMAT_EXTENSIBLE (PCM in practice at 16 bits).
+        require((format == 1 || format == 0xFFFE) && bits == 16 && channels >= 1 && rate > 0) {
+            "need a 16-bit PCM WAV; $name is format $format, $rate Hz, $channels ch, $bits-bit"
+        }
+        val frames = dataLen / (2 * channels)
+        val mono = ShortArray(frames) { f ->
+            var sum = 0
+            for (c in 0 until channels) sum += bb.getShort(dataAt + (f * channels + c) * 2)
+            (sum / channels).toShort()
+        }
+        return Pcm16k(resample(mono, rate), rate, channels)
+    }
+
+    /** Linear-interpolation resampler, mono 16-bit. Returns [x] itself at 16 kHz. */
+    fun resample(x: ShortArray, fromRate: Int, toRate: Int = TARGET_RATE): ShortArray {
+        if (fromRate == toRate || x.isEmpty()) return x
+        val n = (x.size.toLong() * toRate / fromRate).toInt()
+        val step = fromRate.toDouble() / toRate
+        return ShortArray(n) { i ->
+            val t = i * step
+            val k = t.toInt()
+            val frac = t - k
+            val a = x[minOf(k, x.size - 1)].toDouble()
+            val b = x[minOf(k + 1, x.size - 1)].toDouble()
+            (a + (b - a) * frac).toInt().coerceIn(-32768, 32767).toShort()
+        }
+    }
+
+    private fun tag4(b: ByteArray, at: Int) = String(b, at, 4, Charsets.US_ASCII)
+}
+```
+
+</details>
+
 `settings.gradle.kts`, `build.gradle.kts`, `gradle.properties` and
 `app/src/main/AndroidManifest.xml` are in this directory as they appear on the doc
-page. `gradlew` and `gradle/wrapper/` are the Gradle 8.11.1 wrapper.
+page. `gradlew` and `gradle/wrapper/` are the Gradle 8.11.1 wrapper, with a JDK
+version check added near the top of `gradlew`. `app/src/main/assets/speech.wav` is the
+13.87 s, 16 kHz mono clip from [`python/quickstart`](../../python/quickstart).
