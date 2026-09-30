@@ -1,13 +1,14 @@
 # Essence + Cloud
 
-Run a bitHuman Essence (CPU) avatar using bitHuman's cloud infrastructure.
-No local GPU, no `.imx` model files. Just an API secret and an agent ID.
+Run a bitHuman avatar rendered in the bitHuman cloud, with your own LiveKit server
+and an OpenAI voice agent. No local GPU, no `.imx` model files: an API secret and an
+agent code (the public sample `A23WJF0199` works).
 
 ## Prerequisites
 
-- Python 3.10+ (or Docker)
+- Docker with Compose (the full stack below), or Python 3.10–3.14 and your own LiveKit server for `agent.py` alone
 - bitHuman API secret ([www.bithuman.ai](https://www.bithuman.ai/developer/api-keys) → Developer → API Secrets)
-- An agent ID (create one at [www.bithuman.ai](https://www.bithuman.ai) or via [`rest-api/`](../../api/rest-api/python/generation.py))
+- An agent code: the public sample `A23WJF0199`, or your own (create one at [www.bithuman.ai](https://www.bithuman.ai) or via [`rest-api/`](../../api/rest-api/python/generation.py))
 - OpenAI API key (for `agent.py`)
 
 ## Quick Start (Full Stack)
@@ -59,8 +60,8 @@ All configuration is via `.env`. See `.env.example` for all options.
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `BITHUMAN_MASTER_SECRET` | Yes | Your API secret from bithuman.ai. The worker uses it only to mint a one-hour token per room. Never set `BITHUMAN_API_SECRET` in a LiveKit worker's environment: plugin 1.8.4 and older reads it by itself and copies it into the room, where everyone can read it; `agent.py` refuses to start if it is set |
-| `BITHUMAN_AGENT_ID` | Yes | Agent code (e.g. `A78WKV4515`) |
+| `BITHUMAN_MASTER_SECRET` | Yes | Your API secret from bithuman.ai. The worker uses it only to mint a one-hour token that can start only this agent's avatar in one room; only that token reaches the room. Never set `BITHUMAN_API_SECRET` in a LiveKit worker's environment: plugin 1.8.4 and older reads it by itself and copies it into the room, where everyone can read it; `agent.py` refuses to start if it is set |
+| `BITHUMAN_AGENT_ID` | Yes | Agent code (e.g. the public sample `A23WJF0199`). `BITHUMAN_AGENT_CODE` is accepted as another name |
 | `OPENAI_API_KEY` | Yes | For AI conversation |
 | `OPENAI_VOICE` | No | TTS voice, default `coral` |
 | `AGENT_PROMPT` | No | AI persona / system prompt (see [Customization](#customization)) |
@@ -132,8 +133,8 @@ Then access `http://YOUR_VPS_IP:4202` from any browser.
 
 ## How It Works
 
-1. The SDK connects to bitHuman's cloud with your `avatar_id`
-2. Audio is sent to the cloud, which renders the avatar
+1. When someone joins the room, `agent.py` mints a one-hour room token with your secret and starts the plugin's `AvatarSession` with that token and your agent code
+2. The agent's reply audio is sent to the cloud, which renders the avatar
 3. Video frames stream back to your machine for display
 4. First frame arrives in 2-4 seconds
 
@@ -154,17 +155,20 @@ curl -s http://localhost:4202 | head -5
 
 ## Troubleshooting
 
-**Agent ID not set?**
+**Agent code not set?**
 ```
-Error: BITHUMAN_AGENT_ID is required
+Set BITHUMAN_AGENT_ID to your agent code (the public sample is A23WJF0199; ...)
 ```
-Set `BITHUMAN_AGENT_ID` in `.env`. Get your agent ID from [www.bithuman.ai](https://www.bithuman.ai).
+Set `BITHUMAN_AGENT_ID` in `.env`. Your agent codes are on [www.bithuman.ai](https://www.bithuman.ai).
 
-**Invalid API secret?**
+**`Rename BITHUMAN_API_SECRET to BITHUMAN_MASTER_SECRET`?**
+Your `.env` or shell still has `BITHUMAN_API_SECRET`. Rename it: see the table above for why.
+
+**Invalid API secret or agent code?**
 ```
-Error: 401 Unauthorized
+RuntimeError: bitHuman refused to mint a room token (401): ...
 ```
-Check `BITHUMAN_MASTER_SECRET` in `.env`. Copy the full secret from [Developer Dashboard](https://www.bithuman.ai/developer/api-keys).
+Check `BITHUMAN_MASTER_SECRET` in `.env` (copy the full secret from the [Developer Dashboard](https://www.bithuman.ai/developer/api-keys)) and that `BITHUMAN_AGENT_ID` is a code your account can use.
 
 **Port 4202 already in use?**
 ```bash

@@ -1,16 +1,20 @@
 """Web-based bitHuman avatar with Gradio + FastRTC.
 
-Opens a browser UI where you can talk to an AI agent through a bitHuman avatar.
-Supports multiple avatar models and text input.
+Opens a browser UI where you can talk to an AI agent through a bitHuman avatar
+rendered on this machine. Every .imx file in BITHUMAN_MODEL_ROOT is offered in a
+dropdown. Your bitHuman API secret stays on the server; the page never sees it.
 
 Usage:
-    python app.py
+    python app.py        # http://localhost:7860
 """
 
 import asyncio
+import json
 import logging
 import os
+import sys
 import time
+import urllib.request
 from collections.abc import AsyncIterator
 from pathlib import Path
 
@@ -66,13 +70,41 @@ class FPSController:
         return (len(self._ticks) - 1) / span if span > 0 else 0.0
 # --- end inline FPSController ---
 
-load_dotenv()
+# Only this folder's .env: a bare load_dotenv() also searches every parent folder.
+load_dotenv(Path(__file__).with_name(".env"))
 logger = logging.getLogger("bithuman-web")
 logging.basicConfig(level=logging.INFO)
 
-MODEL_ROOT = os.getenv("BITHUMAN_MODEL_ROOT")
-if not MODEL_ROOT:
-    raise ValueError("Set BITHUMAN_MODEL_ROOT to the directory containing .imx files")
+API = "https://api.bithuman.ai"
+SAMPLE = "wise-pup"  # a public showcase avatar (Expression 2), downloaded when the folder has none
+
+# Server-side only. The secret is read here, in this process, and never put into
+# the page: Gradio sends every component's value to the browser, so a textbox
+# pre-filled with it would hand it to anyone who opens the page.
+API_SECRET = os.getenv("BITHUMAN_API_SECRET")
+if not API_SECRET:
+    sys.exit("Set BITHUMAN_API_SECRET in .env (www.bithuman.ai -> Developer -> API Secrets).")
+if not os.getenv("OPENAI_API_KEY"):
+    sys.exit("Set OPENAI_API_KEY in .env (OpenAI Realtime does the listening and speaking).")
+
+MODEL_ROOT = Path(os.getenv("BITHUMAN_MODEL_ROOT") or Path.home() / ".cache" / "bithuman" / "examples")
+
+
+def download_sample(name: str) -> None:
+    """Fetch a public showcase avatar into MODEL_ROOT (first run only)."""
+    showcase = json.load(urllib.request.urlopen(f"{API}/v1/models/showcase", timeout=30))["models"]
+    url = next(m["url"] for m in showcase if m["slug"] == name)
+    ask = urllib.request.Request(url + ("&" if "?" in url else "?") + "redirect=false")
+    signed = json.load(urllib.request.urlopen(ask, timeout=30))["data"]["url"]
+    dest = MODEL_ROOT / f"{name}.imx"
+    print(f"No .imx files in {MODEL_ROOT}; downloading the sample avatar {name} once ...", flush=True)
+    MODEL_ROOT.mkdir(parents=True, exist_ok=True)
+    urllib.request.urlretrieve(signed, f"{dest}.part")
+    os.replace(f"{dest}.part", dest)
+
+
+if not any(MODEL_ROOT.glob("*.imx")):
+    download_sample(SAMPLE)
 
 
 class BitHumanHandler(AsyncAudioVideoStreamHandler):
@@ -80,7 +112,7 @@ class BitHumanHandler(AsyncAudioVideoStreamHandler):
 
     AVATARS = {
         p.stem: str(p.resolve())
-        for p in sorted(Path(MODEL_ROOT).glob("*.imx"))
+        for p in sorted(MODEL_ROOT.glob("*.imx"))
     }
 
     def __init__(self):
@@ -88,20 +120,24 @@ class BitHumanHandler(AsyncAudioVideoStreamHandler):
             input_sample_rate=24_000, output_sample_rate=16_000,
             output_frame_size=320, fps=100,
         )
+        # Plain queues only here. Anything from livekit-agents that needs an event
+        # loop (QueueAudioOutput) is built in start_up(), which runs on the loop:
+        # this constructor also runs at import time, where Python 3.14 has none.
         self.input_audio_queue: asyncio.Queue[rtc.AudioFrame] = asyncio.Queue()
-        self.agent_audio_queue = QueueAudioOutput()
-        self.agent_audio_queue._sample_rate = 16_000
+        self.agent_audio_queue: QueueAudioOutput | None = None
         self.video_queue: asyncio.Queue[NDArray[np.uint8]] = asyncio.Queue()
         self.audio_queue: asyncio.Queue[tuple[int, NDArray[np.int16]]] = asyncio.Queue()
         self.runtime: AsyncBithuman | None = None
         self.runtime_ready = asyncio.Event()
-        self.fps_controller = FPSController(target_fps=25)
+        self.fps_controller: FPSController | None = None
         self.pushed_duration: float = 0
 
     @utils.log_exceptions(logger=logger)
     async def start_up(self):
         await self.wait_for_args()
-        _, api_secret, avatar_name = self.latest_args[1:]
+        avatar_name = self.latest_args[1]
+
+        self.agent_audio_queue = QueueAudioOutput(sample_rate=16_000)
 
         utils.http_context._new_session_ctx()
         session = AgentSession()
@@ -119,8 +155,10 @@ class BitHumanHandler(AsyncAudioVideoStreamHandler):
         self.agent_audio_queue.on("clear_buffer", self._on_interrupt)
 
         self.runtime = await AsyncBithuman.create(
-            api_secret=api_secret, model_path=self.AVATARS[avatar_name],
+            api_secret=API_SECRET, model_path=self.AVATARS[avatar_name],
         )
+        # Pace frames at the avatar's own rate (Essence 2: 25 fps, Expression 2: 20).
+        self.fps_controller = FPSController(target_fps=round(self.runtime.fps or 25))
         self.runtime_ready.set()
 
         await asyncio.gather(self._generate_frames(), self._forward_agent_audio())
@@ -197,12 +235,14 @@ stream = Stream(
     mode="send-receive",
     modality="audio-video",
     additional_inputs=[
-        gr.Textbox(label="Message", info="Type what you want the avatar to say"),
-        gr.Textbox(label="bitHuman API secret", type="password", value=os.getenv("BITHUMAN_API_SECRET")),
+        # The API secret is deliberately NOT an input: it stays in this process (API_SECRET).
         gr.Dropdown(choices=list(BitHumanHandler.AVATARS.keys()), value=next(iter(BitHumanHandler.AVATARS), None), label="Avatar"),
     ],
     ui_args={"title": "bitHuman Avatar"},
 )
 
 if __name__ == "__main__":
-    stream.ui.launch()
+    # Local only by default. Anyone who can open this page can start metered
+    # sessions on your API secret, so add your own login before exposing it
+    # (for example with share=True or on a public host).
+    stream.ui.launch(server_name=os.getenv("GRADIO_SERVER_NAME", "127.0.0.1"))

@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { ConnectionManager } from "@/components/connection/ConnectionManager";
 import { ConnectionStatusIndicator } from "@/components/connection/ConnectionStatusIndicator";
+import { ConnectionWatchdog, ConnectionProblem } from "@/components/connection/ConnectionWatchdog";
 import Head from "next/head";
 
 // Theme color for connect screen
@@ -41,7 +42,7 @@ export default function Home() {
 }
 
 export function HomeInner() {
-  const { shouldConnect, wsUrl, token, connect, disconnect } = useConnection();
+  const { shouldConnect, wsUrl, token, roomName, error, setError, connect, disconnect } = useConnection();
   const { toastMessage, setToastMessage } = useToast();
   const [isClient, setIsClient] = useState(false);
   const hasAutoConnected = useRef(false);
@@ -111,6 +112,8 @@ export function HomeInner() {
         )}
       </AnimatePresence>
       
+      {error && <ConnectionProblem message={error} />}
+
       {!isClient ? (
         // Server-side rendering placeholder (empty to prevent flash)
         <div></div>
@@ -122,12 +125,13 @@ export function HomeInner() {
           token={token}
           connect={shouldConnect}
           onError={(e) => {
-            setToastMessage({ message: e.message, type: "error" });
             console.error(e);
+            setError(`Could not connect to the LiveKit server at ${wsUrl}: ${e.message}`);
           }}
           key="livekit-room"
         >
           <ConnectionManager>
+            <ConnectionWatchdog serverUrl={wsUrl} roomName={roomName} onProblem={setError} />
             <Playground
               autoConnect={false}
               onConnect={(c) => {

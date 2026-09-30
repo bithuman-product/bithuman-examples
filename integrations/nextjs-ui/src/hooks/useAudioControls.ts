@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { LocalParticipant, Track } from 'livekit-client';
+import { LocalParticipant, RemoteAudioTrack, Track } from 'livekit-client';
 import { VoiceAssistant } from '@livekit/components-react';
 
 /**
@@ -25,22 +25,9 @@ export function useAudioControls(
       });
       
       // If we have the voice assistant's audio track, control that too
-      if (
-        voiceAssistant && 
-        voiceAssistant.audioTrack && 
-        voiceAssistant.audioTrack.track
-      ) {
-        // Some tracks have a mute() method
-        if (
-          typeof voiceAssistant.audioTrack.track.mute === 'function' && 
-          typeof voiceAssistant.audioTrack.track.unmute === 'function'
-        ) {
-          if (newMuteState) {
-            voiceAssistant.audioTrack.track.mute();
-          } else {
-            voiceAssistant.audioTrack.track.unmute();
-          }
-        }
+      const agentTrack = voiceAssistant?.audioTrack?.publication?.track;
+      if (agentTrack instanceof RemoteAudioTrack) {
+        agentTrack.setVolume(newMuteState ? 0 : 1);
       }
       
       // Also toggle microphone (input) if available

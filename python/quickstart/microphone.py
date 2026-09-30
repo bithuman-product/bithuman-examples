@@ -20,11 +20,7 @@ import numpy as np
 try:
     import sounddevice as sd
 except OSError:
-    # ★`pip install` gets the sounddevice package but not the PortAudio
-    # library it loads: its Linux wheels do not carry one (macOS and Windows
-    # wheels do). Measured 2026-09-23 on a stock Ubuntu 24.04 with a display
-    # and a sound server: `OSError: PortAudio library not found` at this
-    # import, before anything else in the script ran. Say what to install.
+    # Linux wheels of sounddevice do not carry the PortAudio library.
     sys.exit(
         "sounddevice needs the PortAudio library, which pip cannot install.\n\n"
         "    sudo apt install libportaudio2      # Debian, Ubuntu\n"
@@ -39,20 +35,12 @@ from bithuman import AsyncBithuman
 
 WINDOW = "bitHuman"
 
-# Why there is no MP4 writer here: the frame rate belongs to the avatar
-# (essence-2 renders at 25 fps, expression-2 at 20), so an example that wrote
-# its own file would have to guess it or reach past the taught surface. The
-# supported paths already exist, so the message points at them instead.
 NO_DISPLAY = """No display, so there is no window to draw the avatar in.
 
-This example is LIVE — it drives the avatar from your microphone as you speak,
-so there is no audio file to render instead. To use a headless machine, run
-the Docker stack in this directory and watch the avatar in a browser:
-
-    docker compose up          # then open http://localhost:4202
-
-If that stack is on a remote box, README.md → "Scenario B" has the ssh tunnel.
-On a desktop with a display, this example opens a window as written."""
+This example is live: it drives the avatar from your microphone, so there is
+no audio file to render instead. On a machine with no display, use
+../self-host/ (the avatar in a browser page served by your own LiveKit
+server). On a desktop with a display, this example opens a window as written."""
 
 NO_GUI_BUILD = """This OpenCV cannot open a window: it was built without GUI support.
 
@@ -67,45 +55,15 @@ This puts the GUI build back and leaves everything else alone:
 
 
 def require_window() -> None:
-    """Refuse before the model loads if this machine cannot show a window.
+    """Stop before the model loads if this machine cannot show a window.
 
-    ★THE ORDER OF THESE TWO GATES IS THE WHOLE POINT, because only the second
-    failure is catchable and the first one kills the process.
-
-      1. The GUI build of OpenCV on a box with no display does NOT raise. Qt
-         fails to load its xcb platform plugin and calls abort(): the process
-         dies on SIGABRT with no traceback and no except clause that can help.
-         Measured 2026-09-22 on a headless Linux box with this directory's own
-         requirements.txt — `cv2.namedWindow` exited 134. So the environment is
-         read FIRST, and cv2 is not asked to open anything until it passes.
-      2. Only then can `namedWindow` be called safely. It raises exactly where
-         `imshow` would if this OpenCV has no GUI compiled in, and raising here
-         means the answer is known BEFORE a frame is rendered rather than
-         discovered mid-stream.
-
-    The two gates fail for DIFFERENT reasons and say so separately. Gate 2 is
-    not "no display" — there is one; it is "the headless build won the
-    install", which is a live possibility in this directory because `bithuman`
-    depends on `opencv-python-headless` while requirements.txt also asks for
-    `opencv-python`. Telling a developer with a working display that they have
-    no display would send them to fix the wrong thing.
-
-    Both gates run before `AsyncBithuman.create()`, so a machine that cannot
-    show the avatar is told so without loading the model, holding the
-    credential, or billing a render. Before this gate existed the process
-    reached `create()` and THEN died — the developer paid, waited, and got
-    exit 134 with nothing to read.
-
-    This is also where the window is created, so the `namedWindow` call that
-    used to sit beside `resizeWindow` is gone: this IS that call, moved to
-    where it can still refuse cheaply.
-
-    The limit, stated rather than papered over: gate 1 reads whether a display
-    is NAMED, not whether it answers. `DISPLAY=:0` pointing at nothing still
-    reaches Qt and still aborts. Covering that honestly means probing the
-    display from a subprocess, which is more machinery than an example should
-    carry — and the shapes these scripts land in (ssh, Docker, CI) name no
-    display at all.
+    Two checks, in this order:
+      1. Is a display named at all? The GUI build of OpenCV does not raise when
+         there is none: Qt aborts the process (SIGABRT) with nothing to catch.
+         So the environment is checked before cv2 opens anything.
+      2. Can this OpenCV open a window? If the headless build won the install,
+         `namedWindow` raises here (NO_GUI_BUILD says how to fix it), before
+         anything loads or bills.
     """
     if sys.platform not in ("darwin", "win32") and not (
         os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")
@@ -150,7 +108,8 @@ class FPSController:
         return (len(self._ticks) - 1) / span if span > 0 else 0.0
 # --- end inline FPSController ---
 
-load_dotenv()
+# Only this folder's .env: a bare load_dotenv() also searches every parent folder.
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 logger.remove()
 logger.add(sys.stdout, level="INFO")
 

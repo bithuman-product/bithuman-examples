@@ -11,6 +11,10 @@ type TokenGeneratorData = {
   token: string;
   mode: ConnectionMode;
   avatarImage: string;
+  roomName: string;
+  /** A problem the page should show instead of spinning on "Connecting..." */
+  error: string | null;
+  setError: (error: string | null) => void;
   disconnect: () => Promise<void>;
   connect: (mode: ConnectionMode) => Promise<void>;
 };
@@ -23,6 +27,8 @@ export const ConnectionProvider = ({
   children: React.ReactNode;
 }) => {
   const { config } = useConfig();
+  const [error, setError] = useState<string | null>(null);
+  const [roomName, setRoomName] = useState("");
   const [connectionDetails, setConnectionDetails] = useState<{
     wsUrl: string;
     token: string;
@@ -60,27 +66,27 @@ export const ConnectionProvider = ({
         // The server auto-detects the correct URL from the request host,
         // so this works on localhost AND remote VPS with zero config.
         const tokenUrl = `/api/token?${params.toString()}`;
-        console.log('[connection] Fetching token from:', tokenUrl);
-        const response = await fetch(tokenUrl);
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch token: ${response.status}`);
-        }
-
-        const data = await response.json();
-        token = data.accessToken;
-        url = data.url || process.env.NEXT_PUBLIC_LIVEKIT_URL || '';
-        avatarImage = data.avatarImage || '';
-
-        if (!token) {
-          throw new Error("Failed to get access token");
-        }
-        if (!url) {
-          throw new Error("No LiveKit URL available");
+        try {
+          const response = await fetch(tokenUrl);
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(data.error || `/api/token answered ${response.status}. Check the terminal running this app.`);
+          }
+          token = data.accessToken;
+          url = data.url || process.env.NEXT_PUBLIC_LIVEKIT_URL || '';
+          avatarImage = data.avatarImage || '';
+          setRoomName(data.roomName || config.settings.room_name || '');
+          if (!token || !url) {
+            throw new Error("/api/token returned no token or LiveKit URL. Check NEXT_PUBLIC_LIVEKIT_URL in .env.");
+          }
+        } catch (e) {
+          setError((e as Error).message || "Could not get a LiveKit token from /api/token.");
+          setConnectionDetails(prev => ({ ...prev, mode: "manual" }));
+          return;
         }
       }
 
-      console.log('[connection] Connection successful:', { mode, url: url.substring(0, 50) + '...' });
+      setError(null);
 
       setConnectionDetails({
         wsUrl: url,
@@ -112,6 +118,9 @@ export const ConnectionProvider = ({
         shouldConnect: connectionDetails.shouldConnect,
         mode: connectionDetails.mode,
         avatarImage: connectionDetails.avatarImage,
+        roomName,
+        error,
+        setError,
         connect,
         disconnect,
       }}

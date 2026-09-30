@@ -16,7 +16,8 @@ from livekit.agents.voice.room_io import RoomOptions
 from livekit.plugins import bithuman, openai
 from openai.types.realtime.realtime_audio_input_turn_detection import ServerVad
 
-load_dotenv()
+# Only this folder's .env: a bare load_dotenv() also searches every parent folder.
+load_dotenv(pathlib.Path(__file__).with_name(".env"))
 API = "https://api.bithuman.ai"
 # ★ LOAD = THIS WORKER'S OWN SESSIONS, NOT THE WHOLE MACHINE'S CPU. The default
 # load is host CPU, and livekit-server stops handing a worker rooms once its load

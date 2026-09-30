@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useRef, useState } from 'react';
-import { VideoTrack, TrackReferenceOrPlaceholder } from '@livekit/components-react';
+import { VideoTrack, TrackReferenceOrPlaceholder, isTrackReference } from '@livekit/components-react';
 import { ConnectionState } from 'livekit-client';
 
 interface VideoDisplayProps {
@@ -77,7 +77,7 @@ export const VideoDisplay = ({
       )}
 
       {/* Agent video */}
-      {agentVideoTrack && (
+      {agentVideoTrack && isTrackReference(agentVideoTrack) && (
         <div className="absolute inset-0" ref={agentVideoRef}>
           <VideoTrack
             trackRef={agentVideoTrack}
@@ -94,7 +94,7 @@ export const VideoDisplay = ({
       )}
 
       {/* Local user video */}
-      {localVideoTrack && isCameraEnabled && (
+      {localVideoTrack && isTrackReference(localVideoTrack) && isCameraEnabled && (
         <div className="absolute top-4 right-4 w-48 h-36 bg-gray-800 rounded-lg overflow-hidden border-2 border-white/20">
           <VideoTrack
             trackRef={localVideoTrack}

@@ -17,10 +17,10 @@ export BITHUMAN_API_SECRET="paste_your_key_here"
 | Example | What it does | Extra setup needed |
 |---------|-------------|--------------------|
 | **[local-avatar.py](local-avatar.py)** | Load an avatar model, play audio through it, see the animated face | None — auto-downloads a sample model on first run |
-| **[cloud-avatar.py](cloud-avatar.py)** | Run a cloud-hosted avatar with AI conversation | LiveKit server + OpenAI API key |
+| **[cloud-avatar.py](cloud-avatar.py)** | Run a cloud-hosted avatar with AI conversation | LiveKit server + OpenAI API key; your secret as `BITHUMAN_MASTER_SECRET` (Option B) |
 | **[conversation.py](conversation.py)** | Talk to the avatar in a window: your mic → OpenAI Realtime → the avatar answers | OpenAI API key; Linux: `sudo apt install libportaudio2` |
 | **[microphone.py](microphone.py)** | The avatar lip-syncs your own voice from the mic | Linux: `sudo apt install libportaudio2` |
-| **[quickstart.py](quickstart.py)** | Play an audio file through an avatar file you pass with `--model` | None |
+| **[quickstart.py](quickstart.py)** | Play an audio file through an avatar file you pass with `--model`, with sound | Linux: `sudo apt install libportaudio2` |
 
 **Recommended: start with `local-avatar.py`** — it has fewer dependencies.
 
@@ -41,14 +41,14 @@ python local-avatar.py --model your-avatar.imx --audio speech.wav
 
 A window will open showing the avatar lip-syncing to the audio. Press `q` to quit.
 
-> **No display — ssh, Docker, CI? It says so and stops, before it costs you
-> anything.** This example is a window, and it now checks for one before it
-> downloads the model or starts a render. To get a file instead, the SDK ships
-> that as one command: `python -m bithuman render <avatar> <audio>` writes
-> `<avatar>.mp4`. Why the check is not a `try`/`except`: the GUI build of
-> OpenCV with no display does not raise — Qt fails to load its platform plugin
-> and calls `abort()`, so the process dies on SIGABRT with no traceback and
-> nothing to catch (measured on a headless Linux box: exit 134).
+> **No display (ssh, Docker, CI)?** The example says so and stops before it
+> downloads anything or starts a render. To get an MP4 instead, use the SDK's
+> own command, which downloads a showcase avatar by name:
+>
+> ```bash
+> python -m bithuman render sofia-ramirez speech.wav     # writes sofia-ramirez.mp4
+> python -m bithuman render wise-pup speech.wav          # Expression 2; needs bithuman[expression-2]
+> ```
 
 > **First run is slow (up to 60 seconds).** The first time: the sample model downloads (~148 MB), then the SDK may convert it from legacy format to v2. Both are one-time costs — subsequent runs start in under 2 seconds.
 
@@ -64,13 +64,13 @@ A window will open showing the avatar lip-syncing to the audio. Press `q` to qui
 
 ### Option B: Cloud avatar (more setup, but no model download needed)
 
-This requires a LiveKit server and an OpenAI API key. It is a LiveKit worker, so it keeps your API secret as `BITHUMAN_MASTER_SECRET` and uses it only to mint a one-hour token. Never set `BITHUMAN_API_SECRET` in a LiveKit worker's environment: `livekit-plugins-bithuman` 1.8.4 and older reads it by itself and copies it into the room, where everyone can read it. `cloud-avatar.py` refuses to start while it is set.
+This requires a LiveKit server and an OpenAI API key. It is a LiveKit worker, so your API secret goes in `BITHUMAN_MASTER_SECRET`, not `BITHUMAN_API_SECRET`. The worker uses it for one thing: asking bitHuman for a one-hour token that can start only this agent's avatar in this room, and it gives the plugin only that token. The reason: `livekit-plugins-bithuman` 1.8.4 and older reads `BITHUMAN_API_SECRET` by itself and copies it into the room, where everyone who joins can read it. `cloud-avatar.py` refuses to start while `BITHUMAN_API_SECRET` is set. (`BITHUMAN_AGENT_CODE` works as another name for `BITHUMAN_AGENT_ID`.)
 
 ```bash
 pip install -r requirements.txt
 unset BITHUMAN_API_SECRET                          # a LiveKit worker never gets this name
 export BITHUMAN_MASTER_SECRET="paste_your_key_here"
-export BITHUMAN_AGENT_ID=A78WKV4515                # your agent code, from www.bithuman.ai
+export BITHUMAN_AGENT_ID=A23WJF0199                # the public sample (wise-pup), or your own agent code
 export LIVEKIT_URL=wss://your-project.livekit.cloud LIVEKIT_API_KEY=… LIVEKIT_API_SECRET=…
 export OPENAI_API_KEY=…
 python cloud-avatar.py dev
@@ -97,6 +97,6 @@ Once your first demo works, pick the path that matches what you're building:
 | [conversation.py](conversation.py) | Mic → OpenAI Realtime (`gpt-realtime-2.1-mini`) → the avatar speaks the answer, in a window |
 | [microphone.py](microphone.py) | Mic → the avatar lip-syncs you, in a window |
 | [quickstart.py](quickstart.py) | An audio file → the avatar, in a window |
-| [speech.wav](speech.wav) | Sample audio for testing — 13.9 s, 16 kHz mono |
+| [speech.wav](speech.wav) | Sample audio for testing: 13.9 s, 16 kHz mono |
 | [.env.example](.env.example) | Template for environment variables (copy to `.env` and fill in) |
 | [requirements.txt](requirements.txt) | Python dependencies for every script here |
