@@ -22,7 +22,7 @@ New to bitHuman? Sample avatars you can try without an account: [docs.bithuman.a
 
 # Official rules
 
-Last updated: 2026-10-02
+Last updated: 2026-10-03
 
 **NO PURCHASE NECESSARY TO ENTER OR WIN. A PURCHASE DOES NOT IMPROVE YOUR CHANCES OF WINNING. VOID WHERE PROHIBITED OR RESTRICTED BY LAW.**
 
@@ -34,7 +34,7 @@ This challenge is not sponsored, endorsed or run by Discord, X, Bluesky or GitHu
 
 ## 2. What this is
 
-Builder Challenge #0 is a skill-based contest. Its theme: give a showcase character a job. You may start from a character in the bitHuman public showcase, or use a bitHuman avatar you made yourself, as long as section 6 is met. The bitHuman Team judges every eligible entry on the criteria in section 7. Chance plays no part in picking winners.
+Builder Challenge #0 is a skill-based contest. Its theme: give a showcase character a job. You may start from a character in the bitHuman public showcase, or use a bitHuman avatar you made yourself, as long as section 6 is met. Every eligible entry is judged on the criteria in section 7, in the way section 7 describes. Chance plays no part in picking winners.
 
 ## 3. Who can enter
 
@@ -75,7 +75,7 @@ Whichever way you enter, entering means you confirm that your entry meets sectio
 
 ## 7. Judging
 
-At least two members of the bitHuman Team judge every eligible entry, on these criteria:
+The bitHuman Team picks the winners on these criteria: an AI model scores every eligible entry and drafts the picks, and the team can review and change that draft for at least 24 hours before the winners are listed.
 
 | Criterion | Weight | What we look for |
 |---|---|---|
@@ -84,7 +84,7 @@ At least two members of the bitHuman Team judge every eligible entry, on these c
 | Originality | 25% | A fresh idea, or a fresh take on a familiar one |
 | Show it | 15% | The clip and the link let us see it working |
 
-**Votes, likes, reactions, follows, reposts, stars and shares never count**, on any platform. Ties go to the higher Craft score, then to the entry posted first. The judges' decisions are final, except where the law says otherwise. If there are fewer than three eligible entries, we may award fewer prizes.
+**Votes, likes, reactions, follows, reposts, stars and shares never count**, on any platform. Ties go to the higher Craft score, then to the entry posted first. The bitHuman Team's decisions are final, except where the law says otherwise. If there are fewer than three eligible entries, we may award fewer prizes.
 
 ## 8. Prizes
 
