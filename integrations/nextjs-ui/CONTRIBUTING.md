@@ -156,7 +156,7 @@ npm run build
 
 - **GitHub Issues** - For bugs and feature requests
 - **GitHub Discussions** - For questions and community chat
-- **bitHuman Discord** - For real-time community support
+- **[bitHuman Discord](https://discord.gg/x3tMhJvX4X)** - For real-time community support
 - **Documentation** - Check the README and docs first
 
 ### Code of Conduct
