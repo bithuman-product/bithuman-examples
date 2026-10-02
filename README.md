@@ -2,6 +2,8 @@
 
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/x3tMhJvX4X) Questions, demos and challenges: [join the bitHuman Discord](https://discord.gg/x3tMhJvX4X).
 
+**Builder Challenge #0** (entries October 6 to 11, 2026, UTC): rules and how to enter → [challenges/2026-10-challenge-0](challenges/2026-10-challenge-0/)
+
 Working examples for bitHuman real-time avatars: speech in, a lip-synced face out, on iOS, Android, macOS, the web (Next.js), Python, REST and the CLI.
 
 From 12 October 2026, API and SDK use requires the Creator plan or higher. Every example needs an [API secret](#your-api-secret).

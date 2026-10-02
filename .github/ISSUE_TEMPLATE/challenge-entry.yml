@@ -1,0 +1,84 @@
+name: "Challenge entry"
+description: "Enter Builder Challenge #0: give a showcase character a job (entries 6 to 11 October 2026, UTC)."
+title: "Challenge #0 entry: "
+labels: ["challenge-0"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Builder Challenge #0: give a showcase character a job.** Entries from 00:00 UTC Tuesday, October 6, 2026 to 23:59 UTC Sunday, October 11, 2026. Read the [official rules](https://github.com/bithuman-product/bithuman-examples/tree/main/challenges/2026-10-challenge-0) first.
+
+        This form is one of three ways to enter; a post in the bitHuman Discord #challenge forum or a public X or Bluesky post with #bitHumanChallenge works too. Joining the bitHuman Discord is not required to enter or win. One entry per person, whichever way you enter.
+
+        **This issue is public.** Never put an email address, an API secret or a password in it. If you are picked, we reply here and you send us your bitHuman account email privately (rules, section 9).
+  - type: input
+    id: project
+    attributes:
+      label: Project name
+      placeholder: "A museum guide for a science center"
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Link to what you built
+      description: "A repository, a live page, an app listing or a project page we can open."
+      placeholder: "https://"
+    validations:
+      required: true
+  - type: input
+    id: clip
+    attributes:
+      label: Clip URL (up to 60 seconds)
+      description: "A public video of up to 60 seconds that shows it working (for example YouTube, Vimeo, or an X or Bluesky post)."
+      placeholder: "https://"
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: "Where it runs. Pick every one that applies."
+      multiple: true
+      options:
+        - Browser
+        - iPhone or iPad
+        - Android
+        - Mac
+        - Linux PC
+        - A server or the bitHuman cloud
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: model
+    attributes:
+      label: Model
+      description: "Essence 2 renders a photoreal person; Expression 2 renders any character."
+      multiple: true
+      options:
+        - Essence 2
+        - Expression 2
+    validations:
+      required: true
+  - type: textarea
+    id: job
+    attributes:
+      label: The job
+      description: "Optional: which character, what job it does and for whom, in a sentence or two."
+    validations:
+      required: false
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmations
+      description: "All four are required to enter."
+      options:
+        - label: "I am 18 or older and have reached the age of majority where I live."
+          required: true
+        - label: "It is my own work (or my team's), and I own or have permission for everything in it: the characters, images, voice, music and script."
+          required: true
+        - label: "Any real person shown or voiced in it gave their written consent, which I can show on request."
+          required: true
+        - label: "I have read and agree to the official rules."
+          required: true
