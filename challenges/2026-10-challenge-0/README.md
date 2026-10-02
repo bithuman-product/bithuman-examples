@@ -55,7 +55,7 @@ Enter in **any one** of these ways. Every way is judged the same.
 
 **a. Discord.** Start a new post in the #challenge forum of the bitHuman Discord server ([invite](https://discord.gg/x3tMhJvX4X)), tagged "Challenge #0" and the model you used. Include a link to what you built, a clip of up to 60 seconds, and one line saying the idea, script and voice are yours or licensed.
 
-**b. X or Bluesky.** Publish a public post on X or Bluesky that includes **#bitHumanChallenge**, a link to what you built, and a clip of up to 60 seconds (attached to the post, or linked from it). Keep the post and your account public until the winners are announced, so we can see it.
+**b. X or Bluesky.** Publish a public post on X or Bluesky that includes **#bitHumanChallenge**, a link to what you built, and a clip of up to 60 seconds (attached to the post, or linked from it). We find these entries by searching X and Bluesky for #bitHumanChallenge, so put the hashtag in the post itself; an entry we cannot find that way does not count. Keep the post and your account public until the winners are announced.
 
 **c. GitHub.** Open an issue in this repository with the [Challenge entry form](https://github.com/bithuman-product/bithuman-examples/issues/new?template=challenge-entry.yml) and fill in every required field. You need a GitHub account. GitHub issues are public: never put an email address, an API secret or a password in one.
 
