@@ -19,7 +19,7 @@ An avatar agent on Apple M2+/M3/M4 Macs whose conversation runs on the Mac: Appl
 
 Install bitHuman's Apple STT (Speech Recognition) and TTS (Siri/Apple voices) plugin for LiveKit:
 
-> **Preview — private distribution.** The `bithuman-voice` wheel is not currently published publicly. This example won't run end-to-end without it. Reach out on [Discord](https://discord.gg/ES953n7bPA) or through [bitHuman support](https://bithuman.ai) to request access.
+> **Preview — private distribution.** The `bithuman-voice` wheel is not currently published publicly. This example won't run end-to-end without it. Reach out on [Discord](https://discord.gg/x3tMhJvX4X) or through [bitHuman support](https://bithuman.ai) to request access.
 
 Once you have the wheel, install it:
 
