@@ -9,7 +9,7 @@ runtime.
 
 | model | coordinate | latest |
 |---|---|---|
-| essence-2 | `ai.bithuman:essence2-android` | **0.8.1** |
+| essence-2 | `ai.bithuman:essence2-android` | **0.9.3** |
 | expression-2 | `ai.bithuman:expression2-android` | **0.5.2** |
 
 The first-generation models are not available on phones: `essence-1` and
@@ -74,7 +74,7 @@ android {
     packaging { jniLibs { useLegacyPackaging = true } }   // required — see below
 }
 dependencies {
-    implementation("ai.bithuman:essence2-android:0.8.1")
+    implementation("ai.bithuman:essence2-android:0.9.3")
     // and/or
     implementation("ai.bithuman:expression2-android:0.5.2")
 }
