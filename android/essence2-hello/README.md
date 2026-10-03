@@ -6,7 +6,7 @@ every frame of a speech clip on the device, then plays the audio and shows each 
 on the audio clock. The clip is bundled in the app, so the first launch renders.
 
 Its page on the docs site, with the app running on a Galaxy S25+, is
-[Android example: Essence 2](https://docs.bithuman.ai/examples/android-essence-2). It resolves one coordinate, `ai.bithuman:essence2-android:0.8.1`, from bitHuman's Maven
+[Android example: Essence 2](https://docs.bithuman.ai/examples/android-essence-2). It resolves one coordinate, `ai.bithuman:essence2-android:0.9.3`, from bitHuman's Maven
 repository (`https://maven.bithuman.ai`, declared in `settings.gradle.kts` for the
 `ai.bithuman` group only), and nothing else from bitHuman; what the SDK depends on
 comes from Maven Central.
@@ -160,7 +160,7 @@ android {
 }
 
 dependencies {
-    implementation("ai.bithuman:essence2-android:0.8.1")
+    implementation("ai.bithuman:essence2-android:0.9.3")
     testImplementation("junit:junit:4.13.2")   // app/src/test: the WAV reader, on the JVM
 }
 ```

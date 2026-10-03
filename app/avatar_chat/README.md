@@ -8,7 +8,7 @@ every platform (`package:bithuman/ui_kit.dart`).
 
 | platform | from a clone | why |
 |---|---|---|
-| **Android** | **builds** — `flutter build apk` | every engine it needs is a public Maven Central coordinate, resolved anonymously by Gradle: `ai.bithuman:expression2-android` and `ai.bithuman:essence2-android`, both pulled in by the plugin this app pins. |
+| **Android** | **builds** — `flutter build apk` | every engine it needs is a public coordinate on bitHuman's Maven repository (`https://maven.bithuman.ai`, which the plugin declares), resolved anonymously by Gradle: `ai.bithuman:expression2-android` and `ai.bithuman:essence2-android`, both pulled in by the plugin this app pins. |
 | **iOS / macOS** | **not yet verified for this app** | since plugin 2.6.20 the Apple half links the published engines (a new Flutter app builds for iOS 16+ and macOS 13+ after the plugin's `scripts/bootstrap.sh`), but this app's own iOS/macOS build has not been re-run; for Apple today, build `swift/` in this repository |
 
 That table is the whole truth of this directory. Nothing here fails silently: the build
@@ -19,13 +19,13 @@ stops at the dependency it cannot resolve, and the row above names it.
 ### Which engine the Android app runs
 
 The plugin is pinned by tag in `pubspec.yaml`, and that tag fixes the engine versions.
-This app pins **`flutter-plugin-v2.6.20`**, which resolves **`ai.bithuman:essence2-android:0.8.1`**
-and **`ai.bithuman:expression2-android:0.5.2`** from Maven Central. 2.6.20 also moves the
-voice session to bitHuman's realtime relay: the app passes your API secret and mints no
-token.
+This app pins **`flutter-plugin-v2.6.35`**, which resolves **`ai.bithuman:essence2-android:0.9.3`**
+and **`ai.bithuman:expression2-android:0.5.2`** from bitHuman's Maven repository. The voice
+session goes through bitHuman's realtime relay (since 2.6.20): the app passes your API secret
+and mints no token.
 
-Both coordinates resolve anonymously from Maven Central; neither needs Google's
-Maven. `google()` is still in the repository list because the Android Gradle
+Both coordinates resolve anonymously from `https://maven.bithuman.ai`, which the plugin adds
+for the `ai.bithuman` group only; neither needs Google's Maven. `google()` is still in the repository list because the Android Gradle
 Plugin fetches its own `aapt2` from there.
 
 ## Run
