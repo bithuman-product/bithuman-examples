@@ -57,6 +57,6 @@ android {
 }
 
 dependencies {
-    implementation("ai.bithuman:essence2-android:0.9.3")
+    implementation("ai.bithuman:essence2-android:0.9.4")
     testImplementation("junit:junit:4.13.2")   // app/src/test: the WAV reader, on the JVM
 }
