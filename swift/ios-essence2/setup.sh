@@ -13,7 +13,7 @@ CODE="${1:-A21SKT4314}"
 # The Essence 2 runtime files of the release the Swift package pins
 # (Essence2Resources.releaseTag in Swift package 2.20.1). Raise it with the package.
 ESSENCE2_TAG=essence2-v1.15.3   # keep equal to the tag in REL below
-REL=https://github.com/bithuman-product/homebrew-bithuman/releases/download/essence2-v1.15.3
+REL=https://github.com/bithuman-product/homebrew-bithuman/releases/download/essence2-v1.15.4
 mkdir -p Sources/Model Sources/EngineResources
 AUTH=()
 if [ -n "${BITHUMAN_API_SECRET:-}" ]; then AUTH=(-H "api-secret: $BITHUMAN_API_SECRET"); fi
