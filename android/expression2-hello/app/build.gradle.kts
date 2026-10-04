@@ -57,6 +57,6 @@ android {
 }
 
 dependencies {
-    implementation("ai.bithuman:expression2-android:0.6.0")
+    implementation("ai.bithuman:expression2-android:0.6.1")
     testImplementation("junit:junit:4.13.2")   // app/src/test: the WAV reader, on the JVM
 }

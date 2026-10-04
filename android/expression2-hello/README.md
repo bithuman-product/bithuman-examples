@@ -6,7 +6,7 @@ every frame of a speech clip on the device, then plays the audio and shows each 
 on the audio clock. The clip is bundled in the app, so the first launch renders.
 
 Its page on the docs site, with the app running on a Galaxy S25+, is
-[Android example: Expression 2](https://docs.bithuman.ai/examples/android-expression-2). It resolves one coordinate, `ai.bithuman:expression2-android:0.6.0`, from bitHuman's Maven
+[Android example: Expression 2](https://docs.bithuman.ai/examples/android-expression-2). It resolves one coordinate, `ai.bithuman:expression2-android:0.6.1`, from bitHuman's Maven
 repository (`https://maven.bithuman.ai`, declared in `settings.gradle.kts` for the
 `ai.bithuman` group only), and nothing else from bitHuman; what the SDK depends on
 comes from Maven Central.
@@ -79,7 +79,7 @@ ask for it at run time; see [Live microphone input](../README.md#live-microphone
 
 On a Galaxy S25+ (SM-S936U1, Android 16), 2026-09-23, with `expression2-android`
 **0.4.9** and the 13.87 s clip the app now bundles, pushed as `speech.wav` (the app
-then read only a pushed file). Not re-measured on 0.6.0 yet; the log lines are the
+then read only a pushed file). Not re-measured on 0.6.1 yet; the log lines are the
 same apart from the new `speech:` line. `adb logcat -s X2HELLO`:
 
 ```text
@@ -163,7 +163,7 @@ android {
 }
 
 dependencies {
-    implementation("ai.bithuman:expression2-android:0.6.0")
+    implementation("ai.bithuman:expression2-android:0.6.1")
     testImplementation("junit:junit:4.13.2")   // app/src/test: the WAV reader, on the JVM
 }
 ```
