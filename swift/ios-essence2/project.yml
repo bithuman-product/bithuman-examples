@@ -6,7 +6,7 @@ options:
     iOS: "26.0"
 packages:
   bithuman:
-    url: https://github.com/bithuman-product/homebrew-bithuman.git
+    url: https://gitlab.com/bithuman/sdk/homebrew-bithuman.git
     # 2.20.1 or newer: the version docs.bithuman.ai/versions.json names. setup.sh
     # fetches the runtime files of the essence2 release this version pins.
     from: 2.20.3

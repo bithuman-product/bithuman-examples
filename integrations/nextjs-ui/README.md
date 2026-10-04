@@ -119,4 +119,4 @@ the environment variables above there. The docker-compose stacks in
 ## License
 
 Apache 2.0 — see [LICENSE](LICENSE). Contributions: [CONTRIBUTING.md](CONTRIBUTING.md).
-Issues: [bithuman-examples/issues](https://github.com/bithuman-product/bithuman-examples/issues).
+Issues: [bithuman-examples/issues](https://gitlab.com/bithuman/sdk/bithuman-examples/-/issues).

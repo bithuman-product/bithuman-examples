@@ -1,7 +1,7 @@
 // IOSExpression2 — a talking bitHuman avatar on a real iPhone, on-device.
 //
 // Engine:  expression-2, via the `Expression2` product of the SwiftPM package
-//          https://github.com/bithuman-product/homebrew-bithuman.git
+//          https://gitlab.com/bithuman/sdk/homebrew-bithuman.git
 // Inputs:  Sources/Model/agent.imx           the avatar (setup.sh downloads it)
 //          Sources/Model/shared-engine.imx   the shared engine file, one for every avatar
 //          Sources/Model/speech16k.wav       16 kHz mono PCM speech

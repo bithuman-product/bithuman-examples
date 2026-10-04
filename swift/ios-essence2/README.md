@@ -25,7 +25,7 @@ The docs page is <https://docs.bithuman.ai/examples/ios-essence-2>.
 ## Run it
 
 ```bash
-git clone https://github.com/bithuman-product/bithuman-examples.git
+git clone https://gitlab.com/bithuman/sdk/bithuman-examples.git
 cd bithuman-examples/swift/ios-essence2
 ./setup.sh                 # the avatar, the engine resources, a speech clip
 open IOSEssence2.xcodeproj

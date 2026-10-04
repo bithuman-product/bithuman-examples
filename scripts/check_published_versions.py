@@ -101,7 +101,7 @@ from pathlib import Path
 MAVEN_BASE = os.environ.get("BH_VERSION_CHECK_MAVEN_BASE", "https://maven.bithuman.ai")
 PYPI_BASE = os.environ.get("BH_VERSION_CHECK_PYPI_BASE", "https://pypi.org/pypi")
 TAP_URL = os.environ.get(
-    "BH_VERSION_CHECK_TAP_URL", "https://github.com/bithuman-product/homebrew-bithuman.git"
+    "BH_VERSION_CHECK_TAP_URL", "https://gitlab.com/bithuman/sdk/homebrew-bithuman.git"
 )
 
 # Maven artifacts under the ai.bithuman group that documents may name.

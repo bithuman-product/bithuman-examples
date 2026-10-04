@@ -15,7 +15,7 @@ agent code (the public sample `A23WJF0199` works).
 
 ```bash
 # 1. Clone and enter the directory
-git clone https://github.com/bithuman-product/bithuman-examples.git
+git clone https://gitlab.com/bithuman/sdk/bithuman-examples.git
 cd bithuman-examples/python/cloud-essence
 
 # 2. Create your .env file

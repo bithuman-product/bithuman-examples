@@ -50,7 +50,7 @@ fetch Model/agent.imx \
 #    one per identity. Anonymous, and the same file for every agent you open.
 echo "==> shared engine"
 fetch Model/shared-engine.imx \
-  "https://github.com/bithuman-product/homebrew-bithuman/releases/download/expression2-engine-mac-arm64-1.0.0/mac-arm64-1.0.0.engine"
+  "https://downloads.bithuman.ai/homebrew-bithuman/expression2-engine-mac-arm64-1.0.0/mac-arm64-1.0.0.engine"
 
 # 3. something for it to say — 16 kHz mono, out of the identity's own bundle.
 echo "==> speech16k.wav"

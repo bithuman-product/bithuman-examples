@@ -175,8 +175,7 @@ The docs pages [Android example: Expression 2](https://docs.bithuman.ai/examples
 and [Android example: Essence 2](https://docs.bithuman.ai/examples/android-essence-2)
 send readers to the two projects above, with the apps running on a Galaxy S25+.
 Both projects are built, and their JVM unit tests run, by hand before merging with
-the `android-examples` step of [`ci/run-local.sh`](../ci/run-local.sh) (GitHub
-Actions are off for this repository).
+the `android-examples` step of [`ci/run-local.sh`](../ci/run-local.sh) (hosted CI is off for this repository).
 
 ## Live microphone input
 

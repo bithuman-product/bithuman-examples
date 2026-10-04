@@ -21,7 +21,7 @@ Each integration has its own prerequisites listed in its README. Common requirem
 ## Getting started
 
 ```bash
-git clone https://github.com/bithuman-product/bithuman-examples.git
+git clone https://gitlab.com/bithuman/sdk/bithuman-examples.git
 cd bithuman-examples/integrations/<example>
 ```
 

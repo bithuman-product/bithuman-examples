@@ -27,7 +27,7 @@ If you find a bug or have a suggestion for improvement:
 
 ```bash
 # Clone your fork
-git clone https://github.com/bithuman-product/bithuman-examples.git
+git clone https://gitlab.com/bithuman/sdk/bithuman-examples.git
 cd bithuman-examples/integrations/nextjs-ui
 
 # Install dependencies
@@ -154,8 +154,7 @@ npm run build
 
 ### Getting Help
 
-- **GitHub Issues** - For bugs and feature requests
-- **GitHub Discussions** - For questions and community chat
+- **[GitLab issues](https://gitlab.com/bithuman/sdk/bithuman-examples/-/issues)** - For bugs, feature requests and questions
 - **[bitHuman Discord](https://discord.gg/x3tMhJvX4X)** - For real-time community support
 - **Documentation** - Check the README and docs first
 

@@ -14,7 +14,7 @@ dependencies:
   # the same bytes on every machine; move the ref deliberately.
   bithuman:
     git:
-      url: https://github.com/bithuman-product/homebrew-bithuman.git
+      url: https://gitlab.com/bithuman/sdk/homebrew-bithuman.git
       path: packages/flutter-plugin
       ref: flutter-plugin-v2.6.35
   # The Keychain (iOS/macOS) and the Keystore (Android). A demo that asks for a secret

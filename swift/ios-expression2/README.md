@@ -38,7 +38,7 @@ The docs page, with the app running on an iPhone, is
 ## Run it
 
 ```bash
-git clone https://github.com/bithuman-product/bithuman-examples.git
+git clone https://gitlab.com/bithuman/sdk/bithuman-examples.git
 cd bithuman-examples/swift/ios-expression2
 
 # 1. fetch the payload into Sources/Model/  (an anonymous download)

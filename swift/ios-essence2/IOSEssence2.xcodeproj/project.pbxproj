@@ -367,7 +367,7 @@
 /* Begin XCRemoteSwiftPackageReference section */
 		2A9AF8BB2DE1F86E39C0A886 /* XCRemoteSwiftPackageReference "homebrew-bithuman" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bithuman-product/homebrew-bithuman.git";
+			repositoryURL = "https://gitlab.com/bithuman/sdk/homebrew-bithuman.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.20.3;

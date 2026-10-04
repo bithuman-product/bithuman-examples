@@ -21,7 +21,7 @@ brew install livekit python@3.13                          # macOS
 curl -sSL https://get.livekit.io | bash                   # Linux; on Debian/Ubuntu also: sudo apt install python3-venv
 
 # 2. The example
-git clone https://github.com/bithuman-product/bithuman-examples
+git clone https://gitlab.com/bithuman/sdk/bithuman-examples
 cd bithuman-examples/python/self-host
 python3 --version                                         # needs 3.10–3.14; otherwise use e.g. python3.13 below
 python3 -m venv .venv && . .venv/bin/activate

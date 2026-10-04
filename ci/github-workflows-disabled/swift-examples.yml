@@ -34,7 +34,7 @@ jobs:
           # the floor every example here pins (`from: "2.18.0"`, the version
           # docs.bithuman.ai/versions.json names). Until 2026-09-22 this step fetched
           # v2.6.1, so the gate compiled against bytes no reader of these examples had.
-          REL=https://github.com/bithuman-product/homebrew-bithuman/releases/download
+          REL=https://downloads.bithuman.ai/homebrew-bithuman
           mkdir -p xcf && cd xcf
           fetch() {                       # $1 = tag, $2 = zip name, $3 = expected sha256
             curl -fsSL -o "$2" "$REL/$1/$2"

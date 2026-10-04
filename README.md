@@ -107,7 +107,7 @@ They remain archived and read-only; nothing new lands in them.
 - [bithuman-archive/public-livekit-ui-example](https://github.com/bithuman-archive/public-livekit-ui-example)
 - bithuman-labs/local-deployment-examples _(private)_
 - [bithuman-ai/sdk-examples-python](https://github.com/bithuman-ai/sdk-examples-python)
-- [bithuman-product/bithuman-sdk-public](https://github.com/bithuman-product/bithuman-sdk-public)
+- [bithuman-archive/bithuman-sdk-public](https://github.com/bithuman-archive/bithuman-sdk-public)
 
 </details>
 

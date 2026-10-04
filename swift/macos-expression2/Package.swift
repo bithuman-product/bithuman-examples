@@ -8,7 +8,7 @@ let package = Package(
     // is not verified to run there.
     platforms: [.macOS(.v14)],
     dependencies: [
-        .package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.20.3")
+        .package(url: "https://gitlab.com/bithuman/sdk/homebrew-bithuman.git", from: "2.20.3")
     ],
     targets: [
         .executableTarget(
