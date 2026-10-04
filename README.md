@@ -1,3 +1,8 @@
+<!-- gitlab-migration: moved -->
+> **This repository moved to GitLab: [gitlab.com/bithuman/sdk/bithuman-examples](https://gitlab.com/bithuman/sdk/bithuman-examples).**
+> This GitHub copy is archived (read-only) and is no longer updated. Clone, open issues and
+> follow new examples there: `git clone https://gitlab.com/bithuman/sdk/bithuman-examples.git`. Docs: https://docs.bithuman.ai
+
 # bitHuman examples
 
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/x3tMhJvX4X) Questions, demos and challenges: [join the bitHuman Discord](https://discord.gg/x3tMhJvX4X).
