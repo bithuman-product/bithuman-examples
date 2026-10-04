@@ -370,7 +370,7 @@
 			repositoryURL = "https://github.com/bithuman-product/homebrew-bithuman.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.20.2;
+				minimumVersion = 2.20.3;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
