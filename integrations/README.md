@@ -6,7 +6,7 @@ Framework and language bridges that show how to connect bitHuman to different st
 
 | Example | Stack | Description | When to use |
 |---------|-------|-------------|-------------|
-| [nextjs-ui/](nextjs-ui/) | Next.js 14, TypeScript, Tailwind, LiveKit | A web front end for LiveKit avatar sessions: the avatar's video, microphone and camera controls, and a voice-activity indicator. | You want a browser front end for your LiveKit avatar agent to start from. |
+| [web/nextjs-ui/](../web/nextjs-ui/) | Next.js 14, TypeScript, Tailwind, LiveKit | A web front end for LiveKit avatar sessions: the avatar's video, microphone and camera controls, and a voice-activity indicator. | You want a browser front end for your LiveKit avatar agent to start from. |
 | [java-websocket/](java-websocket/) | Java 17, Maven, WebSocket | Java client that streams PCM audio to a Python bitHuman server over WebSocket and receives JPEG video frames back. Includes the full wire protocol spec. | You are integrating bitHuman into a Java backend, Android app, or Spring service. |
 | [gradio-web/](gradio-web/) | Python, Gradio, FastRTC | Browser UI powered by Gradio with FastRTC for WebRTC transport. Select an avatar from a dropdown, talk through your mic, see the avatar respond. | You want a quick browser demo without LiveKit or Node.js -- pure Python. |
 | [offline-mac/](offline-mac/) | macOS, Docker, Ollama, Apple Speech | An avatar agent whose conversation runs on your Mac: Ollama for the language model, Apple Speech Recognition for STT, Apple Voices for TTS, and the bitHuman SDK for the avatar. The avatar checks your API secret online when a session starts. | You want the conversation (speech, language model, voice) on your own machine. For no internet at all, see [Fully offline](https://docs.bithuman.ai/deploy/offline): Business and Enterprise, Linux PCs and terminals. |
@@ -21,7 +21,7 @@ Each integration has its own prerequisites listed in its README. Common requirem
 ## Getting started
 
 ```bash
-git clone https://github.com/bithuman-product/bithuman-examples.git
+git clone https://gitlab.com/bithuman/sdk/bithuman-examples.git
 cd bithuman-examples/integrations/<example>
 ```
 

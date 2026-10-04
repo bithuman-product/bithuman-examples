@@ -9,7 +9,7 @@ A voice agent with a face, where everything except the voice model runs on your 
 - **Two secrets, both in `.env`:** your API secret as `BITHUMAN_MASTER_SECRET` (both models refuse to render without it) and `OPENAI_API_KEY`. A LiveKit worker never gets `BITHUMAN_API_SECRET`: `livekit-plugins-bithuman` 1.8.4 and older reads that name by itself and, for a cloud avatar, copies it into the room. `agent.py` passes the secret to the plugin explicitly and refuses to start while `BITHUMAN_API_SECRET` is set.
 
 No Docker and no web app to build: `agent.py` serves a small page on `localhost` that joins your local room.
-Rather not write code? `bithuman run wise-pup` does the same in one command — see [api/cli/](../../api/cli/).
+Rather not write code? `bithuman run wise-pup` does the same in one command — see [cli/](../../cli/).
 
 ## Run it
 
@@ -21,7 +21,7 @@ brew install livekit python@3.13                          # macOS
 curl -sSL https://get.livekit.io | bash                   # Linux; on Debian/Ubuntu also: sudo apt install python3-venv
 
 # 2. The example
-git clone https://github.com/bithuman-product/bithuman-examples
+git clone https://gitlab.com/bithuman/sdk/bithuman-examples
 cd bithuman-examples/python/self-host
 python3 --version                                         # needs 3.10–3.14; otherwise use e.g. python3.13 below
 python3 -m venv .venv && . .venv/bin/activate

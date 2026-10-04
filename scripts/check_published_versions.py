@@ -60,7 +60,7 @@ Escape hatches, both narrow and both visible:
     immediately above, suppresses that line.  For a DATED MEASUREMENT — a table
     recording what 0.3.0 did on a particular day — the old number is the point,
     and the owning lane can say so in its own file without touching this one.
-  * `.github/version-waivers.json` waives a (file, coordinate) pair across a
+  * `ci/version-waivers.json` waives a (file, coordinate) pair across a
     lane boundary, and every entry MUST carry an owner, a reason and an
     `expires` date.  ★An expired waiver is a hard failure and a waiver whose
     claim has become correct is a hard failure: the list can only shrink, the
@@ -101,7 +101,12 @@ from pathlib import Path
 MAVEN_BASE = os.environ.get("BH_VERSION_CHECK_MAVEN_BASE", "https://maven.bithuman.ai")
 PYPI_BASE = os.environ.get("BH_VERSION_CHECK_PYPI_BASE", "https://pypi.org/pypi")
 TAP_URL = os.environ.get(
-    "BH_VERSION_CHECK_TAP_URL", "https://github.com/bithuman-product/homebrew-bithuman.git"
+    "BH_VERSION_CHECK_TAP_URL", "https://gitlab.com/bithuman/sdk/homebrew-bithuman.git"
+)
+# The Swift package has its own repository (one URL for every release, 2.x included):
+# SwiftPM `from:` floors next to it are graded against ITS tags.
+SWIFT_URL = os.environ.get(
+    "BH_VERSION_CHECK_SWIFT_URL", "https://gitlab.com/bithuman/sdk/bithuman-swift.git"
 )
 
 # Maven artifacts under the ai.bithuman group that documents may name.
@@ -168,6 +173,7 @@ class Registry:
         self.maven: dict[str, dict] = {}
         self.pypi: dict[str, dict] = {}
         self.tap_tags: set[str] = set()
+        self.swift_tags: set[str] = set()
         self.sources: list[str] = []
 
     def load(self) -> None:
@@ -210,6 +216,20 @@ class Registry:
         if not self.tap_tags:
             raise RegistryUnreachable(f"git ls-remote {TAP_URL} -> zero tags")
         self.sources.append(f"tap tags: {len(self.tap_tags)} <- {TAP_URL}")
+        try:
+            out = subprocess.run(
+                ["git", "ls-remote", "--tags", SWIFT_URL],
+                capture_output=True, text=True, timeout=60, check=True,
+            ).stdout
+        except Exception as e:  # noqa: BLE001
+            raise RegistryUnreachable(f"git ls-remote {SWIFT_URL} -> {e}") from e
+        for line in out.splitlines():
+            parts = line.split("\t")
+            if len(parts) == 2:
+                self.swift_tags.add(parts[1].removeprefix("refs/tags/").removesuffix("^{}"))
+        if not self.swift_tags:
+            raise RegistryUnreachable(f"git ls-remote {SWIFT_URL} -> zero tags")
+        self.sources.append(f"swift tags: {len(self.swift_tags)} <- {SWIFT_URL}")
 
 
 # ── claim extraction ─────────────────────────────────────────────────────────
@@ -245,6 +265,8 @@ _RE_TAP_TAG = re.compile(rf"\b(?P<tag>(?:{'|'.join(p.rstrip('v') + 'v' for p in 
 # depends on. (Found by listing what the checker had actually claimed, which is
 # a thing worth doing to any gate you have just written.)
 _RE_TAP_DL = re.compile(r"homebrew-bithuman/releases/download/(?P<tag>[^/\s\"'),]+)")
+# The same release assets on bitHuman's download host (the tag must still exist on the tap).
+_RE_DL_HOST = re.compile(r"downloads\.bithuman\.ai/homebrew-bithuman/(?P<tag>[A-Za-z0-9][\w.+-]*)(?=[/\s\"'),]|$)")
 _RE_TAP_SPM = re.compile(r'from:\s*"?(?P<ver>' + SEMVER + r')"?')
 _RE_PYPI_PIN = re.compile(
     r"(?<![\w.-])(?P<proj>" + "|".join(sorted(PYPI_PROJECTS, key=len, reverse=True)) + r")"
@@ -275,6 +297,7 @@ def extract(root: Path) -> list[Claim]:
     for path, lines in _iter_files(root):
         rel = str(path.relative_to(root))
         tap_window = 0  # lines remaining in which a `from:` belongs to the tap
+        swift_window = 0  # ... to the Swift package's own repository
         for i, line in enumerate(lines, 1):
             prev = lines[i - 2] if i >= 2 else ""
             if IGNORE_RE.search(line) or IGNORE_RE.search(prev):
@@ -306,9 +329,17 @@ def extract(root: Path) -> list[Claim]:
             for m in _RE_TAP_TAG.finditer(line):
                 claims.append(Claim(rel, i, line.strip(), "EXISTS", "tap",
                                     "tag", m.group("tag"), "tap-tag"))
-            for m in _RE_TAP_DL.finditer(line):
+            for m in list(_RE_TAP_DL.finditer(line)) + list(_RE_DL_HOST.finditer(line)):
                 claims.append(Claim(rel, i, line.strip(), "EXISTS", "tap",
                                     "tag", m.group("tag"), "tap-release-asset"))
+            if "bithuman-swift" in line:
+                swift_window = 4
+            if swift_window:
+                for m in _RE_TAP_SPM.finditer(line):
+                    claims.append(Claim(rel, i, line.strip(), "EXISTS", "swift",
+                                        "tag", "v" + m.group("ver"), "swiftpm-floor"))
+                swift_window -= 1
+                tap_window = 0
             if "homebrew-bithuman" in line:
                 tap_window = 4
             if tap_window:
@@ -341,7 +372,7 @@ def extract(root: Path) -> list[Claim]:
 def load_waivers(root: Path, enabled: bool) -> list[dict]:
     if not enabled:
         return []
-    f = root / ".github" / "version-waivers.json"
+    f = root / "ci" / "version-waivers.json"
     if not f.exists():
         return []
     data = json.loads(f.read_text("utf-8"))
@@ -349,7 +380,7 @@ def load_waivers(root: Path, enabled: bool) -> list[dict]:
         for key in ("file", "coordinate", "reason", "owner", "expires"):
             if key not in w:
                 raise SystemExit(
-                    f"::error file=.github/version-waivers.json::waiver missing '{key}': {w!r} — "
+                    f"::error file=ci/version-waivers.json::waiver missing '{key}': {w!r} — "
                     "every waiver names a file, a coordinate, a reason, an owner and an expiry"
                 )
     return data.get("waivers", [])
@@ -398,6 +429,11 @@ def grade(claims: list[Claim], reg: Registry, waivers: list[dict], today: _dt.da
             if c.version not in reg.tap_tags:
                 wrong = (f"references tag '{c.version}', which does not exist in "
                          f"{TAP_URL} ({len(reg.tap_tags)} tags read)")
+        elif c.registry == "swift":
+            served = "(tag set)"
+            if c.version not in reg.swift_tags:
+                wrong = (f"references tag '{c.version}', which does not exist in "
+                         f"{SWIFT_URL} ({len(reg.swift_tags)} tags read)")
 
         if wrong is not None and c.kind == "SHOULD_EXIST":
             warnings.append(
@@ -424,7 +460,7 @@ def grade(claims: list[Claim], reg: Registry, waivers: list[dict], today: _dt.da
             exp = _dt.date.fromisoformat(w["expires"])
             if exp < today:
                 errors.append(
-                    f"::error file=.github/version-waivers.json::WAIVER EXPIRED {w['expires']} "
+                    f"::error file=ci/version-waivers.json::WAIVER EXPIRED {w['expires']} "
                     f"({w['owner']}) — {c.file}:{c.line} still {wrong}. "
                     f"Fix the file or renew the waiver with a new date and a reason."
                 )
@@ -441,7 +477,7 @@ def grade(claims: list[Claim], reg: Registry, waivers: list[dict], today: _dt.da
     for idx, w in enumerate(waivers):
         if idx not in used_waivers:
             errors.append(
-                f"::error file=.github/version-waivers.json::STALE WAIVER — "
+                f"::error file=ci/version-waivers.json::STALE WAIVER — "
                 f"{w['file']} / {w['coordinate']} is no longer wrong (or no longer present). "
                 f"Delete this entry; the waiver list can only shrink."
             )
@@ -479,8 +515,8 @@ def selftest(reg: Registry) -> int:
             d = Path(td)
             (d / "README.md").write_text(body, "utf-8")
             if waivers is not None:
-                (d / ".github").mkdir()
-                (d / ".github" / "version-waivers.json").write_text(
+                (d / "ci").mkdir()
+                (d / "ci" / "version-waivers.json").write_text(
                     json.dumps({"waivers": waivers}), "utf-8")
             rc = run(d, use_waivers=waivers is not None, reg=reg, quiet=True)
             ok = (rc != 0) if expect_fail else (rc == 0)
@@ -509,6 +545,8 @@ def selftest(reg: Registry) -> int:
     # 3. NEGATIVE — a pin to a tag that does not exist must be rejected.
     arm("a pin to a tap tag that does not exist",
         "    ref: flutter-plugin-v9.9.9\n", expect_fail=True)
+    arm("a SwiftPM floor at a tag the Swift package does not have",
+        '.package(url: "https://gitlab.com/bithuman/sdk/bithuman-swift.git", from: "9.9.9")\n', expect_fail=True)
     # 4. POSITIVE — the same shapes, built FROM THE LIVE REGISTRY so the
     #    control cannot itself go stale, must pass.
     arm("the live values, read from the registry seconds ago",
@@ -578,7 +616,7 @@ def main() -> int:
     ap.add_argument("--root", default=str(here), help="tree to grade (default: this repository)")
     ap.add_argument("--selftest", action="store_true", help="prove the gate can fail, then grade nothing")
     ap.add_argument("--no-waivers", action="store_true",
-                    help="ignore .github/version-waivers.json — shows the unvarnished state")
+                    help="ignore ci/version-waivers.json — shows the unvarnished state")
     ap.add_argument("--registries-only", action="store_true", help=argparse.SUPPRESS)
     args = ap.parse_args()
 

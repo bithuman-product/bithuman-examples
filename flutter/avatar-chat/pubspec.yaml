@@ -12,6 +12,8 @@ dependencies:
   # The public bitHuman umbrella plugin: the avatar texture, the one-unit audio graph, both
   # engine adapters and the UI kit. Pinned to a commit of the public tap so a clone builds
   # the same bytes on every machine; move the ref deliberately.
+  # The tap's GitHub copy is archived and stays readable forever, tags included (TARGET_ORG
+  # section 4); this pin becomes `bithuman: ^3.0.0` from pub.dev when the app moves to the 3.0 API.
   bithuman:
     git:
       url: https://github.com/bithuman-product/homebrew-bithuman.git

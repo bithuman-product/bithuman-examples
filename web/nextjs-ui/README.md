@@ -29,7 +29,7 @@ livekit-server --dev
 cd bithuman-examples/python/self-host && python agent.py dev
 
 # terminal 3: this app
-cd bithuman-examples/integrations/nextjs-ui
+cd bithuman-examples/web/nextjs-ui
 npm install
 cp env.template .env      # set NEXT_PUBLIC_LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET
 npm run dev               # http://localhost:3000
@@ -119,4 +119,4 @@ the environment variables above there. The docker-compose stacks in
 ## License
 
 Apache 2.0 — see [LICENSE](LICENSE). Contributions: [CONTRIBUTING.md](CONTRIBUTING.md).
-Issues: [bithuman-examples/issues](https://github.com/bithuman-product/bithuman-examples/issues).
+Issues: [bithuman-examples/issues](https://gitlab.com/bithuman/sdk/bithuman-examples/-/issues).

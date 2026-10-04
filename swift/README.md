@@ -6,7 +6,7 @@ device; your app passes in 16 kHz mono speech and draws the frames. The engines 
 your API secret when a session starts and report usage to bitHuman.
 
 ```swift
-.package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.20.4")
+.package(url: "https://gitlab.com/bithuman/sdk/bithuman-swift.git", from: "2.20.4")
 ```
 
 Write `2.20.1` (the current version) or at least `2.18.0`: `from:` is a floor, and older tags pin engines that behave
@@ -30,7 +30,7 @@ from your backend — see "What a shipped app holds" in the
 Start with the first row that matches the machine on your desk. Each example's
 `setup.sh` fetches what it needs and, if a download fails, says which one and what the
 server answered. [`ci/run-local.sh`](../ci/run-local.sh) is run by hand on a Mac before
-merging (GitHub Actions are off for this repository): it builds the Mac packages,
+merging (hosted CI is off for this repository): it builds the Mac packages,
 typechecks the iOS sources, and builds the two committed Xcode projects from a clean
 copy for the Simulator and a device (steps `swift-build-packages`,
 `swift-typecheck-ios`, `swift-xcodebuild-ios`).
@@ -83,7 +83,7 @@ runs in the Simulator. Both iOS projects here set
 On a Mac you can reach the same engines without Xcode, with the bitHuman CLI:
 
 ```bash
-curl -fsSL https://install.bithuman.ai | sh    # or: brew install bithuman-product/bithuman/bithuman-cli
+curl -fsSL https://install.bithuman.ai | sh    # or: brew tap bithuman/bithuman https://gitlab.com/bithuman/sdk/homebrew-bithuman && brew install bithuman/bithuman/bithuman-cli
 bithuman run
 ```
 

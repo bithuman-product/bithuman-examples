@@ -9,7 +9,7 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "bithuman",
-                 url: "https://github.com/bithuman-product/homebrew-bithuman.git",
+                 url: "https://gitlab.com/bithuman/sdk/bithuman-swift.git",
                  from: "2.20.4")
     ],
     targets: [

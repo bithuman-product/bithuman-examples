@@ -85,8 +85,8 @@ Once your first demo works, pick the path that matches what you're building:
 | A web app with a talking avatar | [python/cloud-essence/](../cloud-essence/) |
 | A voice agent on my own machine, in the browser (my own LiveKit server) | [python/self-host/](../self-host/) |
 | A Mac/iPad/iPhone app | [swift/](../../swift/) |
-| Something without writing code | [cli/](../../api/cli/) |
-| An integration in Java, Go, or another language | [rest-api/](../../api/rest-api/) |
+| Something without writing code | [cli/](../../cli/) |
+| An integration in Java, Go, or another language | [rest-api/](../../rest-api/) |
 
 ## Files in this directory
 

@@ -35,7 +35,7 @@ HOW A LINE IS ALLOWED — three ways, all narrow:
 
   * C13 on a line that also says "legacy", or anywhere under a legacy example's own
     directory (LEGACY_DIRS below; each of those READMEs opens with the notice).
-  * An entry in .github/claims-allow.json: a file, a rule id, a substring of the line
+  * An entry in ci/claims-allow.json: a file, a rule id, a substring of the line
     and a reason. An entry that matches nothing is itself a failure (STALE), so the
     list can only shrink.
   * `claims-check-ignore: <reason>` on the line itself.
@@ -58,7 +58,7 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-ALLOW_FILE = Path(".github/claims-allow.json")
+ALLOW_FILE = Path("ci/claims-allow.json")
 SELF = {Path("scripts/check_claims.py"), ALLOW_FILE}
 SKIP_NAMES = {"package-lock.json"}
 MAX_BYTES = 2_000_000
@@ -75,7 +75,7 @@ RULES: list[tuple[str, str, str]] = [
     ("C9", r"100% on-device", "'100% on-device'"),
     ("C10", r"\binternet-free\b", "'internet-free'"),
     ("C11", r"100% offline", "'100% offline'"),
-    ("C12", r"homebrew-bithuman/tree/main/Examples", "the deleted tap Examples/ path"),
+    ("C12", r"homebrew-bithuman/(?:-/)?tree/main/Examples", "the deleted tap Examples/ path"),
     ("C13", r"bitHumanKit", "bitHumanKit outside a legacy notice"),
     ("C14", r"\binstant (repl|respons)", "instant replies / responses"),
 ]

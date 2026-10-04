@@ -1,7 +1,7 @@
 #!/bin/bash
 # prove_release_ignores_dev_levers.sh — A RELEASE APK BUILT WITH EVERY DEV LEVER SET CARRIES NONE OF THEM.
 #
-# Builds app/avatar_chat twice with every dev lever set to a SENTINEL value: `--release`
+# Builds flutter/avatar-chat twice with every dev lever set to a SENTINEL value: `--release`
 # (what ships) and `--profile` (AOT too, but kReleaseMode is false — the control). The
 # sentinel must be ABSENT from the release libapp.so and PRESENT in the profile one: the
 # lever's value never entered the shipped snapshot, and the arm was looking.
@@ -12,7 +12,7 @@
 # otherwise the arm SAYS the ref predates the door rather than reading green on a lever
 # it did not grade.
 set -euo pipefail
-cd "$(dirname "$0")/../app/avatar_chat"
+cd "$(dirname "$0")/../flutter/avatar-chat"
 S=LEVER_SENTINEL_7f3a9c
 APP_DEFS=(--dart-define=BH_SCRIPT="${S}_script|${S}_two" --dart-define=BH_SCRIPT_GAP_S=7)
 PLUGIN_DEFS=(--dart-define=BH_MIC_FILE="${S}_mic" --dart-define=BITHUMAN_REALTIME_WS_URL="ws://${S}_ws" --dart-define=BITHUMAN_TRANSPORT="${S}_transport" --dart-define=BITHUMAN_DEV_STRESS=true)

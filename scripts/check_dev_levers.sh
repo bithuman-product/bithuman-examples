@@ -2,7 +2,7 @@
 # check_dev_levers.sh — the app's dev levers have ONE door, and a release build has no key.
 #
 # Every `--dart-define` that makes this app drive itself (BH_SCRIPT, BH_SCRIPT_GAP_S) is
-# declared in app/avatar_chat/lib/dev_levers.dart as `enabled && …` / `enabled ? … : …`
+# declared in flutter/avatar-chat/lib/dev_levers.dart as `enabled && …` / `enabled ? … : …`
 # with `enabled = !kReleaseMode` — a compile-time constant, so `flutter build --release`
 # folds it away. Configuration defines (credential, identity, engine, mic mode) are the
 # ALLOWED list below and stay plain. Anything else calling fromEnvironment outside the
@@ -13,12 +13,12 @@
 # since. BH_TEST_PROVISIONING is a credential-PATH define of the same class as
 # BITHUMAN_API_SECRET, not a lever: it does not make the app drive itself, it says where a
 # team handset's secret comes from, it already folds to false in a default build, and
-# app/avatar_chat/README.md documents it on a `flutter build apk --release` line. Putting it
+# flutter/avatar-chat/README.md documents it on a `flutter build apk --release` line. Putting it
 # behind `!kReleaseMode` would have silently broken that documented command, so it belongs
 # here instead.
 set -uo pipefail
 cd "$(dirname "$0")/.."
-APP=app/avatar_chat/lib
+APP=flutter/avatar-chat/lib
 DOOR=$APP/dev_levers.dart
 ALLOWED='BITHUMAN_API_SECRET|BH_TEST_PROVISIONING|AGENT_DIR|AGENT_CODE|BH_ENGINE|BH_MIC'
 BAD=0

@@ -4,8 +4,8 @@
 
 Owner directive, 2026-09-29 (~04:45Z): "disable Actions altogether as github is
 charging way too much" · "please also remove all github actions" · "instead we
-should run local tests for validation". GitHub Actions is disabled for this repo
-and no status checks are required on `main`.
+should run local tests for validation". There is no hosted CI (GitHub Actions was
+disabled; on GitLab, shared runners are off) and no status check is required on `main`.
 
 ## How to run
 
@@ -27,8 +27,10 @@ when systemd-run is available (never run suites uncapped on a prod host).
 
 ## Evidence convention (merge rule)
 
-Before merging, run `ci/run-local.sh` on the exact PR head and post a PR comment
-with the command, the sha and the PASS/FAIL lines. **Red = no merge.** A SKIP on a
+Before merging, run `ci/run-local.sh` on the exact merge-request head and post an MR
+comment with the command, the sha and the PASS/FAIL lines, then merge at that sha only
+(`glab mr merge <iid> --sha <sha> --auto-merge=false --yes`; GitLab Free has no required
+status checks, so this comment is the gate). **Red = no merge.** A SKIP on a
 step your change touches means run it on a host that has the tool.
 
 ## Where the old workflows live

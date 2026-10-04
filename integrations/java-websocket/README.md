@@ -42,7 +42,7 @@ connection.
 ### Step 2: Get This Example
 
 ```bash
-git clone https://github.com/bithuman-product/bithuman-examples.git
+git clone https://gitlab.com/bithuman/sdk/bithuman-examples.git
 cd bithuman-examples/integrations/java-websocket
 ```
 

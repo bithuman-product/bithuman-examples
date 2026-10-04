@@ -1,5 +1,5 @@
 # flutter-tests — the app's contract tests run on EVERY push and PR, not only when a
-# human remembers to. app/avatar_chat/test/window_contract_test.dart exists to stop a
+# human remembers to. flutter/avatar-chat/test/window_contract_test.dart exists to stop a
 # regression the owner accepted on his phone ("ensure we won't regress from this
 # point"); until this workflow existed this repo had ZERO CI (checks=0 on #10 and #11),
 # so that contract was a memory, not a gate.
@@ -13,7 +13,7 @@ on:
   push:
     branches: [main]
     paths: &flutter_paths
-      - 'app/avatar_chat/**'
+      - 'flutter/avatar-chat/**'
       # ★NAME THE TWO SCRIPTS, NOT THE DIRECTORY. `scripts/**` used to be this
       # app's private toolbox; it is now shared, and the first unrelated tool to
       # land there (scripts/check_published_versions.py, a 5 s registry read)
@@ -31,12 +31,12 @@ permissions:
 
 jobs:
   avatar-chat:
-    name: app/avatar_chat — flutter test (contract tests on every push)
+    name: flutter/avatar-chat — flutter test (contract tests on every push)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: app/avatar_chat
+        working-directory: flutter/avatar-chat
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -50,7 +50,7 @@ jobs:
           set -euo pipefail
           N=$(ls test/*_test.dart 2>/dev/null | wc -l | tr -d ' ')
           echo "test files: $N"; ls test/*_test.dart
-          [ "$N" -ge 1 ] || { echo "::error::no *_test.dart under app/avatar_chat/test — nothing was graded"; exit 1; }
+          [ "$N" -ge 1 ] || { echo "::error::no *_test.dart under flutter/avatar-chat/test — nothing was graded"; exit 1; }
       - name: flutter pub get (the plugin resolves from its pinned git ref)
         run: flutter pub get
       - name: flutter test
@@ -63,7 +63,7 @@ jobs:
   # `!kReleaseMode && …`; the gate below refuses a read outside that door, and the arm
   # builds the APK with every lever set to a sentinel and reads the shipped snapshot.
   dev-levers:
-    name: app/avatar_chat — dev levers have one door (source gate + controls)
+    name: flutter/avatar-chat — dev levers have one door (source gate + controls)
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -74,18 +74,18 @@ jobs:
         run: |
           set -u
           red() { if ./scripts/check_dev_levers.sh >/dev/null 2>&1; then echo "::error::$1 — the check PASSED; it is not looking"; exit 1; fi; echo "control fires: $1"; }
-          F=app/avatar_chat/lib/main.dart; cp "$F" /tmp/c1; echo "const _stray = String.fromEnvironment('BH_SCRIPT');" >> "$F"; red "stray lever outside the door"; cp /tmp/c1 "$F"
-          F=app/avatar_chat/lib/dev_levers.dart; cp "$F" /tmp/c2
+          F=flutter/avatar-chat/lib/main.dart; cp "$F" /tmp/c1; echo "const _stray = String.fromEnvironment('BH_SCRIPT');" >> "$F"; red "stray lever outside the door"; cp /tmp/c1 "$F"
+          F=flutter/avatar-chat/lib/dev_levers.dart; cp "$F" /tmp/c2
           sed -i "s/enabled ? String.fromEnvironment('BH_SCRIPT') : ''/String.fromEnvironment('BH_SCRIPT')/" "$F"; red "un-gated lever"; cp /tmp/c2 "$F"
           ./scripts/check_dev_levers.sh
 
   release-ignores-dev-levers:
-    name: app/avatar_chat — a release APK built with every lever set carries none (profile build = control)
+    name: flutter/avatar-chat — a release APK built with every lever set carries none (profile build = control)
     runs-on: ubuntu-latest
     timeout-minutes: 40
     defaults:
       run:
-        working-directory: app/avatar_chat
+        working-directory: flutter/avatar-chat
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4

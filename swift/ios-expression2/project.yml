@@ -7,7 +7,7 @@ options:
     iOS: "16.0"                      # Expression2's own floor (the package declares iOS 16)
 packages:
   bithuman:
-    url: https://github.com/bithuman-product/homebrew-bithuman.git
+    url: https://gitlab.com/bithuman/sdk/bithuman-swift.git
     from: 2.20.4                     # the version docs.bithuman.ai/versions.json names
 targets:
   IOSExpression2:

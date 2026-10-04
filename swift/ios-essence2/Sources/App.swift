@@ -1,7 +1,7 @@
 // IOSEssence2 — an Essence 2 avatar on a real iPhone, rendered on the device.
 //
 // Engine:  essence-2, via the `Essence2Kit` product of the SwiftPM package
-//          https://github.com/bithuman-product/homebrew-bithuman.git
+//          https://gitlab.com/bithuman/sdk/bithuman-swift.git
 // Inputs:  Sources/Model/agent.imx      the avatar, from the download door
 //          Sources/Model/speech16k.wav  16 kHz mono 16-bit PCM speech
 //          Sources/EngineResources      the engine's three runtime files (setup.sh)

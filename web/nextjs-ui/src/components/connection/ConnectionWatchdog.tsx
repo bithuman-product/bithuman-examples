@@ -87,7 +87,7 @@ export function ConnectionProblem({ message }: { message: string }) {
         <h2 className="mb-3 text-lg font-semibold">The avatar could not start</h2>
         <p className="mb-5 text-sm leading-relaxed text-red-100">{message}</p>
         <p className="mb-5 text-xs text-gray-400">
-          Setup: README.md in integrations/nextjs-ui (a LiveKit server and a running Python agent are required).
+          Setup: README.md in web/nextjs-ui (a LiveKit server and a running Python agent are required).
         </p>
         <button
           className="rounded-lg bg-white/10 px-4 py-2 text-sm hover:bg-white/20"

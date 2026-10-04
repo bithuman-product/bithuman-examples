@@ -21,9 +21,11 @@ Quote speed only from [docs.bithuman.ai/performance.json](https://docs.bithuman.
 ## Layout
 
 ```
-app/                                  avatar_chat/: the Flutter app. Verified on Android; its iOS
-                                      and macOS builds are not re-verified (README table).
-                                      (there is no web/ directory — the web surface is not in this repo)
+cli/                                  Command-line tools (no code): run, render, info, pull, list, doctor
+
+rest-api/                             HTTP, no SDK
+  curl/                               One curl script per endpoint
+  python/                             Full Python scripts per endpoint
 
 python/                               Python SDK examples (pip install bithuman)
   quickstart/                         First avatar in ~5 minutes (local-avatar.py, cloud-avatar.py) + terminal
@@ -32,11 +34,6 @@ python/                               Python SDK examples (pip install bithuman)
   self-host/                          Voice agent on YOUR machine: livekit-server --dev + OpenAI Realtime +
                                       the avatar rendered in-process (Essence 2 or Expression 2, CPU, no Docker)
   (other self-hosting options: docs.bithuman.ai/deploy/self-hosted)
-
-api/                                  No-SDK surfaces
-  cli/                                Command-line tools (no code): run, render, info, pull, list, doctor
-  rest-api/curl/                      One curl script per endpoint
-  rest-api/python/                    Full Python scripts per endpoint
 
 swift/                                Swift package for Apple platforms — the avatar renders on the device
   macos-expression2/                  expression-2 on a Mac: a WAV in, frames out (API secret)
@@ -47,15 +44,25 @@ swift/                                Swift package for Apple platforms — the 
   ios-avatar/                         legacy (bitHumanKit 2.4.0): source, not a runnable project
 
 android/                              Gradle + maven.bithuman.ai setup for the native Android SDKs,
-                                      (the Flutter app in app/ is the successor once its Apple engine is published)
+                                      (the Flutter app in flutter/ is the successor once its Apple engine is published)
   expression2-hello/                  expression-2 on a phone: a WAV in, frames rendered on the device, played back
   essence2-hello/                     essence-2, the same shape, full-resolution frames
 
-integrations/                         Framework and language bridges
+flutter/                              Flutter
+  avatar-chat/                        the Flutter app. Verified on Android; its iOS and macOS builds
+                                      are not re-verified (README table)
+
+web/                                  Browser front ends (the embed script and the in-browser renderer are
+                                      documented at docs.bithuman.ai/platforms/web, not shipped here)
   nextjs-ui/                          Next.js + LiveKit frontend
+
+integrations/                         Framework and language bridges
   java-websocket/                     Java WebSocket client (+ the wire protocol spec)
   gradio-web/                         Gradio + FastRTC browser UI (pure Python)
   offline-mac/                        a local conversation brain on a Mac (Ollama + Apple Speech); online for the avatar
+
+challenges/                           Builder Challenge rules, one directory per round (entries: GitLab issues
+                                      from .gitlab/issue_templates/challenge-entry.md; Challenge #0 ran on GitHub)
 ```
 
 ## For AI coding agents
@@ -69,13 +76,13 @@ If you are an AI agent wiring bitHuman into a user's codebase:
 | "Never used this before" | [python/quickstart/](python/quickstart/) | One script, sample model auto-downloads |
 | "Web app, fastest demo" | [python/cloud-essence/](python/cloud-essence/) | LiveKit plugin, no GPU, no model files |
 | "Web app, custom face" | [python/cloud-essence/](python/cloud-essence/) (Expression agent) | Same plugin, any face image |
-| "Talk to an avatar on my machine" | `bithuman run wise-pup` ([api/cli/](api/cli/)), or [python/self-host/](python/self-host/) for your own agent code | One command; or ~70 lines of LiveKit Agents, rendered in-process |
+| "Talk to an avatar on my machine" | `bithuman run wise-pup` ([cli/](cli/)), or [python/self-host/](python/self-host/) for your own agent code | One command; or ~70 lines of LiveKit Agents, rendered in-process |
 | "Kiosk / 24/7 / edge box" | [python/self-host/](python/self-host/) | CPU only, your own LiveKit server |
 | "On-prem servers" | [docs: your servers](https://docs.bithuman.ai/deploy/self-hosted) | your Mac or Linux machines, no GPU needed |
 | "Mac/iPad/iPhone app" | [swift/macos-expression2/](swift/macos-expression2/), [swift/ios-expression2/](swift/ios-expression2/) or [swift/ios-essence2/](swift/ios-essence2/) | Renders on the device; needs an API secret |
 | "Android app" | [android/](android/) | maven.bithuman.ai coordinates + the `google()` repo trap |
-| "Mac, no code" | `brew install bithuman-product/bithuman/bithuman-cli` → see [api/cli/](api/cli/) | 30 seconds |
-| "REST API, any language" | [api/rest-api/curl/](api/rest-api/curl/) | Just curl |
+| "Mac, no code" | `brew tap bithuman/bithuman https://gitlab.com/bithuman/sdk/homebrew-bithuman && brew install bithuman/bithuman/bithuman-cli` → see [cli/](cli/) | 30 seconds |
+| "REST API, any language" | [rest-api/curl/](rest-api/curl/) | Just curl |
 | "A local brain on a Mac" | [integrations/offline-mac/](integrations/offline-mac/) | Ollama + Apple Speech; the avatar still checks the API secret online |
 | "Offline, no internet" | [docs: fully offline](https://docs.bithuman.ai/deploy/offline) | Business and Enterprise, Linux and macOS computers (Apple silicon), bought in the console or through sales |
 
@@ -96,13 +103,13 @@ An example that calls the same thing three names is an example nobody can search
 | The credential | "API secret"; `BITHUMAN_API_SECRET`; header `api-secret`; in a LiveKit worker `BITHUMAN_MASTER_SECRET` | "API secret"; BITHUMAN_API_KEY (a deprecated alias, still read — never write it); `BITHUMAN_API_TOKEN`, `BITHUMAN_RUNTIME_TOKEN` (tokens minted per call are passed per call, never through the environment) |
 | Python entry | `bithuman.open(...)` → `Avatar.render(...)` — the taught surface of the published wheel. For LiveKit and other `bithuman<3` callers, `AsyncBithuman`. | `AsyncAvatar` — it exists and works, but the wheel's own source calls it an alias of the compatibility class, so it is the third-choice name for a teaching example |
 | The Python package | `bithuman` on PyPI | `bithuman-cli` — **retired on PyPI and it will not come back**; the CLI ships only via the tap formula, the tap's `install.sh`, or a release tarball |
-| The Swift package | `Expression2` or `Essence2Kit`, from `homebrew-bithuman.git` | a local path, a vendored copy; the legacy `bitHumanKit` for a new app |
+| The Swift package | `Expression2` or `Essence2Kit`, from `https://gitlab.com/bithuman/sdk/bithuman-swift.git` (SwiftPM identity `bithuman-swift`) | a local path, a vendored copy; the legacy `bitHumanKit` for a new app |
 
 ### Versions
 
-★No file in this repository may advertise a version the registry does not serve, and the top-level README carries no version literal at all. `scripts/check_published_versions.py` reads bitHuman's Maven repository (maven.bithuman.ai), PyPI and the tap's tag list — never a local checkout — and `ci/run-local.sh` runs it before every merge (step `published-versions`; run it periodically too, since GitHub Actions is off), because the failure it guards against takes no commit: `android/README.md` sat thirteen releases behind while nobody touched it. It carries eleven controls (`--selftest`) proving it can go red — including one proving an unreachable registry exits non-zero instead of passing, and three on the waiver ledger's own rules, which were wrong when first written.
+★No file in this repository may advertise a version the registry does not serve, and the top-level README carries no version literal at all. `scripts/check_published_versions.py` reads bitHuman's Maven repository (maven.bithuman.ai), PyPI, the tap's tag list and the Swift package's tags — never a local checkout — and `ci/run-local.sh` runs it before every merge (step `published-versions`; run it periodically too, since there is no hosted CI), because the failure it guards against takes no commit: `android/README.md` sat thirteen releases behind while nobody touched it. It carries eleven controls (`--selftest`) proving it can go red — including one proving an unreachable registry exits non-zero instead of passing, and three on the waiver ledger's own rules, which were wrong when first written.
 
-Two escapes, both narrow: `<!-- version-check-ignore: reason -->` on a line whose old number is the point (a dated measurement), and `.github/version-waivers.json` for a defect in a lane you do not own — every waiver carries an owner, a reason and an expiry, and an expired one is a hard failure.
+Two escapes, both narrow: `<!-- version-check-ignore: reason -->` on a line whose old number is the point (a dated measurement), and `ci/version-waivers.json` for a defect in a lane you do not own — every waiver carries an owner, a reason and an expiry, and an expired one is a hard failure.
 
 ### Machine-readable
 
@@ -111,10 +118,10 @@ Two escapes, both narrow: `<!-- version-check-ignore: reason -->` on a line whos
 
 ### What NOT to do
 
-- Don't tell anyone `homebrew-bithuman.git` is *only* a Homebrew tap. It is **both**: the tap that installs the `bithuman-cli` formula **and** the SwiftPM binary package. `.package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: …)` is the correct and only way to depend on the Swift products (`Expression2`, `Essence2Kit`, `Essence2`) — it is what `swift/README.md` and every `Package.swift` in `swift/` already do, and what the `swift-typecheck-ios` step of `ci/run-local.sh` fetches its xcframeworks from. (This line used to say the opposite, and contradicted every Swift example in this repository.)
+- Don't name the tap as a Swift package. The Swift products (`Expression2`, `Essence2Kit`, `Essence2`) come from `.package(url: "https://gitlab.com/bithuman/sdk/bithuman-swift.git", from: …)`, SwiftPM identity `bithuman-swift`: one URL that resolves every release, 2.x included. That is what `swift/README.md` and every `Package.swift` in `swift/` do. `homebrew-bithuman` is the Homebrew tap and `install.sh` only; its archived GitHub copy keeps serving 2.x to existing pins, and a GitLab `homebrew-bithuman.git` is never a Swift package URL. The `swift-typecheck-ios` step of `ci/run-local.sh` fetches its xcframeworks from https://downloads.bithuman.ai/homebrew-bithuman/<tag>/.
 - Don't clone Swift SDK source or reference apps — both private. Consume the published binary.
 - Don't hardcode your API secret. Use env vars — never argv either (`ps` shows it).
-- **Don't write a version number from memory.** Read it from the registry: maven.bithuman.ai's `maven-metadata.xml`, PyPI's JSON API, `git ls-remote --tags` on the tap. `scripts/check_published_versions.py` is the authority and `ci/run-local.sh` fails on a version the registry does not serve — see "Versions" below.
-- Don't point users at `web/` — there is no such directory; the web path is one iframe ([Web](https://docs.bithuman.ai/platforms/web)). `app/avatar_chat/` is verified on Android only (see README, "Known gaps"). Point Apple developers at `swift/`.
+- **Don't write a version number from memory.** Read it from the registry: maven.bithuman.ai's `maven-metadata.xml`, PyPI's JSON API, `git ls-remote --tags` on the tap, or on `https://gitlab.com/bithuman/sdk/bithuman-swift.git` for the Swift package. `scripts/check_published_versions.py` is the authority and `ci/run-local.sh` fails on a version the registry does not serve — see "Versions" below.
+- Don't present `web/nextjs-ui/` as the web SDK: it is a front end for a LiveKit agent. The web path for most people is one iframe ([Web](https://docs.bithuman.ai/platforms/web)). `flutter/avatar-chat/` is verified on Android only (see README, "Known gaps"). Point Apple developers at `swift/`.
 - Don't put a secret in `--dart-define` or a Gradle `BuildConfig` field in anything a user is told to ship: both land in build argv and in the built binary. Local development only. For anything distributed, follow "What a shipped app holds" in the README: fetch the secret from your backend at startup, one secret per app, rotate on unusual usage.
 - Don't add a relative link without checking it resolves from the file's own directory. These examples were moved out of `homebrew-bithuman/Examples/`, so paths that read plausibly may no longer exist.

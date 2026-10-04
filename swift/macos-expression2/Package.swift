@@ -8,12 +8,12 @@ let package = Package(
     // is not verified to run there.
     platforms: [.macOS(.v14)],
     dependencies: [
-        .package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.20.4")
+        .package(url: "https://gitlab.com/bithuman/sdk/bithuman-swift.git", from: "2.20.4")
     ],
     targets: [
         .executableTarget(
             name: "MacOSExpression2",
-            dependencies: [.product(name: "Expression2", package: "homebrew-bithuman")],
+            dependencies: [.product(name: "Expression2", package: "bithuman-swift")],
             path: "Sources"
         )
     ]

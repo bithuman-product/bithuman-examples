@@ -14,21 +14,21 @@ If you find a bug or have a suggestion for improvement:
 4. **Include steps to reproduce** the issue if it's a bug
 5. **Add screenshots** or code examples if helpful
 
-### Submitting Pull Requests
+### Submitting Merge Requests
 
 1. **Fork the repository** and create your branch from `main`
 2. **Install dependencies** with `npm install`
 3. **Make your changes** following our coding standards
 4. **Test your changes** thoroughly
 5. **Update documentation** if necessary
-6. **Submit a pull request** with a clear description
+6. **Open a merge request** with a clear description
 
 ### Development Setup
 
 ```bash
-# Clone your fork
-git clone https://github.com/bithuman-product/bithuman-examples.git
-cd bithuman-examples/integrations/nextjs-ui
+# Clone your fork (or the project)
+git clone https://gitlab.com/bithuman/sdk/bithuman-examples.git
+cd bithuman-examples/web/nextjs-ui
 
 # Install dependencies
 npm install
@@ -70,11 +70,11 @@ docs: update installation instructions
 style: improve button hover animations
 ```
 
-### Pull Request Process
+### Merge Request Process
 
 1. **Update README.md** if you're changing functionality
 2. **Add/update tests** for new features
-3. **Ensure CI passes** (linting, type checking, build)
+3. **Run the checks locally** (linting, type checking, build; `ci/run-local.sh` at the repo root)
 4. **Request review** from maintainers
 5. **Address feedback** promptly
 
@@ -154,8 +154,7 @@ npm run build
 
 ### Getting Help
 
-- **GitHub Issues** - For bugs and feature requests
-- **GitHub Discussions** - For questions and community chat
+- **[GitLab issues](https://gitlab.com/bithuman/sdk/bithuman-examples/-/issues)** - For bugs, feature requests and questions
 - **[bitHuman Discord](https://discord.gg/x3tMhJvX4X)** - For real-time community support
 - **Documentation** - Check the README and docs first
 

@@ -8,14 +8,14 @@ agent code (the public sample `A23WJF0199` works).
 
 - Docker with Compose (the full stack below), or Python 3.10–3.14 and your own LiveKit server for `agent.py` alone
 - bitHuman API secret ([www.bithuman.ai](https://www.bithuman.ai/developer/api-keys) → Developer → API Secrets)
-- An agent code: the public sample `A23WJF0199`, or your own (create one at [www.bithuman.ai](https://www.bithuman.ai) or via [`rest-api/`](../../api/rest-api/python/generation.py))
+- An agent code: the public sample `A23WJF0199`, or your own (create one at [www.bithuman.ai](https://www.bithuman.ai) or via [`rest-api/`](../../rest-api/python/generation.py))
 - OpenAI API key (for `agent.py`)
 
 ## Quick Start (Full Stack)
 
 ```bash
 # 1. Clone and enter the directory
-git clone https://github.com/bithuman-product/bithuman-examples.git
+git clone https://gitlab.com/bithuman/sdk/bithuman-examples.git
 cd bithuman-examples/python/cloud-essence
 
 # 2. Create your .env file

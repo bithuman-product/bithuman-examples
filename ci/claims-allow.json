@@ -43,7 +43,7 @@
       "reason": "the README quotes MainActivity.kt, including this comment"
     },
     {
-      "file": "app/avatar_chat/lib/main.dart",
+      "file": "flutter/avatar-chat/lib/main.dart",
       "rule": "C2",
       "contains": "'this account has no credits remaining'",
       "reason": "the text the app shows when the service refuses a session for an empty balance"

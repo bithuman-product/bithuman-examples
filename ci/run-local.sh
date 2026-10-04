@@ -109,9 +109,9 @@ step_dev_levers() {
   cd "$d/wt"; git -C "$ROOT" worktree prune
   ./scripts/check_dev_levers.sh
   red() { if ./scripts/check_dev_levers.sh >/dev/null 2>&1; then echo "control did NOT fire: $1 (the check is not looking)"; return 1; fi; echo "control fires: $1"; }
-  local F=app/avatar_chat/lib/main.dart; cp "$F" "$d/c1"
+  local F=flutter/avatar-chat/lib/main.dart; cp "$F" "$d/c1"
   echo "const _stray = String.fromEnvironment('BH_SCRIPT');" >> "$F"; red "stray lever outside the door"; cp "$d/c1" "$F"
-  F=app/avatar_chat/lib/dev_levers.dart; cp "$F" "$d/c2"
+  F=flutter/avatar-chat/lib/dev_levers.dart; cp "$F" "$d/c2"
   sed -i.bak "s/enabled ? String.fromEnvironment('BH_SCRIPT') : ''/String.fromEnvironment('BH_SCRIPT')/" "$F"; rm -f "$F.bak"
   red "un-gated lever"; cp "$d/c2" "$F"
   ./scripts/check_dev_levers.sh
@@ -119,9 +119,9 @@ step_dev_levers() {
 }
 step_flutter_test() {
   have flutter || skip_step "flutter not installed"
-  cd app/avatar_chat
+  cd flutter/avatar-chat
   local n; n=$(ls test/*_test.dart 2>/dev/null | wc -l | tr -d ' ')
-  echo "test files: $n"; [ "$n" -ge 1 ] || { echo "no *_test.dart under app/avatar_chat/test"; return 1; }
+  echo "test files: $n"; [ "$n" -ge 1 ] || { echo "no *_test.dart under flutter/avatar-chat/test"; return 1; }
   flutter --version; flutter pub get; flutter test --reporter expanded
 }
 android_ready() { have java && [ -n "${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}" ] && [ -d "${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}" ]; }
@@ -140,7 +140,7 @@ step_android_examples() {
 }
 step_release_ignores_dev_levers() {
   have flutter && android_ready || skip_step "needs flutter + JDK 17 + an Android SDK"
-  cd app/avatar_chat && bash ../../scripts/prove_release_ignores_dev_levers.sh
+  cd flutter/avatar-chat && bash ../../scripts/prove_release_ignores_dev_levers.sh
 }
 need_mac() { [ "$(uname -s)" = Darwin ] && have xcrun || skip_step "macOS host with Xcode needed"; }
 step_swift_typecheck_ios() {

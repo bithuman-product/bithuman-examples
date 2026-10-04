@@ -23,14 +23,15 @@ Find the row that matches what you are building and open that directory. Each on
 | You are building | Open | Where it runs |
 |---|---|---|
 | **Anything — first time** | [`python/quickstart/`](python/quickstart/) | your machine, CPU. One script; the sample avatar downloads itself. |
-| **Talk to an avatar on my machine** | [`api/cli/`](api/cli/) — one command, `bithuman run wise-pup` · [`python/self-host/`](python/self-host/) — your own agent code | your machine: your LiveKit server, OpenAI Realtime on your key, the avatar rendered locally |
+| **Talk to an avatar on my machine** | [`cli/`](cli/) — one command, `bithuman run wise-pup` · [`python/self-host/`](python/self-host/) — your own agent code | your machine: your LiveKit server, OpenAI Realtime on your key, the avatar rendered locally |
 | A Python service or a LiveKit agent | [`python/`](python/) | your own CPU box, or the bitHuman cloud |
 | A Mac, iPhone or iPad app | [`swift/`](swift/) | on the device; the engine checks your API secret when a session starts |
 | An Android app | [`android/essence2-hello/`](android/essence2-hello/) · [`android/expression2-hello/`](android/expression2-hello/) | on-device: two complete Gradle projects that build from a clone, with the SDK from bitHuman's Maven repository, maven.bithuman.ai ([Android: Essence 2](https://docs.bithuman.ai/examples/android-essence-2) · [Android: Expression 2](https://docs.bithuman.ai/examples/android-expression-2)) |
-| A Flutter app | [`app/avatar_chat/`](app/avatar_chat/) | Android; its iOS and macOS builds are not verified yet — see [Known gaps](#known-gaps) |
-| Something in another language | [`api/rest-api/`](api/rest-api/) | HTTP — curl scripts and Python, one per endpoint |
-| A demo with no code at all | [`api/cli/`](api/cli/) | the `bithuman` command |
-| Next.js, Gradio, Java, or a local conversation brain on a Mac | [`integrations/`](integrations/) | varies — one README each |
+| A Flutter app | [`flutter/avatar-chat/`](flutter/avatar-chat/) | Android; its iOS and macOS builds are not verified yet — see [Known gaps](#known-gaps) |
+| Something in another language | [`rest-api/`](rest-api/) | HTTP — curl scripts and Python, one per endpoint |
+| A demo with no code at all | [`cli/`](cli/) | the `bithuman` command |
+| A web front end (Next.js) for a LiveKit avatar agent | [`web/nextjs-ui/`](web/nextjs-ui/) | the browser, talking to your LiveKit agent |
+| Gradio, Java, or a local conversation brain on a Mac | [`integrations/`](integrations/) | varies — one README each |
 
 ## See them running
 
@@ -39,7 +40,7 @@ Each of these was built from this repository and run on a real device with the p
 | | Example | Runs on | Docs page |
 |---|---|---|---|
 | <img src="https://docs.bithuman.ai/examples/web-embed/poster.webp" width="96" alt="Web embed"> | an iframe (no folder needed) | any browser | [Web](https://docs.bithuman.ai/platforms/web#complete-example) |
-| <img src="https://docs.bithuman.ai/examples/cli-linux/poster.webp" width="96" alt="CLI render"> | [`api/cli/`](api/cli/) | macOS, Linux | [CLI](https://docs.bithuman.ai/platforms/cli#complete-example) |
+| <img src="https://docs.bithuman.ai/examples/cli-linux/poster.webp" width="96" alt="CLI render"> | [`cli/`](cli/) | macOS, Linux | [CLI](https://docs.bithuman.ai/platforms/cli#complete-example) |
 | <img src="https://docs.bithuman.ai/examples/python-macos/poster.webp" width="96" alt="Python window"> | [`python/quickstart/`](python/quickstart/) | macOS, Linux | [Python](https://docs.bithuman.ai/platforms/python#complete-example) |
 | <img src="https://docs.bithuman.ai/examples/ios-expression-2/poster.webp" width="96" alt="iPhone frame"> | [`swift/ios-expression2/`](swift/ios-expression2/) | iPhone, iPad | [iOS: Expression 2](https://docs.bithuman.ai/examples/ios-expression-2) |
 | <img src="https://docs.bithuman.ai/examples/macos-expression-2/poster.webp" width="96" alt="Mac frame"> | [`swift/macos-expression2/`](swift/macos-expression2/) | Mac | [macOS](https://docs.bithuman.ai/examples/macos-expression-2) |
@@ -82,14 +83,14 @@ Your API secret belongs in the environment or an untracked `.env`, never in a co
 
 Said plainly here so you do not find them halfway through a build:
 
-- **`app/avatar_chat/` is verified on Android only.** Android builds from a clone: every engine it needs is a public Maven Central coordinate. Its iOS and macOS builds have not been re-verified; for a working Apple app today use [`swift/`](swift/), which builds against the public Swift package.
+- **`flutter/avatar-chat/` is verified on Android only.** Android builds from a clone: every engine it needs is a public coordinate on bitHuman's Maven repository, maven.bithuman.ai. Its iOS and macOS builds have not been re-verified; for a working Apple app today use [`swift/`](swift/), which builds against the public Swift package.
 - **`swift/hello-voice-chat/`, `swift/macos-voice/` and `swift/ios-avatar/` are legacy.** They use `bitHumanKit` 2.4.0, the frozen first-generation Apple package. New apps start from `macos-expression2`, `ios-expression2` or `ios-essence2`.
-- **There is no `web/` directory.** The web surface is not in this repository.
+- **`web/` holds one example, [`web/nextjs-ui/`](web/nextjs-ui/)**: a browser front end for a LiveKit avatar agent. The embed script and the in-browser renderer are not in this repository; see [Web](https://docs.bithuman.ai/platforms/web).
 - **Every `swift/` example here builds.** The ones that had rotted against removed SDK APIs were deleted rather than left to mislead, and the `swift-build-packages` step of [`ci/run-local.sh`](ci/run-local.sh) holds no exemption list — so a package that stops building fails the step instead of joining a list.
 
 ## Keeping this honest
 
-This file deliberately contains no version numbers — a number written down here is a number that goes stale in silence. Versions live in the directory that uses them, and [`scripts/check_published_versions.py`](scripts/check_published_versions.py) reads Maven Central, PyPI and the public tap before every merge ([`ci/run-local.sh`](ci/run-local.sh)), and fails when a file advertises a version the registry does not serve. See [AGENTS.md](AGENTS.md).
+This file deliberately contains no version numbers — a number written down here is a number that goes stale in silence. Versions live in the directory that uses them, and [`scripts/check_published_versions.py`](scripts/check_published_versions.py) reads maven.bithuman.ai, PyPI, the public tap and the Swift package's tags before every merge ([`ci/run-local.sh`](ci/run-local.sh)), and fails when a file advertises a version the registry does not serve. See [AGENTS.md](AGENTS.md).
 
 [`scripts/check_claims.py`](scripts/check_claims.py) refuses claims the product cannot back (a free plan for building apps, idle time billed as free, offline Macs or phones, the legacy Swift package presented as current), and [`scripts/check_links.py`](scripts/check_links.py) checks that every bitHuman link here resolves, anchors included. Both run before every merge ([`ci/run-local.sh`](ci/run-local.sh), see [`ci/README.md`](ci/README.md)), and each proves it can fail before it grades anything.
 
@@ -107,7 +108,7 @@ They remain archived and read-only; nothing new lands in them.
 - [bithuman-archive/public-livekit-ui-example](https://github.com/bithuman-archive/public-livekit-ui-example)
 - bithuman-labs/local-deployment-examples _(private)_
 - [bithuman-ai/sdk-examples-python](https://github.com/bithuman-ai/sdk-examples-python)
-- [bithuman-product/bithuman-sdk-public](https://github.com/bithuman-product/bithuman-sdk-public)
+- [bithuman-archive/bithuman-sdk-public](https://github.com/bithuman-archive/bithuman-sdk-public)
 
 </details>
 

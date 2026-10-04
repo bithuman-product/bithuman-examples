@@ -33,8 +33,8 @@ export BITHUMAN_API_SECRET="${BITHUMAN_API_SECRET:?Set BITHUMAN_API_SECRET first
 
 # Install the CLI (the curl installer is the channel that works on Linux; the
 # CLI is not on PyPI — `pip install bithuman-cli` 404s):
-#   curl -fsSL https://raw.githubusercontent.com/bithuman-product/homebrew-bithuman/main/install.sh | sh
-#   brew install bithuman-product/bithuman/bithuman-cli      # macOS
+#   curl -fsSL https://install.bithuman.ai | sh
+#   brew tap bithuman/bithuman https://gitlab.com/bithuman/sdk/homebrew-bithuman && brew install bithuman/bithuman/bithuman-cli      # macOS
 
 MODEL="${1:?Usage: ./render-video.sh <expression-2 model.imx>}"
 OUT="${2:-demo.mp4}"
@@ -48,7 +48,7 @@ OUT="${2:-demo.mp4}"
 # exits 0, and the file it leaves behind is 14 bytes.
 if [ ! -f speech.wav ]; then
   curl -fsSLo speech.wav \
-    https://raw.githubusercontent.com/bithuman-product/bithuman-examples/main/python/quickstart/speech.wav
+    https://gitlab.com/bithuman/sdk/bithuman-examples/-/raw/main/python/quickstart/speech.wav
 fi
 
 # A WAV is 44 bytes of header before a single sample, so anything this small is

@@ -11,7 +11,7 @@ avatar rendered locally — no GPU needed. The avatar name picks the model.
 
 ```bash
 # 1. Install (both bring livekit-server)
-brew install bithuman-product/bithuman/bithuman-cli      # macOS, Apple silicon
+brew tap bithuman/bithuman https://gitlab.com/bithuman/sdk/homebrew-bithuman && brew install bithuman/bithuman/bithuman-cli      # macOS, Apple silicon
 sudo apt install -y ffmpeg python3-venv                   # Linux: Essence 2 and the voice agent need these
 curl -fsSL https://install.bithuman.ai | sh               # Linux x86_64 / aarch64
 
@@ -56,15 +56,15 @@ on Linux run the `apt` line above), and `run` needs **livekit-server 1.13
 or newer** (`brew upgrade livekit` on macOS).
 
 Want your own agent code instead of the built-in voice agent? See
-[python/self-host](../../python/self-host/): the same conversation as a
+[python/self-host](../python/self-host/): the same conversation as a
 70-line LiveKit Agents program on your own LiveKit server.
 
 ## Install
 
 The CLI is one self-contained binary on a Homebrew tap and as a prebuilt
 download for every supported platform (see the commands above). Prebuilt
-binaries are also attached to each
-[release](https://github.com/bithuman-product/homebrew-bithuman/releases).
+binaries for every release are listed on the
+[downloads page](https://docs.bithuman.ai/downloads).
 The CLI is not on PyPI: `pip install bithuman` installs the Python library.
 
 Every command that renders needs your API secret — `bithuman login`, or

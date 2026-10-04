@@ -175,8 +175,7 @@ The docs pages [Android example: Expression 2](https://docs.bithuman.ai/examples
 and [Android example: Essence 2](https://docs.bithuman.ai/examples/android-essence-2)
 send readers to the two projects above, with the apps running on a Galaxy S25+.
 Both projects are built, and their JVM unit tests run, by hand before merging with
-the `android-examples` step of [`ci/run-local.sh`](../ci/run-local.sh) (GitHub
-Actions are off for this repository).
+the `android-examples` step of [`ci/run-local.sh`](../ci/run-local.sh) (hosted CI is off for this repository).
 
 ## Live microphone input
 
@@ -206,5 +205,5 @@ never moves. Record at 16 kHz mono (`AudioFormat.ENCODING_PCM_FLOAT` for Express
 - [Android troubleshooting](https://docs.bithuman.ai/platforms/android/troubleshooting)
 - [Android API reference](https://docs.bithuman.ai/platforms/android/reference) — every public
   class, regenerated daily from the AARs Maven Central serves
-- [`app/avatar_chat`](../app/avatar_chat/) — the one clonable app in this
+- [`flutter/avatar-chat`](../flutter/avatar-chat/) — the one clonable app in this
   repository that runs on an Android handset

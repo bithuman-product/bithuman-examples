@@ -3,7 +3,7 @@
 #
 # claims  scripts/check_claims.py refuses the sentences the product cannot back (a free-plan
 #         promise, idle billed as free, offline Macs, the legacy Swift umbrella shown as
-#         current, ...). Allowed exceptions live in .github/claims-allow.json, each with a
+#         current, ...). Allowed exceptions live in ci/claims-allow.json, each with a
 #         reason; an entry that matches nothing fails.
 # links   scripts/check_links.py fetches every docs.bithuman.ai / www.bithuman.ai URL
 #         (redirects followed, final answer 200, #anchors checked on docs pages) and
