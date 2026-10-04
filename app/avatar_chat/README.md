@@ -9,7 +9,7 @@ every platform (`package:bithuman/ui_kit.dart`).
 | platform | from a clone | why |
 |---|---|---|
 | **Android** | **builds** — `flutter build apk` | every engine it needs is a public coordinate on bitHuman's Maven repository (`https://maven.bithuman.ai`, which the plugin declares), resolved anonymously by Gradle: `ai.bithuman:expression2-android` and `ai.bithuman:essence2-android`, both pulled in by the plugin this app pins. |
-| **iOS / macOS** | **not yet verified for this app** | since plugin 2.6.20 the Apple half links the published engines (a new Flutter app builds for iOS 16+ and, from plugin 2.6.36, macOS 26+ after the plugin's `scripts/bootstrap.sh`), but this app's own iOS/macOS build has not been re-run; for Apple today, build `swift/` in this repository |
+| **iOS / macOS** | **not yet verified for this app** | since plugin 2.6.20 the Apple half links the published engines (a new Flutter app builds for iOS 16.4+ and macOS 14+ from plugin 2.6.37, after the plugin's `scripts/bootstrap.sh`; an app that runs on macOS 14 bundles an ONNX Runtime built for it, since Homebrew's is built for macOS 15), but this app's own iOS/macOS build has not been re-run; for Apple today, build `swift/` in this repository |
 
 That table is the whole truth of this directory. Nothing here fails silently: the build
 stops at the dependency it cannot resolve, and the row above names it.
@@ -19,7 +19,7 @@ stops at the dependency it cannot resolve, and the row above names it.
 ### Which engine the Android app runs
 
 The plugin is pinned by tag in `pubspec.yaml`, and that tag fixes the engine versions.
-This app pins **`flutter-plugin-v2.6.36`**.
+This app pins **`flutter-plugin-v2.6.37`**.
 On Android that tag resolves `ai.bithuman:essence2-android` and `ai.bithuman:expression2-android`
 at the versions the plugin release pins, from bitHuman's Maven repository (the plugin's CHANGELOG
 names them). The voice
