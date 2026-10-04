@@ -19,8 +19,10 @@ stops at the dependency it cannot resolve, and the row above names it.
 ### Which engine the Android app runs
 
 The plugin is pinned by tag in `pubspec.yaml`, and that tag fixes the engine versions.
-This app pins **`flutter-plugin-v2.6.36`**, which resolves **`ai.bithuman:essence2-android:0.9.4`**
-and **`ai.bithuman:expression2-android:0.6.0`** from bitHuman's Maven repository. The voice
+This app pins **`flutter-plugin-v2.6.36`**.
+On Android that tag resolves `ai.bithuman:essence2-android` and `ai.bithuman:expression2-android`
+at the versions the plugin release pins, from bitHuman's Maven repository (the plugin's CHANGELOG
+names them). The voice
 session goes through bitHuman's realtime relay (since 2.6.20): the app passes your API secret
 and mints no token.
 
