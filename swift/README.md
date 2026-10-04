@@ -6,7 +6,7 @@ device; your app passes in 16 kHz mono speech and draws the frames. The engines 
 your API secret when a session starts and report usage to bitHuman.
 
 ```swift
-.package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.20.1")
+.package(url: "https://github.com/bithuman-product/homebrew-bithuman.git", from: "2.20.2")
 ```
 
 Write `2.20.1` (the current version) or at least `2.18.0`: `from:` is a floor, and older tags pin engines that behave
