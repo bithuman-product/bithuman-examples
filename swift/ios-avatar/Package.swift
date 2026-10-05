@@ -8,8 +8,8 @@ let package = Package(
         .iOS("26.0")
     ],
     dependencies: [
-        .package(url: "https://github.com/bithuman-product/homebrew-bithuman.git",
-                 from: "2.20.4")
+        .package(url: "https://gitlab.com/bithuman/sdk/homebrew-bithuman",
+                 from: "2.20.5")
     ],
     targets: [
         .executableTarget(
