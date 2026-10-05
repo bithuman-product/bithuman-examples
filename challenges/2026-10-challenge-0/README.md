@@ -1,3 +1,5 @@
+This page has moved: https://gitlab.com/bithuman/sdk/bithuman-examples/-/tree/main/challenges/2026-10-challenge-0 — the winners list is kept there.
+
 # Builder Challenge #0: give a showcase character a job
 
 **Entries: 00:00 UTC Tuesday, October 6, 2026 to 23:59 UTC Sunday, October 11, 2026.**
