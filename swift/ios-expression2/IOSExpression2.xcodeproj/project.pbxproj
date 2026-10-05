@@ -346,10 +346,10 @@
 /* Begin XCRemoteSwiftPackageReference section */
 		C2FE0B1E9030F5CF3DE5CBDC /* XCRemoteSwiftPackageReference "homebrew-bithuman" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bithuman-product/homebrew-bithuman.git";
+			repositoryURL = "https://gitlab.com/bithuman/sdk/homebrew-bithuman";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.20.4;
+				minimumVersion = 2.20.5;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

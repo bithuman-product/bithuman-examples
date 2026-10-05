@@ -100,8 +100,10 @@ from pathlib import Path
 # (exclusiveContent), so Central's <release> would read as stale.
 MAVEN_BASE = os.environ.get("BH_VERSION_CHECK_MAVEN_BASE", "https://maven.bithuman.ai")
 PYPI_BASE = os.environ.get("BH_VERSION_CHECK_PYPI_BASE", "https://pypi.org/pypi")
+# The tap (Swift package + Flutter plugin tags) is canonical on GitLab since 2026-10-05; the archived
+# GitHub copy stops at the tags it had then (Swift v2.20.4).
 TAP_URL = os.environ.get(
-    "BH_VERSION_CHECK_TAP_URL", "https://github.com/bithuman-product/homebrew-bithuman.git"
+    "BH_VERSION_CHECK_TAP_URL", "https://gitlab.com/bithuman/sdk/homebrew-bithuman.git"
 )
 
 # Maven artifacts under the ai.bithuman group that documents may name.

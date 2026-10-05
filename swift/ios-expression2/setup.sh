@@ -52,7 +52,7 @@ fetch Sources/Model/agent.imx \
 #    per avatar, anonymous. The `mac` engine file is the right one for iPhone too.
 echo "==> downloading the shared engine"
 fetch Sources/Model/shared-engine.imx \
-  "https://github.com/bithuman-product/homebrew-bithuman/releases/download/expression2-engine-mac-arm64-1.0.0/mac-arm64-1.0.0.engine"
+  "https://downloads.bithuman.ai/homebrew-bithuman/expression2-engine-mac-arm64-1.0.0/mac-arm64-1.0.0.engine"
 
 # 3. something for it to say: 16 kHz mono, one file out of the avatar's own
 #    bundle (`member=`), through the same door and with the same credential.
